@@ -41,6 +41,8 @@ GA4 and Google Search Console are wired but not activated yet. Add the real GA4 
 
 Requested admin email: `geompcherson@gmail.com`.
 
+GA4 handoff state: Chrome is open at Google Analytics setup with account name `Do Stuff and Have Fun`, property name `dostuffandhavefun.com`, industry `Arts & Entertainment`, business size `Small - 1 to 10 employees`, and objectives `Understand web and/or app traffic` plus `View user engagement & retention`. The next action must be the user accepting Google's Analytics Terms of Service. Codex must not click `I Accept` for the user.
+
 See `deploy/google-youtube-setup.md` for the full setup checklist.
 
 ## Deployment Safety

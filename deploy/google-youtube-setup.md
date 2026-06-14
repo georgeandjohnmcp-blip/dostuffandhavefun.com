@@ -26,6 +26,17 @@ The scheduled GitHub workflow `.github/workflows/update-youtube.yml` runs twice 
 
 ## GA4 Setup
 
+Current handoff state:
+
+- Chrome is open at the Google Analytics setup flow.
+- Account name is filled as `Do Stuff and Have Fun`.
+- Property name is filled as `dostuffandhavefun.com`.
+- Industry is `Arts & Entertainment`.
+- Business size is `Small - 1 to 10 employees`.
+- Objectives selected: `Understand web and/or app traffic` and `View user engagement & retention`.
+- The Google Analytics Terms of Service dialog is open.
+- The user must click `I Accept`; Codex must not accept legal terms for the user.
+
 In Google Analytics:
 
 1. Create a GA4 property for `dostuffandhavefun.com`.
