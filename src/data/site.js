@@ -31,9 +31,9 @@ export const featuredVideos = [
     channel: "Adventure Lab",
     description: "A spotlight lane for the most clickable challenge videos once the YouTube channel links are connected.",
     url: "#youtube-connection",
-    thumbnail: "/assets/play-lab-hero.png",
+    thumbnail: "/assets/thumb-challenges.svg",
     keywords: ["kids challenge video", "fun videos for kids", "family friendly YouTube"],
-    status: "Channel link needed",
+    status: "Starter lane",
     isLive: false
   },
   {
@@ -41,9 +41,9 @@ export const featuredVideos = [
     channel: "Shorts Spark",
     description: "A Shorts-friendly lane for quick clips that can earn repeat views and send viewers to full videos.",
     url: "#youtube-connection",
-    thumbnail: "/assets/play-lab-hero.png",
+    thumbnail: "/assets/thumb-shorts.svg",
     keywords: ["funny kids shorts", "quick kid videos", "YouTube shorts for kids"],
-    status: "Channel link needed",
+    status: "Starter lane",
     isLive: false
   },
   {
@@ -51,12 +51,30 @@ export const featuredVideos = [
     channel: "Creative Workshop",
     description: "A home for craft, experiment, and learning videos that answer parent and kid search questions.",
     url: "#youtube-connection",
-    thumbnail: "/assets/play-lab-hero.png",
+    thumbnail: "/assets/thumb-crafts.svg",
     keywords: ["craft videos for kids", "easy kids experiments", "creative kids activities"],
-    status: "Channel link needed",
+    status: "Starter lane",
     isLive: false
   }
 ];
+
+export function buildFeaturedVideos(generatedVideos = []) {
+  if (!Array.isArray(generatedVideos) || generatedVideos.length === 0) {
+    return featuredVideos;
+  }
+
+  return generatedVideos.slice(0, 9).map((video) => ({
+    title: video.title,
+    channel: video.channel,
+    description: video.description || "A new Do Stuff & Have Fun upload, ready to watch on YouTube.",
+    url: video.url,
+    thumbnail: video.thumbnail || "/assets/thumb-challenges.svg",
+    keywords: video.keywords || ["kid friendly videos", "fun videos for kids"],
+    status: "Watch on YouTube",
+    isLive: true,
+    published: video.published
+  }));
+}
 
 export const topicHubs = [
   {

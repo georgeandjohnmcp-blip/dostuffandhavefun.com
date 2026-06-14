@@ -6,13 +6,32 @@ This is the new Astro website for `dostuffandhavefun.com`: a bright, playful hom
 
 - A generated logo: `public/assets/do-stuff-logo.png`
 - Generated hero artwork: `public/assets/play-lab-hero.png`
+- Handcrafted thumbnail artwork for starter video lanes
 - Astro source files in `src/`
 - A lightweight static preview/deploy copy in `dist/`
 - Deployment instructions in `deploy/`
 
+## Design Rule
+
+This site should never look like generic AI output. Keep it polished, specific, playful, and trustworthy. If real YouTube data is missing, make the empty state feel intentional and launch-ready.
+
 ## YouTube Channels
 
-The site currently has placeholder YouTube channel/video links because the exact channels were not identifiable from public search. Replace the links in `src/data/site.js` when the channel URLs are available.
+The site is ready to stay updated from YouTube channel feeds. Add each channel ID and URL in `src/data/youtube.config.js`, then run:
+
+```bash
+npm run youtube:update
+```
+
+That writes the newest videos to `src/data/videos.generated.json`, and the homepage automatically switches from starter lanes to real YouTube videos.
+
+The exact channels still need to be collected from the signed-in YouTube account.
+
+## Analytics And Search Console
+
+GA4 and Google Search Console are wired but not activated yet. Add the real GA4 measurement ID and Search Console verification token in `src/data/tracking.js`, then rebuild and deploy.
+
+Requested admin email: `geompcherson@gmail.com`.
 
 ## Deployment Safety
 

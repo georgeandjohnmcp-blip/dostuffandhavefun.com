@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Shorts video thumbnail artwork</title>
+  <desc id="desc">Bright short-form video thumbnail with stacked phone frames, play shapes, and motion lines.</desc>
+  <rect width="1200" height="720" fill="#eafdff"/>
+  <path d="M104 118c118-66 216-58 294 25 80 85 167 103 262 55 116-59 235-27 356 97 54 55 86 127 82 205-7 137-137 220-309 191-176-30-294-8-434 16-160 28-291-32-326-154-37-130 3-347 75-435z" fill="#25c7d9"/>
+  <rect x="386" y="86" width="300" height="548" rx="56" fill="#10233f"/>
+  <rect x="414" y="132" width="244" height="456" rx="32" fill="#fffaf0"/>
+  <rect x="548" y="126" width="156" height="500" rx="44" fill="#ff5b4a" stroke="#10233f" stroke-width="14" transform="rotate(10 626 376)"/>
+  <circle cx="622" cy="370" r="82" fill="#ffd23f" stroke="#10233f" stroke-width="12"/>
+  <path d="M600 324v92l78-46z" fill="#10233f"/>
+  <g fill="none" stroke="#10233f" stroke-width="18" stroke-linecap="round">
+    <path d="M184 258c78-72 159-111 244-118"/>
+    <path d="M760 132c95 23 177 78 246 166"/>
+    <path d="M193 506c80 62 175 94 284 94"/>
+  </g>
+  <g fill="#7bd629" stroke="#10233f" stroke-width="10">
+    <circle cx="230" cy="356" r="34"/>
+    <circle cx="940" cy="495" r="45"/>
+    <circle cx="1004" cy="382" r="24"/>
+  </g>
+</svg>

@@ -6,6 +6,14 @@
 - Keep explanations plain and short. Handle technical setup, GitHub, hosting, and deployment automatically.
 - Do not expect the user to understand branches, commits, pull requests, merges, DNS, build systems, or server administration.
 
+## Design Quality Bar
+
+- The site must never look like generic AI output.
+- Use intentional layouts, polished spacing, clear hierarchy, restrained copy, and assets that feel specific to the project.
+- Avoid filler sections, vague marketing language, repetitive generated art, fake testimonials, random gradients, and unfinished placeholder text.
+- If exact YouTube channel/video data is unavailable, present the missing state as a deliberate launch-ready framework, not as broken or fake content.
+- Future visual updates should feel playful, crafted, and trustworthy for kids and parents.
+
 ## Disk Space
 
 - This computer has very limited local hard drive space.

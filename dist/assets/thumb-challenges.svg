@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Challenge video thumbnail artwork</title>
+  <desc id="desc">Bright abstract challenge thumbnail with a play button, timer, stars, and craft shapes.</desc>
+  <rect width="1200" height="720" fill="#fff4d8"/>
+  <path d="M0 545c170-100 318-116 445-48 133 72 249 80 350 25 130-72 258-67 405 12v186H0z" fill="#25c7d9"/>
+  <circle cx="170" cy="150" r="78" fill="#ff5b4a"/>
+  <circle cx="1030" cy="130" r="92" fill="#7bd629"/>
+  <circle cx="617" cy="328" r="170" fill="#10233f"/>
+  <circle cx="617" cy="328" r="132" fill="#ff5b4a"/>
+  <path d="M580 250v156l132-78z" fill="#fffaf0"/>
+  <g fill="none" stroke="#10233f" stroke-width="18" stroke-linecap="round">
+    <path d="M215 430h210"/>
+    <path d="M775 190h210"/>
+    <path d="M835 535h165"/>
+  </g>
+  <g fill="#ffd23f" stroke="#10233f" stroke-width="12" stroke-linejoin="round">
+    <path d="M360 110l25 50 55 8-40 39 10 55-50-26-50 26 10-55-40-39 55-8z"/>
+    <path d="M920 385l22 44 49 7-35 34 8 49-44-23-44 23 8-49-35-34 49-7z"/>
+  </g>
+  <rect x="138" y="232" width="250" height="140" rx="34" fill="#fffaf0" stroke="#10233f" stroke-width="14"/>
+  <path d="M212 260v84M264 260v84M316 260v84" stroke="#2968e8" stroke-width="16" stroke-linecap="round"/>
+</svg>

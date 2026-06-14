@@ -58,4 +58,10 @@ After SSL is issued, let Certbot add the HTTPS blocks or add a dedicated HTTPS b
 
 ## YouTube Data
 
-The current site uses placeholder channel/video links because the exact YouTube channels were not identifiable from public search. Replace the data in `src/data/site.js` when the user provides channel URLs or access to the right YouTube account.
+YouTube auto-update data lives in `src/data/youtube.config.js`.
+
+1. Add every real YouTube channel ID and URL.
+2. Run `npm run youtube:update`.
+3. Build and deploy.
+
+GA4/Search Console tracking lives in `src/data/tracking.js`.

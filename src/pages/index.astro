@@ -1,10 +1,14 @@
 ---
-import { channels, featuredVideos, growthLoops, topicHubs, youtubeConnectionSteps } from "../data/site.js";
+import { channels, buildFeaturedVideos, growthLoops, topicHubs, youtubeConnectionSteps } from "../data/site.js";
+import generatedVideos from "../data/videos.generated.json";
+import { tracking } from "../data/tracking.js";
 import "../styles/global.css";
 
 const pageTitle = "Do Stuff & Have Fun | Kid-Friendly YouTube Videos, Challenges, Crafts, and Experiments";
 const pageDescription =
   "A bright home base for Do Stuff & Have Fun videos, playful YouTube channels, family-friendly challenges, crafts, experiments, and kid-safe things to watch next.";
+const featuredVideos = buildFeaturedVideos(generatedVideos);
+const connectedVideoCount = Array.isArray(generatedVideos) ? generatedVideos.length : 0;
 
 const liveVideos = featuredVideos.filter((video) => video.isLive);
 const videoSchema = liveVideos.map((video) => ({
@@ -85,7 +89,16 @@ const schema = {
     <meta property="og:url" content="https://dostuffandhavefun.com/" />
     <meta property="og:image" content="https://dostuffandhavefun.com/assets/play-lab-hero.png" />
     <meta name="twitter:card" content="summary_large_image" />
+    {tracking.googleSiteVerification && <meta name="google-site-verification" content={tracking.googleSiteVerification} />}
     <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    {tracking.ga4MeasurementId && (
+      <>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${tracking.ga4MeasurementId}`}></script>
+        <script
+          set:html={`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${tracking.ga4MeasurementId}',{send_page_view:true});`}
+        />
+      </>
+    )}
   </head>
   <body>
     <header class="topbar" aria-label="Site header">
@@ -131,8 +144,9 @@ const schema = {
           <p class="eyebrow">Featured watch paths</p>
           <h2>Videos ready for curious clicks</h2>
           <p>
-            These cards are wired for real YouTube links, thumbnails, and topic keywords.
-            Once the exact channels are connected, each video can become its own search-friendly page.
+            {connectedVideoCount > 0
+              ? `Showing the newest ${Math.min(connectedVideoCount, 9)} videos pulled from connected YouTube channel feeds.`
+              : "These starter lanes are designed for your real uploads: each one has a visual style, a search angle, and a clear job in the growth engine."}
           </p>
         </div>
         <div class="video-grid">
@@ -228,9 +242,9 @@ const schema = {
           <p class="eyebrow">Next connection</p>
           <h2>Ready for the real YouTube channels</h2>
           <p>
-            The visual site, search structure, and growth engine are ready. The next update is to
-            connect the exact channels, replace these starter lanes with real videos, and publish
-            search pages around the strongest uploads.
+            The visual system, search structure, and growth engine are ready. The next update is to
+            connect the exact channels, map real uploads into these lanes, and publish search pages
+            around the strongest videos.
           </p>
         </div>
         <ol class="connection-list">

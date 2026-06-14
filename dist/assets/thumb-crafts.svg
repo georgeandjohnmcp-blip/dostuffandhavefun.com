@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Crafts and experiments thumbnail artwork</title>
+  <desc id="desc">Bright craft and experiment thumbnail with paper shapes, beaker, scissors, and a play button.</desc>
+  <rect width="1200" height="720" fill="#f1ffe7"/>
+  <rect x="118" y="166" width="330" height="330" rx="46" fill="#ffd23f" stroke="#10233f" stroke-width="16" transform="rotate(-8 283 331)"/>
+  <rect x="719" y="142" width="298" height="378" rx="44" fill="#25c7d9" stroke="#10233f" stroke-width="16" transform="rotate(7 868 331)"/>
+  <path d="M484 177h228l-36 382H520z" fill="#fffaf0" stroke="#10233f" stroke-width="16" stroke-linejoin="round"/>
+  <path d="M532 410h132l-18 106H550z" fill="#7bd629"/>
+  <circle cx="564" cy="355" r="20" fill="#25c7d9"/>
+  <circle cx="624" cy="330" r="28" fill="#ff5b4a"/>
+  <circle cx="657" cy="382" r="18" fill="#2968e8"/>
+  <circle cx="598" cy="378" r="132" fill="#10233f"/>
+  <circle cx="598" cy="378" r="98" fill="#ff5b4a"/>
+  <path d="M570 322v112l94-56z" fill="#fffaf0"/>
+  <g stroke="#10233f" stroke-width="14" stroke-linecap="round" fill="none">
+    <path d="M188 567l176-176"/>
+    <path d="M260 548l-72-72"/>
+    <path d="M930 562l92-92"/>
+    <path d="M978 562l-92-92"/>
+  </g>
+  <g fill="#ff5b4a" stroke="#10233f" stroke-width="10" stroke-linejoin="round">
+    <path d="M224 238l52 82-96-6z"/>
+    <path d="M930 236l40 68-80-5z"/>
+  </g>
+</svg>
