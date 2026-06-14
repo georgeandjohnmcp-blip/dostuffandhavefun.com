@@ -78,19 +78,73 @@ export function buildFeaturedVideos(generatedVideos = []) {
 
 export const topicHubs = [
   {
+    slug: "things-to-do-when-bored",
     title: "Things To Do When Bored",
     answer: "A page cluster for videos that give kids quick, safe ideas when they want something fun to watch or try.",
-    keywords: ["things to do when bored for kids", "fun kid activities", "videos for bored kids"]
+    keywords: ["things to do when bored for kids", "fun kid activities", "videos for bored kids"],
+    intro:
+      "This hub is for videos that solve the classic bored-kid problem: quick ideas, upbeat energy, and safe prompts that can turn a slow afternoon into something playful.",
+    watchPlan: [
+      "Lead with short videos that create instant momentum.",
+      "Pair each video with one simple activity idea a parent can understand in ten seconds.",
+      "Link viewers toward the next challenge, craft, or experiment so the watch path keeps going."
+    ],
+    questions: [
+      {
+        question: "What can kids watch when they are bored?",
+        answer: "Start with a quick, family-friendly video that gives them an idea to laugh at, copy safely, or talk about with a parent."
+      },
+      {
+        question: "How does this help the YouTube channels grow?",
+        answer: "The page catches broad search demand, answers it clearly, and routes viewers toward playlists that can build watch time."
+      }
+    ]
   },
   {
+    slug: "safe-funny-challenges",
     title: "Funny Safe Challenges",
     answer: "A discovery lane for challenge videos that feel energetic without encouraging dangerous copycat behavior.",
-    keywords: ["safe challenges for kids", "funny kid challenges", "family friendly challenge videos"]
+    keywords: ["safe challenges for kids", "funny kid challenges", "family friendly challenge videos"],
+    intro:
+      "Challenge videos can be the highest-energy part of the site, but they need to feel parent-safe. This hub frames the fun around laughter, timing, creativity, and harmless surprise.",
+    watchPlan: [
+      "Show the funniest challenge videos first.",
+      "Use page copy that avoids risky dares and keeps the tone safe.",
+      "Suggest related challenge videos by mood: silly, creative, fast, messy, or teamwork."
+    ],
+    questions: [
+      {
+        question: "What makes a challenge video safe for kids?",
+        answer: "A safe challenge avoids danger, pressure, and copycat risk, while still giving kids a clear playful idea to enjoy."
+      },
+      {
+        question: "Why make a dedicated challenge hub?",
+        answer: "Challenge searches are specific and high-intent, so a focused page can bring viewers who already know what kind of video they want."
+      }
+    ]
   },
   {
+    slug: "crafts-and-experiments",
     title: "Crafts And Experiments",
     answer: "A parent-friendly topic hub for creative projects, simple experiments, and watch-next learning videos.",
-    keywords: ["craft videos for kids", "easy experiments for kids", "creative activities for kids"]
+    keywords: ["craft videos for kids", "easy experiments for kids", "creative activities for kids"],
+    intro:
+      "This hub turns craft and experiment videos into a trustworthy watch path for parents and a colorful discovery path for kids.",
+    watchPlan: [
+      "Group videos by what the child wants to make, test, or discover.",
+      "Write plain summaries that help parents judge supplies, mess, and supervision.",
+      "Use related links to move from one project video into the next natural idea."
+    ],
+    questions: [
+      {
+        question: "Are craft and experiment videos good for search traffic?",
+        answer: "Yes. Parents and kids search for specific projects, materials, and easy experiments, which makes these pages strong SEO targets."
+      },
+      {
+        question: "What should each craft video page include?",
+        answer: "Each page should include the video, a short answer, a supply note, a simple summary, and related videos."
+      }
+    ]
   }
 ];
 

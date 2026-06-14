@@ -295,7 +295,9 @@ h3 {
   font-weight: 650;
 }
 
-.channel-card a {
+.channel-card a,
+.topic-card a,
+.topic-hero a {
   display: inline-flex;
   margin-top: 0.5rem;
   font-weight: 1000;
@@ -311,6 +313,61 @@ h3 {
 
 .topic-card p {
   line-height: 1.58;
+  font-weight: 650;
+}
+
+.topic-hero {
+  padding: clamp(2rem, 6vw, 5rem) clamp(1rem, 4vw, 4rem);
+  background: linear-gradient(135deg, rgba(255, 210, 63, 0.28), rgba(37, 199, 217, 0.2));
+}
+
+.topic-hero-inner {
+  max-width: 960px;
+}
+
+.topic-hero p {
+  max-width: 68ch;
+  font-size: clamp(1.06rem, 1.7vw, 1.28rem);
+  line-height: 1.65;
+  font-weight: 700;
+}
+
+.topic-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.topic-panel {
+  border: 3px solid var(--ink);
+  border-radius: 8px;
+  background: white;
+  box-shadow: 8px 8px 0 var(--ink);
+  padding: clamp(1rem, 3vw, 1.5rem);
+}
+
+.topic-panel ul,
+.topic-panel ol {
+  margin-bottom: 0;
+  padding-left: 1.25rem;
+  line-height: 1.65;
+  font-weight: 700;
+}
+
+.faq-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.faq-stack article {
+  padding: 1rem;
+  border-left: 8px solid var(--coral);
+  background: rgba(255, 244, 216, 0.72);
+}
+
+.faq-stack p {
+  line-height: 1.6;
   font-weight: 650;
 }
 
@@ -405,6 +462,7 @@ footer img {
 
   .hero,
   .growth-layout,
+  .topic-content,
   .video-grid,
   .channel-grid,
   .topic-grid {
