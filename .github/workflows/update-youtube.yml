@@ -23,14 +23,21 @@ jobs:
       - name: Fetch latest YouTube videos
         run: node scripts/fetch-youtube.mjs
 
+      - name: Install site dependencies
+        run: npm install
+
+      - name: Build static site
+        run: npm run build
+
       - name: Commit changes
         run: |
-          if git diff --quiet src/data/videos.generated.json; then
+          if git diff --quiet src/data/videos.generated.json dist; then
             echo "No YouTube video changes."
             exit 0
           fi
           git config user.name "Do Stuff Bot"
           git config user.email "georgeandjohnmcp@gmail.com"
           git add src/data/videos.generated.json
-          git commit -m "Update YouTube videos"
+          git add -f dist
+          git commit -m "Update YouTube videos and static pages"
           git push

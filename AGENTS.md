@@ -14,6 +14,8 @@
 - If exact YouTube channel/video data is unavailable, present the missing state as a deliberate launch-ready framework, not as broken or fake content.
 - Future visual updates should feel playful, crafted, and trustworthy for kids and parents.
 - Preserve the YouTube auto-update path: channel IDs live in `src/data/youtube.config.js`, generated videos live in `src/data/videos.generated.json`, and the scheduled GitHub workflow is `.github/workflows/update-youtube.yml`.
+- Google/YouTube/analytics setup notes live in `deploy/google-youtube-setup.md`.
+- The user asked that Chrome be opened every time an update is deployed. If Chrome is not running, ask permission before launching it and do not claim deployment verification without Chrome.
 
 ## Disk Space
 
