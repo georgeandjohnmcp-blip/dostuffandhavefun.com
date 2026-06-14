@@ -1,0 +1,28 @@
+# Keep this local project home light.
+node_modules/
+dist/
+build/
+.next/
+.nuxt/
+.cache/
+.vite/
+coverage/
+
+# Local secrets
+.env
+.env.*
+!.env.example
+
+# Large/generated media drafts
+*.psd
+*.ai
+*.mov
+*.mp4
+*.zip
+*.tar
+*.tar.gz
+generated-images/
+draft-assets/
+
+# System files
+.DS_Store

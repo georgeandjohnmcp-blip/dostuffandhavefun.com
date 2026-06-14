@@ -1,0 +1,219 @@
+---
+import { channels, featuredVideos, growthLoops } from "../data/site.js";
+import "../styles/global.css";
+
+const pageTitle = "Do Stuff & Have Fun | Kid-Friendly YouTube Videos, Challenges, Crafts, and Experiments";
+const pageDescription =
+  "A bright home base for Do Stuff & Have Fun videos, playful YouTube channels, family-friendly challenges, crafts, experiments, and kid-safe things to watch next.";
+
+const videoSchema = featuredVideos.map((video) => ({
+  "@type": "VideoObject",
+  name: video.title,
+  description: video.description,
+  thumbnailUrl: [`https://dostuffandhavefun.com${video.thumbnail}`],
+  uploadDate: "2026-06-14",
+  embedUrl: video.url,
+  publisher: {
+    "@type": "Organization",
+    name: "Do Stuff & Have Fun",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://dostuffandhavefun.com/assets/do-stuff-logo.png"
+    }
+  }
+}));
+
+const schema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      name: "Do Stuff & Have Fun",
+      url: "https://dostuffandhavefun.com",
+      logo: "https://dostuffandhavefun.com/assets/do-stuff-logo.png",
+      sameAs: channels.map((channel) => channel.url)
+    },
+    {
+      "@type": "WebSite",
+      name: "Do Stuff & Have Fun",
+      url: "https://dostuffandhavefun.com",
+      potentialAction: {
+        "@type": "SearchAction",
+        target: "https://dostuffandhavefun.com/?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "What can kids watch on Do Stuff & Have Fun?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Kids can find family-friendly videos, playful challenges, crafts, experiments, Shorts, and creative things to do when bored."
+          }
+        },
+        {
+          "@type": "Question",
+          name: "How does this website help the YouTube channels grow?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "The website gives every channel and video a searchable home with clear summaries, topic pages, video schema, FAQs, and internal links that help search engines understand what each video is about."
+          }
+        }
+      ]
+    },
+    ...videoSchema
+  ]
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-video-preview:-1" />
+    <link rel="canonical" href="https://dostuffandhavefun.com/" />
+    <meta property="og:title" content="Do Stuff & Have Fun" />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://dostuffandhavefun.com/" />
+    <meta property="og:image" content="https://dostuffandhavefun.com/assets/play-lab-hero.png" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </head>
+  <body>
+    <header class="topbar" aria-label="Site header">
+      <a class="brand" href="/" aria-label="Do Stuff and Have Fun home">
+        <img src="/assets/do-stuff-logo.png" alt="Do Stuff & Have Fun logo" />
+      </a>
+      <nav aria-label="Main navigation">
+        <a href="#videos">Videos</a>
+        <a href="#channels">Channels</a>
+        <a href="#growth">Growth Engine</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Kid-friendly video adventures</p>
+          <h1>Do Stuff & Have Fun</h1>
+          <p class="lede">
+            A bright launchpad for playful videos, creative challenges, crafts, experiments,
+            and funny little discoveries kids want to watch next.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#videos">Watch the showcase</a>
+            <a class="button secondary" href="#growth">See the growth plan</a>
+          </div>
+        </div>
+        <div class="hero-art" aria-label="Playful creator studio artwork">
+          <img src="/assets/play-lab-hero.png" alt="Colorful craft and video studio with science and art supplies" />
+        </div>
+      </section>
+
+      <section class="search-strip" aria-label="Popular discovery topics">
+        <span>Things to do when bored</span>
+        <span>Safe funny challenges</span>
+        <span>Crafts for kids</span>
+        <span>Easy experiments</span>
+        <span>Family-friendly Shorts</span>
+      </section>
+
+      <section id="videos" class="section">
+        <div class="section-heading">
+          <p class="eyebrow">Featured watch paths</p>
+          <h2>Videos ready for curious clicks</h2>
+          <p>
+            These cards are wired for real YouTube links, thumbnails, and topic keywords.
+            Once the exact channels are connected, each video can become its own search-friendly page.
+          </p>
+        </div>
+        <div class="video-grid">
+          {featuredVideos.map((video) => (
+            <article class="video-card">
+              <a href={video.url} aria-label={`Open ${video.title} on YouTube`}>
+                <img src={video.thumbnail} alt="" loading="lazy" />
+                <span class="play">Play</span>
+              </a>
+              <div class="video-card-copy">
+                <p>{video.channel}</p>
+                <h3>{video.title}</h3>
+                <p>{video.description}</p>
+                <div class="tags">
+                  {video.keywords.map((keyword) => <span>{keyword}</span>)}
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="channels" class="section channel-band">
+        <div class="section-heading">
+          <p class="eyebrow">Channel universe</p>
+          <h2>Several channels, one fun home base</h2>
+          <p>
+            Each channel gets its own lane, audience promise, and topic cluster so visitors can
+            quickly pick the kind of video they want.
+          </p>
+        </div>
+        <div class="channel-grid">
+          {channels.map((channel) => (
+            <article class={`channel-card ${channel.color}`}>
+              <span>{channel.theme}</span>
+              <h3>{channel.name}</h3>
+              <p>{channel.handle}</p>
+              <p>{channel.description}</p>
+              <a href={channel.url}>Visit channel</a>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section id="growth" class="section growth">
+        <div class="section-heading">
+          <p class="eyebrow">SEO + AEO growth engine</p>
+          <h2>How this becomes a traffic machine</h2>
+          <p>
+            Google says AI answer visibility still depends on strong search basics: indexable pages,
+            useful content, clean structure, and accurate structured data. This site is designed around that.
+          </p>
+        </div>
+        <div class="growth-layout">
+          <ol class="growth-list">
+            {growthLoops.map((item) => <li>{item}</li>)}
+          </ol>
+          <aside class="monetization">
+            <h3>Monetization target</h3>
+            <p>
+              The first YouTube Partner Program milestone is 500 subscribers plus either 3,000 public
+              watch hours in 12 months or 3 million valid Shorts views in 90 days. Ad revenue requires
+              1,000 subscribers plus 4,000 watch hours or 10 million Shorts views.
+            </p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section answer-box">
+        <p class="eyebrow">Answer engine bait, but useful</p>
+        <h2>What should my kid watch when they are bored?</h2>
+        <p>
+          Start with a short, funny video if they want quick energy. Pick a challenge video if they
+          want to laugh along. Choose a craft or experiment video if they want something creative to try
+          with an adult nearby.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <img src="/assets/do-stuff-logo.png" alt="" />
+      <p>Do Stuff & Have Fun is being built as a playful, family-friendly video hub.</p>
+    </footer>
+  </body>
+</html>
