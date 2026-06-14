@@ -1,0 +1,97 @@
+---
+import generatedVideos from "../../data/videos.generated.json";
+import "../../styles/global.css";
+
+export function getStaticPaths() {
+  return generatedVideos
+    .filter((video) => video.id)
+    .map((video) => ({
+      params: { id: video.id },
+      props: { video }
+    }));
+}
+
+const { video } = Astro.props;
+const pageTitle = `${video.title} | Do Stuff & Have Fun`;
+const pageDescription = video.description || "A kid-friendly Do Stuff & Have Fun video.";
+const schema = {
+  "@context": "https://schema.org",
+  "@type": "VideoObject",
+  name: video.title,
+  description: pageDescription,
+  thumbnailUrl: video.thumbnail ? [video.thumbnail] : ["https://dostuffandhavefun.com/assets/play-lab-hero.png"],
+  uploadDate: video.published,
+  embedUrl: video.url,
+  publisher: {
+    "@type": "Organization",
+    name: "Do Stuff & Have Fun",
+    logo: {
+      "@type": "ImageObject",
+      url: "https://dostuffandhavefun.com/assets/do-stuff-logo.png"
+    }
+  }
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={pageDescription} />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-video-preview:-1" />
+    <link rel="canonical" href={`https://dostuffandhavefun.com/videos/${video.id}/`} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={pageDescription} />
+    <meta property="og:type" content="video.other" />
+    <meta property="og:url" content={`https://dostuffandhavefun.com/videos/${video.id}/`} />
+    <meta property="og:image" content={video.thumbnail || "https://dostuffandhavefun.com/assets/play-lab-hero.png"} />
+    <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </head>
+  <body>
+    <header class="topbar" aria-label="Site header">
+      <a class="brand" href="/" aria-label="Do Stuff and Have Fun home">
+        <img src="/assets/do-stuff-logo.png" alt="Do Stuff & Have Fun logo" />
+      </a>
+      <nav aria-label="Main navigation">
+        <a href="/videos/">Videos</a>
+        <a href="/#channels">Channels</a>
+        <a href="/#growth">Growth Engine</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="topic-hero">
+        <div class="topic-hero-inner">
+          <p class="eyebrow">{video.channel}</p>
+          <h1>{video.title}</h1>
+          <p>{pageDescription}</p>
+          <a class="button primary" href={video.url}>Watch on YouTube</a>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="topic-content">
+          <article class="topic-panel">
+            <p class="eyebrow">Why this video matters</p>
+            <h2>Search-friendly summary</h2>
+            <p>{pageDescription}</p>
+          </article>
+          <aside class="topic-panel">
+            <p class="eyebrow">Discovery tags</p>
+            <h2>Watch next signals</h2>
+            <div class="tags">
+              {(video.keywords || []).map((keyword) => <span>{keyword}</span>)}
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <img src="/assets/do-stuff-logo.png" alt="" />
+      <p>Do Stuff & Have Fun is being built as a playful, family-friendly video hub.</p>
+    </footer>
+  </body>
+</html>

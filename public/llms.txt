@@ -1,0 +1,27 @@
+# Do Stuff & Have Fun
+
+Do Stuff & Have Fun is a kid-friendly video hub for playful YouTube channels, challenges, Shorts, crafts, experiments, and creative things to do when bored.
+
+Primary website: https://dostuffandhavefun.com/
+
+Important pages:
+
+- https://dostuffandhavefun.com/
+- https://dostuffandhavefun.com/videos/
+- https://dostuffandhavefun.com/topics/things-to-do-when-bored/
+- https://dostuffandhavefun.com/topics/safe-funny-challenges/
+- https://dostuffandhavefun.com/topics/crafts-and-experiments/
+
+The site is designed to connect real YouTube channels through `src/data/youtube.config.js`, fetch new videos with `npm run youtube:update`, and build crawlable pages for videos and topic hubs.
+
+Audience:
+
+- Kids looking for fun, safe, energetic videos.
+- Parents looking for family-friendly video ideas.
+- Search and answer engines trying to understand the site’s topics.
+
+Content style:
+
+- Playful, bright, parent-safe, and specific.
+- No generic filler.
+- No unsafe challenge framing.

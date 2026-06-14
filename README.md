@@ -10,6 +10,7 @@ This is the new Astro website for `dostuffandhavefun.com`: a bright, playful hom
 - Astro source files in `src/`
 - A lightweight static preview/deploy copy in `dist/`
 - Deployment instructions in `deploy/`
+- `llms.txt` for answer-engine context
 
 ## Design Rule
 

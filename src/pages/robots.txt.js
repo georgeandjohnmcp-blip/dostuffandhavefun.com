@@ -4,6 +4,8 @@ export function GET() {
 Allow: /
 
 Sitemap: https://dostuffandhavefun.com/sitemap-index.xml
+
+LLMS: https://dostuffandhavefun.com/llms.txt
 `,
     {
       headers: {
