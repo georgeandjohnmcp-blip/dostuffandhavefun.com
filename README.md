@@ -49,7 +49,9 @@ Current hosting route: Hostinger has a dedicated website slot for `dostuffandhav
 
 ## Current Live Status
 
-The initial static site is deployed on Hostinger and serves from `https://dostuffandhavefun.com/`. The local project now includes the Pong game at `/games/pong/`, the homepage game links point to Pong, and Spark Catcher remains available at `/games/spark-catcher/`.
+The initial static site is deployed on Hostinger and serves from `https://dostuffandhavefun.com/`. The live site now includes the hand-drawn logo, the Pong game at `/games/pong/`, homepage game links pointing to Pong, and Spark Catcher still available at `/games/spark-catcher/`.
+
+Last verified deploy: June 14, 2026. HTTPS, homepage, logo, sitemap, Pong page, and Pong Start button were verified. Chrome was left open on the live Pong page after the deploy check.
 
 Deployment note for future chats: the Hostinger MCP static deploy tool may fail during TUS upload if it follows the returned `Location` URL. The working path is to upload the archive to the original `files/upload-urls` target with `X-Auth`, `X-Auth-Rest`, `Upload-Length`, `Upload-Offset`, and `Tus-Resumable`, then trigger `/api/hosting/v1/accounts/u937775855/websites/dostuffandhavefun.com/deploy` with the archive filename.
 
