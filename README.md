@@ -7,6 +7,7 @@ This is the new Astro website for `dostuffandhavefun.com`: a bright, playful hom
 - A generated logo: `public/assets/do-stuff-logo.png`
 - Generated hero artwork: `public/assets/play-lab-hero.png`
 - Handcrafted thumbnail artwork for starter video lanes
+- A playable kid-friendly browser game at `/games/spark-catcher/`
 - Astro source files in `src/`
 - A lightweight static preview/deploy copy in `dist/`
 - Deployment instructions in `deploy/`
@@ -43,4 +44,12 @@ See `deploy/google-youtube-setup.md` for the full setup checklist.
 
 The VPS is shared with other real sites. Future Codex chats must inspect the server first, only touch isolated `dostuffandhavefun.com` resources, validate Nginx before reload, and never disturb existing sites such as `my-ccs.com`.
 
-Current known issue: `dostuffandhavefun.com` points to the VPS, but the VPS currently redirects this domain to `https://my-ccs.com/`, and SSL is not yet issued for `dostuffandhavefun.com`.
+Current hosting route: Hostinger has a dedicated website slot for `dostuffandhavefun.com`. Deploy only the built static files for this project into that slot, then verify `https://dostuffandhavefun.com/`.
+
+## Current Live Status
+
+The initial static site is deployed on Hostinger and serves from `https://dostuffandhavefun.com/`. The live pages include the homepage, video library, topic hubs, `llms.txt`, sitemap files, and the Spark Catcher game at `/games/spark-catcher/`.
+
+Deployment note for future chats: the Hostinger MCP static deploy tool may fail during TUS upload if it follows the returned `Location` URL. The working path is to upload the archive to the original `files/upload-urls` target with `X-Auth`, `X-Auth-Rest`, `Upload-Length`, `Upload-Offset`, and `Tus-Resumable`, then trigger `/api/hosting/v1/accounts/u937775855/websites/dostuffandhavefun.com/deploy` with the archive filename.
+
+DNS note: the root `AAAA` record was removed because IPv6 connections reset while IPv4 works. Keep the root `A` record pointed to `185.162.53.21` and `www` as a CNAME to `dostuffandhavefun.com`.
