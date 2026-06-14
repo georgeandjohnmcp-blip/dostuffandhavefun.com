@@ -6,21 +6,23 @@ This file is for future Codex chats working on `dostuffandhavefun.com`.
 
 - GA4 is not active yet because the real measurement ID is not in `src/data/tracking.js`.
 - Google Search Console verification is not active yet because the real verification token is not in `src/data/tracking.js`.
-- YouTube auto-update is wired but inactive because the real channel IDs are not in `src/data/youtube.config.js`.
+- YouTube auto-update is active for the handles currently listed in `src/data/youtube.config.js`.
 - The requested Google admin email is `geompcherson@gmail.com`.
 
 ## YouTube Channel Connection
 
-For each channel:
+Current connected handles: `@GeorgeAndJohn`, `@poutineanimates`, `@Monkeyman-g2z`, `@DaEpicDuck-x7h`, `@EPICMAPPING023`, `@Untitledhorror-g5p`, `@SpongeBobifheexploded`, `@EPICMinecrafting`, and editor-access channel `@MapperFromHungaria05`.
+
+For each new channel:
 
 1. Open the channel page in the signed-in YouTube account.
-2. Copy the channel URL and channel ID.
+2. Copy the channel handle, URL, or channel ID.
 3. Add it to `src/data/youtube.config.js`.
 4. Run `npm run youtube:update`.
 5. Build the site.
 6. Verify that real videos appear on the homepage.
 
-The scheduled GitHub workflow `.github/workflows/update-youtube.yml` runs twice a day. Once channel IDs are filled in, it fetches new videos, rebuilds the static site, and commits the updated data and `dist/` files.
+The scheduled GitHub workflow `.github/workflows/update-youtube.yml` runs twice a day. With handles filled in, it fetches new videos, rebuilds the static site, and commits the updated data and `dist/` files.
 
 ## GA4 Setup
 

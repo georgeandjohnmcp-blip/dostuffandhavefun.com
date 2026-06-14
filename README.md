@@ -28,7 +28,9 @@ npm run youtube:update
 
 That resolves the public YouTube feed, writes the newest videos to `src/data/videos.generated.json`, and the homepage automatically switches from starter lanes to real YouTube videos.
 
-The exact channels still need to be collected from the signed-in YouTube account.
+Connected channel handles collected from the signed-in YouTube account: `@GeorgeAndJohn`, `@poutineanimates`, `@Monkeyman-g2z`, `@DaEpicDuck-x7h`, `@EPICMAPPING023`, `@Untitledhorror-g5p`, `@SpongeBobifheexploded`, `@EPICMinecrafting`, and editor-access channel `@MapperFromHungaria05`.
+
+On June 14, 2026, the updater pulled 59 public videos from 9 channels.
 
 GitHub also has a scheduled workflow in `.github/workflows/update-youtube.yml` that can refresh the generated video file twice a day once the channel IDs are filled in.
 The workflow also rebuilds and commits the static `dist/` output so the deployable site stays in sync with the newest videos.
@@ -51,7 +53,9 @@ Current hosting route: Hostinger has a dedicated website slot for `dostuffandhav
 
 The initial static site is deployed on Hostinger and serves from `https://dostuffandhavefun.com/`. The live site now includes the hand-drawn logo, the Pong game at `/games/pong/`, homepage game links pointing to Pong, and Spark Catcher still available at `/games/spark-catcher/`.
 
-Last verified deploy: June 14, 2026. HTTPS, homepage, logo, sitemap, Pong page, and Pong Start button were verified. Chrome was left open on the live Pong page after the deploy check.
+Last verified deploy: June 14, 2026. HTTPS, homepage, logo, sitemap, Pong page, Pong Start button, connected channel lanes, and a generated YouTube video page were verified. Chrome was left open on the updated live homepage after the deploy check.
+
+Local rebuild note: if npm is unavailable on this Mac, use the no-dependency fallback `/Users/georgiemcpherson/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/render-static.mjs` after running the YouTube updater. It rebuilds `dist/` from the source data without installing `node_modules`.
 
 Deployment note for future chats: the Hostinger MCP static deploy tool may fail during TUS upload if it follows the returned `Location` URL. The working path is to upload the archive to the original `files/upload-urls` target with `X-Auth`, `X-Auth-Rest`, `Upload-Length`, `Upload-Offset`, and `Tus-Resumable`, then trigger `/api/hosting/v1/accounts/u937775855/websites/dostuffandhavefun.com/deploy` with the archive filename.
 

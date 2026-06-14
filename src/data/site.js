@@ -1,4 +1,6 @@
-export const channels = [
+import { youtubeChannels } from "./youtube.config.js";
+
+const starterChannels = [
   {
     name: "Adventure Lab",
     handle: "Ready for channel link",
@@ -24,6 +26,50 @@ export const channels = [
     color: "green"
   }
 ];
+
+function channelUrl(channel) {
+  if (channel.url) {
+    return channel.url;
+  }
+
+  if (channel.handle) {
+    return `https://www.youtube.com/@${channel.handle.replace(/^@/, "")}`;
+  }
+
+  if (channel.channelId) {
+    return `https://www.youtube.com/channel/${channel.channelId}`;
+  }
+
+  return "#youtube-connection";
+}
+
+function channelHandle(channel) {
+  if (channel.handle) {
+    return channel.handle.startsWith("@") ? channel.handle : `@${channel.handle}`;
+  }
+
+  const handleMatch = channel.url?.match(/youtube\.com\/@([^/?#]+)/i);
+  if (handleMatch) {
+    return `@${handleMatch[1]}`;
+  }
+
+  return channel.channelId ? "Connected YouTube feed" : "Ready for channel link";
+}
+
+const connectedChannels = youtubeChannels.filter((channel) => channel.channelId || channel.handle || channel.url);
+
+export const channels = connectedChannels.length
+  ? connectedChannels.map((channel) => ({
+      name: channel.name,
+      handle: channelHandle(channel),
+      description:
+        channel.description ||
+        `Latest ${channel.lane || "videos"} from this YouTube channel flow into the Do Stuff & Have Fun video library.`,
+      url: channelUrl(channel),
+      theme: channel.lane || "YouTube uploads",
+      color: channel.color || "coral"
+    }))
+  : starterChannels;
 
 export const featuredVideos = [
   {
@@ -64,8 +110,10 @@ export function buildFeaturedVideos(generatedVideos = []) {
   }
 
   return generatedVideos.slice(0, 9).map((video) => ({
+    id: video.id,
     title: video.title,
     channel: video.channel,
+    channelUrl: video.channelUrl,
     description: video.description || "A new Do Stuff & Have Fun upload, ready to watch on YouTube.",
     url: video.url,
     thumbnail: video.thumbnail || "/assets/thumb-challenges.svg",
@@ -157,9 +205,9 @@ export const growthLoops = [
 ];
 
 export const youtubeConnectionSteps = [
-  "Open the signed-in YouTube account and collect the exact channel URLs.",
-  "Choose 6 to 12 starter videos across the channels: best long video, best Short, best challenge, best craft, best experiment, and newest upload.",
-  "Replace this starter data with real titles, thumbnails, URLs, upload dates, and short summaries.",
-  "Generate one search page per strong video so Google and answer engines have text they can understand.",
-  "Track which pages send viewers back to YouTube and double down on the topics that earn watch time."
+  "Add each signed-in YouTube channel link, handle, or channel ID to the connector config.",
+  "Run the YouTube updater so the public RSS feeds provide real titles, thumbnails, URLs, dates, and summaries.",
+  "Publish the rebuilt static site so the homepage, video library, video pages, sitemap, and schema use the live uploads.",
+  "Keep the scheduled GitHub workflow turned on so new uploads can refresh the site automatically.",
+  "Track which pages send viewers back to YouTube and grow the topics that earn watch time."
 ];
