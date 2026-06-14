@@ -149,6 +149,10 @@ h3 {
   background: white;
 }
 
+.hero-art {
+  position: relative;
+}
+
 .hero-art img {
   display: block;
   width: 100%;
@@ -190,7 +194,8 @@ h3 {
 }
 
 .video-grid,
-.channel-grid {
+.channel-grid,
+.topic-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
@@ -198,6 +203,7 @@ h3 {
 
 .video-card,
 .channel-card,
+.topic-card,
 .answer-box,
 .monetization {
   border: 3px solid var(--ink);
@@ -248,11 +254,8 @@ h3 {
   font-weight: 1000;
 }
 
-.video-card-copy p,
-.channel-card p,
-.monetization p,
-.answer-box p {
-  line-height: 1.58;
+.video-card-copy p {
+  line-height: 1.55;
   font-weight: 650;
 }
 
@@ -287,10 +290,28 @@ h3 {
   background: #f1ffe7;
 }
 
+.channel-card p {
+  line-height: 1.55;
+  font-weight: 650;
+}
+
 .channel-card a {
   display: inline-flex;
   margin-top: 0.5rem;
   font-weight: 1000;
+}
+
+.topic-section {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.topic-card {
+  padding: 1.25rem;
+}
+
+.topic-card p {
+  line-height: 1.58;
+  font-weight: 650;
 }
 
 .growth-layout {
@@ -322,6 +343,11 @@ h3 {
   color: white;
 }
 
+.monetization p {
+  line-height: 1.62;
+  font-weight: 650;
+}
+
 .answer-box {
   max-width: 1020px;
   margin: clamp(2rem, 5vw, 4rem) auto;
@@ -329,8 +355,31 @@ h3 {
   background: white;
 }
 
+.connection {
+  background: linear-gradient(135deg, rgba(255, 91, 74, 0.12), rgba(37, 199, 217, 0.14));
+}
+
+.connection-list {
+  max-width: 980px;
+  display: grid;
+  gap: 0.85rem;
+  margin: 0;
+  padding-left: 1.35rem;
+  font-size: clamp(1rem, 1.5vw, 1.18rem);
+  line-height: 1.55;
+  font-weight: 760;
+}
+
+.connection-list li {
+  padding: 0.9rem 1rem;
+  border-left: 8px solid var(--aqua);
+  background: white;
+}
+
 .answer-box p {
   font-size: 1.15rem;
+  line-height: 1.65;
+  font-weight: 700;
 }
 
 footer {
@@ -357,7 +406,8 @@ footer img {
   .hero,
   .growth-layout,
   .video-grid,
-  .channel-grid {
+  .channel-grid,
+  .topic-grid {
     grid-template-columns: 1fr;
   }
 

@@ -194,7 +194,8 @@ h3 {
 }
 
 .video-grid,
-.channel-grid {
+.channel-grid,
+.topic-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 1rem;
@@ -202,6 +203,7 @@ h3 {
 
 .video-card,
 .channel-card,
+.topic-card,
 .answer-box,
 .monetization {
   border: 3px solid var(--ink);
@@ -299,6 +301,19 @@ h3 {
   font-weight: 1000;
 }
 
+.topic-section {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.topic-card {
+  padding: 1.25rem;
+}
+
+.topic-card p {
+  line-height: 1.58;
+  font-weight: 650;
+}
+
 .growth-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(280px, 0.75fr);
@@ -340,6 +355,27 @@ h3 {
   background: white;
 }
 
+.connection {
+  background: linear-gradient(135deg, rgba(255, 91, 74, 0.12), rgba(37, 199, 217, 0.14));
+}
+
+.connection-list {
+  max-width: 980px;
+  display: grid;
+  gap: 0.85rem;
+  margin: 0;
+  padding-left: 1.35rem;
+  font-size: clamp(1rem, 1.5vw, 1.18rem);
+  line-height: 1.55;
+  font-weight: 760;
+}
+
+.connection-list li {
+  padding: 0.9rem 1rem;
+  border-left: 8px solid var(--aqua);
+  background: white;
+}
+
 .answer-box p {
   font-size: 1.15rem;
   line-height: 1.65;
@@ -370,7 +406,8 @@ footer img {
   .hero,
   .growth-layout,
   .video-grid,
-  .channel-grid {
+  .channel-grid,
+  .topic-grid {
     grid-template-columns: 1fr;
   }
 

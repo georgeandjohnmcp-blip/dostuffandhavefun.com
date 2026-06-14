@@ -1,25 +1,25 @@
 export const channels = [
   {
-    name: "Main Adventure Channel",
-    handle: "@your-main-channel",
-    description: "Big playful videos, challenges, experiments, and projects kids can get excited about.",
-    url: "https://www.youtube.com/",
+    name: "Adventure Lab",
+    handle: "Ready for channel link",
+    description: "The home for bigger playful videos: challenges, experiments, projects, and moments kids can get excited about.",
+    url: "#youtube-connection",
     theme: "Maker challenges",
     color: "coral"
   },
   {
-    name: "Shorts Playground",
-    handle: "@your-shorts-channel",
-    description: "Fast, funny ideas made for quick discovery and repeat watching.",
-    url: "https://www.youtube.com/",
+    name: "Shorts Spark",
+    handle: "Ready for channel link",
+    description: "Fast, funny ideas made for quick discovery, repeat watching, and short-form growth.",
+    url: "#youtube-connection",
     theme: "Shorts and quick laughs",
     color: "aqua"
   },
   {
-    name: "Creative Lab",
-    handle: "@your-creative-channel",
-    description: "Crafts, learning moments, and curious little projects with bright visuals.",
-    url: "https://www.youtube.com/",
+    name: "Creative Workshop",
+    handle: "Ready for channel link",
+    description: "Crafts, learning moments, and curious little projects with bright visuals and parent-friendly framing.",
+    url: "#youtube-connection",
     theme: "Crafts and experiments",
     color: "green"
   }
@@ -27,28 +27,52 @@ export const channels = [
 
 export const featuredVideos = [
   {
-    title: "Fun Challenge Video",
-    channel: "Main Adventure Channel",
-    description: "A featured spot for one of your strongest videos. Swap in the real YouTube link and thumbnail when ready.",
-    url: "https://www.youtube.com/",
+    title: "Challenge Playlist",
+    channel: "Adventure Lab",
+    description: "A spotlight lane for the most clickable challenge videos once the YouTube channel links are connected.",
+    url: "#youtube-connection",
     thumbnail: "/assets/play-lab-hero.png",
-    keywords: ["kids challenge video", "fun videos for kids", "family friendly YouTube"]
+    keywords: ["kids challenge video", "fun videos for kids", "family friendly YouTube"],
+    status: "Channel link needed",
+    isLive: false
   },
   {
-    title: "Quick Short Idea",
-    channel: "Shorts Playground",
-    description: "A Shorts-friendly card designed to pull search visitors toward fast, snackable videos.",
-    url: "https://www.youtube.com/",
+    title: "Shorts Watch Path",
+    channel: "Shorts Spark",
+    description: "A Shorts-friendly lane for quick clips that can earn repeat views and send viewers to full videos.",
+    url: "#youtube-connection",
     thumbnail: "/assets/play-lab-hero.png",
-    keywords: ["funny kids shorts", "quick kid videos", "YouTube shorts for kids"]
+    keywords: ["funny kids shorts", "quick kid videos", "YouTube shorts for kids"],
+    status: "Channel link needed",
+    isLive: false
   },
   {
-    title: "Creative Project Episode",
-    channel: "Creative Lab",
+    title: "Creative Project Episodes",
+    channel: "Creative Workshop",
     description: "A home for craft, experiment, and learning videos that answer parent and kid search questions.",
-    url: "https://www.youtube.com/",
+    url: "#youtube-connection",
     thumbnail: "/assets/play-lab-hero.png",
-    keywords: ["craft videos for kids", "easy kids experiments", "creative kids activities"]
+    keywords: ["craft videos for kids", "easy kids experiments", "creative kids activities"],
+    status: "Channel link needed",
+    isLive: false
+  }
+];
+
+export const topicHubs = [
+  {
+    title: "Things To Do When Bored",
+    answer: "A page cluster for videos that give kids quick, safe ideas when they want something fun to watch or try.",
+    keywords: ["things to do when bored for kids", "fun kid activities", "videos for bored kids"]
+  },
+  {
+    title: "Funny Safe Challenges",
+    answer: "A discovery lane for challenge videos that feel energetic without encouraging dangerous copycat behavior.",
+    keywords: ["safe challenges for kids", "funny kid challenges", "family friendly challenge videos"]
+  },
+  {
+    title: "Crafts And Experiments",
+    answer: "A parent-friendly topic hub for creative projects, simple experiments, and watch-next learning videos.",
+    keywords: ["craft videos for kids", "easy experiments for kids", "creative activities for kids"]
   }
 ];
 
@@ -58,4 +82,12 @@ export const growthLoops = [
   "Group videos by topics kids search for, such as challenges, crafts, experiments, funny moments, and things to do when bored.",
   "Use clear schema for videos and FAQs so search engines and answer engines can understand the site.",
   "Keep every page safe, accurate, and family friendly so parents trust the site and kids know what to watch next."
+];
+
+export const youtubeConnectionSteps = [
+  "Open the signed-in YouTube account and collect the exact channel URLs.",
+  "Choose 6 to 12 starter videos across the channels: best long video, best Short, best challenge, best craft, best experiment, and newest upload.",
+  "Replace this starter data with real titles, thumbnails, URLs, upload dates, and short summaries.",
+  "Generate one search page per strong video so Google and answer engines have text they can understand.",
+  "Track which pages send viewers back to YouTube and double down on the topics that earn watch time."
 ];

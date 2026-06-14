@@ -1,12 +1,13 @@
 ---
-import { channels, featuredVideos, growthLoops } from "../data/site.js";
+import { channels, featuredVideos, growthLoops, topicHubs, youtubeConnectionSteps } from "../data/site.js";
 import "../styles/global.css";
 
 const pageTitle = "Do Stuff & Have Fun | Kid-Friendly YouTube Videos, Challenges, Crafts, and Experiments";
 const pageDescription =
   "A bright home base for Do Stuff & Have Fun videos, playful YouTube channels, family-friendly challenges, crafts, experiments, and kid-safe things to watch next.";
 
-const videoSchema = featuredVideos.map((video) => ({
+const liveVideos = featuredVideos.filter((video) => video.isLive);
+const videoSchema = liveVideos.map((video) => ({
   "@type": "VideoObject",
   name: video.title,
   description: video.description,
@@ -31,7 +32,7 @@ const schema = {
       name: "Do Stuff & Have Fun",
       url: "https://dostuffandhavefun.com",
       logo: "https://dostuffandhavefun.com/assets/do-stuff-logo.png",
-      sameAs: channels.map((channel) => channel.url)
+      sameAs: channels.map((channel) => channel.url).filter((url) => url.startsWith("https://"))
     },
     {
       "@type": "WebSite",
@@ -139,7 +140,7 @@ const schema = {
             <article class="video-card">
               <a href={video.url} aria-label={`Open ${video.title} on YouTube`}>
                 <img src={video.thumbnail} alt="" loading="lazy" />
-                <span class="play">Play</span>
+                <span class="play">{video.status ?? "Play"}</span>
               </a>
               <div class="video-card-copy">
                 <p>{video.channel}</p>
@@ -170,7 +171,29 @@ const schema = {
               <h3>{channel.name}</h3>
               <p>{channel.handle}</p>
               <p>{channel.description}</p>
-              <a href={channel.url}>Visit channel</a>
+              <a href={channel.url}>{channel.url.startsWith("https://") ? "Visit channel" : "Connect channel"}</a>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section class="section topic-section">
+        <div class="section-heading">
+          <p class="eyebrow">Search magnets</p>
+          <h2>Topic hubs built for kid-friendly discovery</h2>
+          <p>
+            These are the first content lanes I would grow around. They match what kids and parents
+            naturally search for, then point visitors back to the best YouTube videos.
+          </p>
+        </div>
+        <div class="topic-grid">
+          {topicHubs.map((topic) => (
+            <article class="topic-card">
+              <h3>{topic.title}</h3>
+              <p>{topic.answer}</p>
+              <div class="tags">
+                {topic.keywords.map((keyword) => <span>{keyword}</span>)}
+              </div>
             </article>
           ))}
         </div>
@@ -198,6 +221,21 @@ const schema = {
             </p>
           </aside>
         </div>
+      </section>
+
+      <section id="youtube-connection" class="section connection">
+        <div class="section-heading">
+          <p class="eyebrow">Next connection</p>
+          <h2>Ready for the real YouTube channels</h2>
+          <p>
+            The visual site, search structure, and growth engine are ready. The next update is to
+            connect the exact channels, replace these starter lanes with real videos, and publish
+            search pages around the strongest uploads.
+          </p>
+        </div>
+        <ol class="connection-list">
+          {youtubeConnectionSteps.map((step) => <li>{step}</li>)}
+        </ol>
       </section>
 
       <section class="section answer-box">
