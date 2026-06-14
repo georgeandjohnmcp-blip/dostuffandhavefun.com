@@ -11,12 +11,13 @@ const featuredVideos = buildFeaturedVideos(generatedVideos);
 const connectedVideoCount = Array.isArray(generatedVideos) ? generatedVideos.length : 0;
 
 const liveVideos = featuredVideos.filter((video) => video.isLive);
+const absoluteImageUrl = (url) => (url?.startsWith("http") ? url : `https://dostuffandhavefun.com${url}`);
 const videoSchema = liveVideos.map((video) => ({
   "@type": "VideoObject",
   name: video.title,
   description: video.description,
-  thumbnailUrl: [`https://dostuffandhavefun.com${video.thumbnail}`],
-  uploadDate: "2026-06-14",
+  thumbnailUrl: [absoluteImageUrl(video.thumbnail)],
+  uploadDate: video.published || "2026-06-14",
   embedUrl: video.url,
   publisher: {
     "@type": "Organization",
@@ -107,7 +108,7 @@ const schema = {
       </a>
       <nav aria-label="Main navigation">
         <a href="/videos/">Videos</a>
-        <a href="/games/spark-catcher/">Game</a>
+        <a href="/games/pong/">Game</a>
         <a href="#channels">Channels</a>
         <a href="#growth">Growth Engine</a>
       </nav>
@@ -124,7 +125,7 @@ const schema = {
           </p>
           <div class="hero-actions">
             <a class="button primary" href="/videos/">Watch the showcase</a>
-            <a class="button secondary" href="/games/spark-catcher/">Play the game</a>
+            <a class="button secondary" href="/games/pong/">Play the game</a>
           </div>
         </div>
         <div class="hero-art" aria-label="Playful creator studio artwork">
@@ -241,12 +242,11 @@ const schema = {
 
       <section id="youtube-connection" class="section connection">
         <div class="section-heading">
-          <p class="eyebrow">Next connection</p>
-          <h2>Ready for the real YouTube channels</h2>
+          <p class="eyebrow">YouTube connector</p>
+          <h2>Ready to pull from the real channels</h2>
           <p>
-            The visual system, search structure, and growth engine are ready. The next update is to
-            connect the exact channels, map real uploads into these lanes, and publish search pages
-            around the strongest videos.
+            Add each channel link or handle once, and the site can pull the newest public uploads
+            into the video library, homepage, video pages, sitemap, and search metadata.
           </p>
         </div>
         <ol class="connection-list">

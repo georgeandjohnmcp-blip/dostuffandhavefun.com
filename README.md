@@ -4,10 +4,11 @@ This is the new Astro website for `dostuffandhavefun.com`: a bright, playful hom
 
 ## What Is Here
 
-- A generated logo: `public/assets/do-stuff-logo.png`
+- The hand-drawn logo from `Drawing.jpeg`, saved as `public/assets/do-stuff-logo.png`
 - Generated hero artwork: `public/assets/play-lab-hero.png`
 - Handcrafted thumbnail artwork for starter video lanes
-- A playable kid-friendly browser game at `/games/spark-catcher/`
+- A playable Pong browser game at `/games/pong/`
+- The earlier Spark Catcher bonus game at `/games/spark-catcher/`
 - Astro source files in `src/`
 - A lightweight static preview/deploy copy in `dist/`
 - Deployment instructions in `deploy/`
@@ -19,13 +20,13 @@ This site should never look like generic AI output. Keep it polished, specific, 
 
 ## YouTube Channels
 
-The site is ready to stay updated from YouTube channel feeds. Add each channel ID and URL in `src/data/youtube.config.js`, then run:
+The site is ready to stay updated from YouTube channel feeds. Add each channel URL, handle, or channel ID in `src/data/youtube.config.js`, then run:
 
 ```bash
 npm run youtube:update
 ```
 
-That writes the newest videos to `src/data/videos.generated.json`, and the homepage automatically switches from starter lanes to real YouTube videos.
+That resolves the public YouTube feed, writes the newest videos to `src/data/videos.generated.json`, and the homepage automatically switches from starter lanes to real YouTube videos.
 
 The exact channels still need to be collected from the signed-in YouTube account.
 
@@ -48,7 +49,7 @@ Current hosting route: Hostinger has a dedicated website slot for `dostuffandhav
 
 ## Current Live Status
 
-The initial static site is deployed on Hostinger and serves from `https://dostuffandhavefun.com/`. The live pages include the homepage, video library, topic hubs, `llms.txt`, sitemap files, and the Spark Catcher game at `/games/spark-catcher/`.
+The initial static site is deployed on Hostinger and serves from `https://dostuffandhavefun.com/`. The local project now includes the Pong game at `/games/pong/`, the homepage game links point to Pong, and Spark Catcher remains available at `/games/spark-catcher/`.
 
 Deployment note for future chats: the Hostinger MCP static deploy tool may fail during TUS upload if it follows the returned `Location` URL. The working path is to upload the archive to the original `files/upload-urls` target with `X-Auth`, `X-Auth-Rest`, `Upload-Length`, `Upload-Offset`, and `Tus-Resumable`, then trigger `/api/hosting/v1/accounts/u937775855/websites/dostuffandhavefun.com/deploy` with the archive filename.
 
