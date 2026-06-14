@@ -13,6 +13,7 @@
 - Avoid filler sections, vague marketing language, repetitive generated art, fake testimonials, random gradients, and unfinished placeholder text.
 - If exact YouTube channel/video data is unavailable, present the missing state as a deliberate launch-ready framework, not as broken or fake content.
 - Future visual updates should feel playful, crafted, and trustworthy for kids and parents.
+- Preserve the YouTube auto-update path: channel IDs live in `src/data/youtube.config.js`, generated videos live in `src/data/videos.generated.json`, and the scheduled GitHub workflow is `.github/workflows/update-youtube.yml`.
 
 ## Disk Space
 

@@ -27,6 +27,8 @@ That writes the newest videos to `src/data/videos.generated.json`, and the homep
 
 The exact channels still need to be collected from the signed-in YouTube account.
 
+GitHub also has a scheduled workflow in `.github/workflows/update-youtube.yml` that can refresh the generated video file twice a day once the channel IDs are filled in.
+
 ## Analytics And Search Console
 
 GA4 and Google Search Console are wired but not activated yet. Add the real GA4 measurement ID and Search Console verification token in `src/data/tracking.js`, then rebuild and deploy.
