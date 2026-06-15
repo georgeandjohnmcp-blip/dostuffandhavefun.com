@@ -1,11 +1,12 @@
 # Do Stuff & Have Fun
 
-This is the Astro website for `dostuffandhavefun.com`: a 10-game browser arcade with one YouTube link to EPICMAPPING.
+This is the Astro website for `dostuffandhavefun.com`: a classic-style browser arcade with Snake, Pong, falling blocks, local multiplayer, and one YouTube link to EPICMAPPING.
 
 ## What Is Here
 
 - One games-first homepage
-- 10 playable mini-games in the browser
+- 10 playable games in the browser
+- Classic-style games including Snake, Pong, falling blocks, brick breaker, and two-player Pong
 - One external YouTube link: `https://www.youtube.com/@EPICMAPPING023`
 - No extra content sections or logo assets
 - Astro source files in `src/`

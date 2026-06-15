@@ -2,53 +2,53 @@ export const epicMappingUrl = "https://www.youtube.com/@EPICMAPPING023";
 
 export const games = [
   {
-    id: "dot-dodge",
-    title: "Dot Dodge",
-    label: "Dodge",
-    description: "Move the square and dodge falling blocks.",
-    controls: "A and D or buttons"
-  },
-  {
-    id: "star-catch",
-    title: "Star Catch",
-    label: "Catch",
-    description: "Slide the tray and catch the bright drops.",
-    controls: "A and D or buttons"
-  },
-  {
-    id: "snake-snack",
-    title: "Snake Snack",
+    id: "classic-snake",
+    title: "Classic Snake",
     label: "Snake",
-    description: "Steer the snake, eat snacks, avoid yourself.",
+    description: "Eat snacks, grow longer, and do not crash into yourself.",
     controls: "Arrow keys or buttons"
   },
   {
-    id: "memory-match",
-    title: "Memory Match",
-    label: "Memory",
-    description: "Flip cards and find every pair.",
-    controls: "Click cards"
-  },
-  {
-    id: "target-pop",
-    title: "Target Pop",
-    label: "Pop",
-    description: "Pop targets before the timer runs out.",
-    controls: "Click targets"
-  },
-  {
-    id: "color-swap",
-    title: "Color Swap",
-    label: "Color",
-    description: "Match the falling color before it lands.",
-    controls: "A and D or buttons"
-  },
-  {
-    id: "mini-pong",
-    title: "Mini Pong",
+    id: "solo-pong",
+    title: "Solo Pong",
     label: "Pong",
-    description: "Keep the ball away from your side.",
-    controls: "W and S or buttons"
+    description: "Keep the ball alive with one paddle and chase a high score.",
+    controls: "W/S, arrows, or buttons"
+  },
+  {
+    id: "falling-blocks",
+    title: "Falling Blocks",
+    label: "Blocks",
+    description: "Drop, rotate, and clear rows in a Tetris-style puzzle.",
+    controls: "Arrows, Space, or buttons"
+  },
+  {
+    id: "two-player-pong",
+    title: "Two Player Pong",
+    label: "2P Pong",
+    description: "A local multiplayer Pong match for two people.",
+    controls: "P1 W/S, P2 Up/Down"
+  },
+  {
+    id: "brick-breaker",
+    title: "Brick Breaker",
+    label: "Break",
+    description: "Bounce the ball and smash every brick.",
+    controls: "A/D, arrows, or buttons"
+  },
+  {
+    id: "asteroid-drift",
+    title: "Asteroid Drift",
+    label: "Drift",
+    description: "Pilot through drifting rocks and stay alive.",
+    controls: "Arrows, Space, or buttons"
+  },
+  {
+    id: "invader-blast",
+    title: "Invader Blast",
+    label: "Blast",
+    description: "Slide, shoot, and knock down the invader row.",
+    controls: "A/D, Space, or buttons"
   },
   {
     id: "maze-run",
@@ -65,10 +65,10 @@ export const games = [
     controls: "Space or button"
   },
   {
-    id: "number-nudge",
-    title: "Number Nudge",
-    label: "Nudge",
-    description: "Hit the target number before time runs out.",
-    controls: "A and D or buttons"
+    id: "target-pop",
+    title: "Target Pop",
+    label: "Pop",
+    description: "Click targets before the timer runs out.",
+    controls: "Click or tap targets"
   }
 ];

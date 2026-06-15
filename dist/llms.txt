@@ -6,13 +6,13 @@ Main page:
 - https://dostuffandhavefun.com/
 
 Games:
-- Dot Dodge: Move the square and dodge falling blocks.
-- Star Catch: Slide the tray and catch the bright drops.
-- Snake Snack: Steer the snake, eat snacks, avoid yourself.
-- Memory Match: Flip cards and find every pair.
-- Target Pop: Pop targets before the timer runs out.
-- Color Swap: Match the falling color before it lands.
-- Mini Pong: Keep the ball away from your side.
+- Classic Snake: Eat snacks, grow longer, and do not crash into yourself.
+- Solo Pong: Keep the ball alive with one paddle and chase a high score.
+- Falling Blocks: Drop, rotate, and clear rows in a Tetris-style puzzle.
+- Two Player Pong: A local multiplayer Pong match for two people.
+- Brick Breaker: Bounce the ball and smash every brick.
+- Asteroid Drift: Pilot through drifting rocks and stay alive.
+- Invader Blast: Slide, shoot, and knock down the invader row.
 - Maze Run: Reach the exit without touching walls.
 - Stack Jump: Jump over blocks and keep running.
-- Number Nudge: Hit the target number before time runs out.
+- Target Pop: Click targets before the timer runs out.

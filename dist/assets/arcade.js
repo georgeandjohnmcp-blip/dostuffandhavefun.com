@@ -17,28 +17,31 @@ const yellow = "#ffd23f";
 const coral = "#ff5b4a";
 const aqua = "#25c7d9";
 const green = "#7bd629";
-const colors = [coral, yellow, aqua, green];
+const blue = "#2968e8";
+const purple = "#8d5cff";
+const pieceColors = [aqua, yellow, coral, green, blue, purple];
 
 const gameTitles = {
-  "dot-dodge": "Dot Dodge",
-  "star-catch": "Star Catch",
-  "snake-snack": "Snake Snack",
-  "memory-match": "Memory Match",
-  "target-pop": "Target Pop",
-  "color-swap": "Color Swap",
-  "mini-pong": "Mini Pong",
+  "classic-snake": "Classic Snake",
+  "solo-pong": "Solo Pong",
+  "falling-blocks": "Falling Blocks",
+  "two-player-pong": "Two Player Pong",
+  "brick-breaker": "Brick Breaker",
+  "asteroid-drift": "Asteroid Drift",
+  "invader-blast": "Invader Blast",
   "maze-run": "Maze Run",
   "stack-jump": "Stack Jump",
-  "number-nudge": "Number Nudge"
+  "target-pop": "Target Pop"
 };
 
 const arcade = {
-  id: "dot-dodge",
+  id: "classic-snake",
   running: false,
   score: 0,
   best: 0,
   last: 0,
   keys: new Set(),
+  taps: new Set(),
   data: {}
 };
 
@@ -119,6 +122,12 @@ function overlap(a, b) {
   return a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
 }
 
+function consumeTap(name) {
+  if (!arcade.taps.has(name)) return false;
+  arcade.taps.delete(name);
+  return true;
+}
+
 function endGame(label = "Done") {
   arcade.running = false;
   setStatus(label);
@@ -126,83 +135,66 @@ function endGame(label = "Done") {
   showMessage(`${label}. Press Start to play again.`, "Round over");
 }
 
+function drawPlayfield(x, y, cols, rows, cell) {
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(x, y, cols * cell, rows * cell);
+  ctx.strokeStyle = ink;
+  ctx.lineWidth = 5;
+  ctx.strokeRect(x, y, cols * cell, rows * cell);
+  ctx.strokeStyle = "rgba(16,35,63,0.12)";
+  ctx.lineWidth = 1;
+  for (let col = 1; col < cols; col += 1) {
+    ctx.beginPath();
+    ctx.moveTo(x + col * cell, y);
+    ctx.lineTo(x + col * cell, y + rows * cell);
+    ctx.stroke();
+  }
+  for (let row = 1; row < rows; row += 1) {
+    ctx.beginPath();
+    ctx.moveTo(x, y + row * cell);
+    ctx.lineTo(x + cols * cell, y + row * cell);
+    ctx.stroke();
+  }
+}
+
+const tetrominoes = [
+  [[1, 1, 1, 1]],
+  [[1, 1], [1, 1]],
+  [[0, 1, 0], [1, 1, 1]],
+  [[1, 0, 0], [1, 1, 1]],
+  [[0, 0, 1], [1, 1, 1]],
+  [[1, 1, 0], [0, 1, 1]],
+  [[0, 1, 1], [1, 1, 0]]
+];
+
+function rotateMatrix(matrix) {
+  return matrix[0].map((_, i) => matrix.map((row) => row[i]).reverse());
+}
+
+function newPiece() {
+  const shape = tetrominoes[Math.floor(rand(0, tetrominoes.length))].map((row) => [...row]);
+  return { x: 3, y: 0, shape, color: pieceColors[Math.floor(rand(0, pieceColors.length))] };
+}
+
 const games = {
-  "dot-dodge": {
+  "classic-snake": {
     init() {
-      arcade.data = { player: { x: 454, y: 460, w: 52, h: 52 }, blocks: [], spawn: 0, speed: 3.5 };
+      arcade.data = {
+        tick: 0,
+        dir: { x: 1, y: 0 },
+        next: { x: 1, y: 0 },
+        snake: [{ x: 8, y: 8 }, { x: 7, y: 8 }, { x: 6, y: 8 }],
+        food: { x: 16, y: 10 }
+      };
     },
     update(dt) {
       const d = arcade.data;
-      if (arcade.keys.has("left")) d.player.x -= 420 * dt;
-      if (arcade.keys.has("right")) d.player.x += 420 * dt;
-      d.player.x = Math.max(20, Math.min(canvas.width - d.player.w - 20, d.player.x));
-      d.spawn -= dt;
-      if (d.spawn <= 0) {
-        d.blocks.push({ x: rand(20, 890), y: -70, w: rand(38, 86), h: rand(38, 86) });
-        d.spawn = Math.max(0.25, 0.72 - arcade.score * 0.004);
-      }
-      d.speed += dt * 0.08;
-      d.blocks.forEach((item) => item.y += (150 + d.speed * 38) * dt);
-      d.blocks = d.blocks.filter((item) => item.y < 620);
-      if (d.blocks.some((item) => overlap(d.player, item))) endGame("Hit");
-      arcade.score += dt * 12;
-    },
-    draw() {
-      const d = arcade.data;
-      clear();
-      d.blocks.forEach((item) => block(item.x, item.y, item.w, item.h, coral));
-      block(d.player.x, d.player.y, d.player.w, d.player.h, aqua);
-    }
-  },
-  "star-catch": {
-    init() {
-      arcade.data = { tray: { x: 410, y: 470, w: 140, h: 34 }, drops: [], spawn: 0, lives: 3 };
-    },
-    update(dt) {
-      const d = arcade.data;
-      if (arcade.keys.has("left")) d.tray.x -= 430 * dt;
-      if (arcade.keys.has("right")) d.tray.x += 430 * dt;
-      d.tray.x = Math.max(15, Math.min(canvas.width - d.tray.w - 15, d.tray.x));
-      d.spawn -= dt;
-      if (d.spawn <= 0) {
-        d.drops.push({ x: rand(35, 925), y: -30, r: 18, good: Math.random() > 0.22, vy: rand(180, 290) });
-        d.spawn = 0.48;
-      }
-      for (const drop of d.drops) drop.y += drop.vy * dt;
-      for (let i = d.drops.length - 1; i >= 0; i -= 1) {
-        const drop = d.drops[i];
-        const box = { x: drop.x - drop.r, y: drop.y - drop.r, w: drop.r * 2, h: drop.r * 2 };
-        if (overlap(d.tray, box)) {
-          arcade.score += drop.good ? 10 : -15;
-          if (!drop.good) d.lives -= 1;
-          d.drops.splice(i, 1);
-        } else if (drop.y > 570) {
-          if (drop.good) d.lives -= 1;
-          d.drops.splice(i, 1);
-        }
-      }
-      if (d.lives <= 0) endGame("Out");
-      setStatus(`${d.lives} left`);
-    },
-    draw() {
-      const d = arcade.data;
-      clear();
-      d.drops.forEach((drop) => circle(drop.x, drop.y, drop.r, drop.good ? yellow : coral));
-      block(d.tray.x, d.tray.y, d.tray.w, d.tray.h, aqua);
-    }
-  },
-  "snake-snack": {
-    init() {
-      arcade.data = { tick: 0, dir: { x: 1, y: 0 }, next: { x: 1, y: 0 }, snake: [{ x: 8, y: 8 }, { x: 7, y: 8 }, { x: 6, y: 8 }], food: { x: 16, y: 10 } };
-    },
-    update(dt) {
-      const d = arcade.data;
-      if (arcade.keys.has("up") && d.dir.y !== 1) d.next = { x: 0, y: -1 };
+      if ((arcade.keys.has("up") || consumeTap("action")) && d.dir.y !== 1) d.next = { x: 0, y: -1 };
       if (arcade.keys.has("down") && d.dir.y !== -1) d.next = { x: 0, y: 1 };
       if (arcade.keys.has("left") && d.dir.x !== 1) d.next = { x: -1, y: 0 };
       if (arcade.keys.has("right") && d.dir.x !== -1) d.next = { x: 1, y: 0 };
       d.tick += dt;
-      if (d.tick < 0.12) return;
+      if (d.tick < Math.max(0.07, 0.13 - arcade.score * 0.001)) return;
       d.tick = 0;
       d.dir = d.next;
       const head = { x: d.snake[0].x + d.dir.x, y: d.snake[0].y + d.dir.y };
@@ -213,151 +205,312 @@ const games = {
       d.snake.unshift(head);
       if (head.x === d.food.x && head.y === d.food.y) {
         arcade.score += 10;
-        d.food = { x: Math.floor(rand(0, 24)), y: Math.floor(rand(0, 14)) };
+        do {
+          d.food = { x: Math.floor(rand(0, 24)), y: Math.floor(rand(0, 14)) };
+        } while (d.snake.some((p) => p.x === d.food.x && p.y === d.food.y));
       } else {
         d.snake.pop();
       }
+      setStatus(`${d.snake.length} long`);
     },
     draw() {
       const d = arcade.data;
       clear();
       const s = 34;
-      d.snake.forEach((p, i) => block(72 + p.x * s, 34 + p.y * s, 28, 28, i === 0 ? aqua : green, 6));
-      circle(86 + d.food.x * s, 48 + d.food.y * s, 14, yellow);
-    },
-    action() {
-      arcade.data.next = { x: 0, y: -1 };
+      drawPlayfield(72, 34, 24, 14, s);
+      d.snake.forEach((p, i) => block(75 + p.x * s, 37 + p.y * s, 28, 28, i === 0 ? aqua : green, 6));
+      circle(89 + d.food.x * s, 51 + d.food.y * s, 14, yellow);
     }
   },
-  "memory-match": {
+  "solo-pong": {
     init() {
-      const values = ["A", "B", "C", "D", "E", "F", "G", "H"];
-      const cards = [...values, ...values].sort(() => Math.random() - 0.5).map((value, i) => ({ value, i, flipped: false, matched: false }));
-      arcade.data = { cards, open: [], lock: 0 };
+      arcade.data = { paddle: { x: 44, y: 210, w: 26, h: 120 }, ball: { x: 520, y: 260, r: 16, vx: -280, vy: 175 } };
     },
     update(dt) {
       const d = arcade.data;
-      if (d.lock > 0) {
-        d.lock -= dt;
-        if (d.lock <= 0) {
-          d.open.forEach((card) => card.flipped = false);
-          d.open = [];
-        }
-      }
-      if (d.cards.every((card) => card.matched)) endGame("Cleared");
-    },
-    draw() {
-      clear();
-      const d = arcade.data;
-      d.cards.forEach((card, i) => {
-        const x = 210 + (i % 4) * 138;
-        const y = 52 + Math.floor(i / 4) * 108;
-        block(x, y, 104, 76, card.matched ? green : card.flipped ? yellow : aqua);
-        text(card.flipped || card.matched ? card.value : "?", x + 38, y + 50, 34);
-      });
-    },
-    click(x, y) {
-      const d = arcade.data;
-      if (d.lock > 0 || d.open.length >= 2) return;
-      d.cards.forEach((card, i) => {
-        const cx = 210 + (i % 4) * 138;
-        const cy = 52 + Math.floor(i / 4) * 108;
-        if (x >= cx && x <= cx + 104 && y >= cy && y <= cy + 76 && !card.flipped && !card.matched) {
-          card.flipped = true;
-          d.open.push(card);
-          if (d.open.length === 2) {
-            arcade.score += 1;
-            if (d.open[0].value === d.open[1].value) {
-              d.open.forEach((item) => item.matched = true);
-              d.open = [];
-              arcade.score += 10;
-            } else {
-              d.lock = 0.7;
-            }
-          }
-        }
-      });
-    }
-  },
-  "target-pop": {
-    init() {
-      arcade.data = { target: { x: 480, y: 270, r: 46 }, timer: 20 };
-    },
-    update(dt) {
-      arcade.data.timer -= dt;
-      setStatus(`${Math.ceil(arcade.data.timer)}s`);
-      if (arcade.data.timer <= 0) endGame("Time");
-    },
-    draw() {
-      clear();
-      circle(arcade.data.target.x, arcade.data.target.y, arcade.data.target.r, coral);
-      circle(arcade.data.target.x, arcade.data.target.y, arcade.data.target.r * 0.48, yellow);
-    },
-    click(x, y) {
-      const t = arcade.data.target;
-      if (Math.hypot(x - t.x, y - t.y) <= t.r) {
-        arcade.score += 10;
-        t.x = rand(70, 890);
-        t.y = rand(70, 470);
-        t.r = Math.max(22, t.r - 1);
-      }
-    }
-  },
-  "color-swap": {
-    init() {
-      arcade.data = { color: 0, drop: { x: 480, y: -30, c: 1, vy: 160 }, lives: 3 };
-    },
-    update(dt) {
-      const d = arcade.data;
-      if (arcade.keys.has("left")) d.color = (d.color + 3) % 4;
-      if (arcade.keys.has("right")) d.color = (d.color + 1) % 4;
-      arcade.keys.delete("left");
-      arcade.keys.delete("right");
-      d.drop.y += d.drop.vy * dt;
-      if (d.drop.y > 430) {
-        if (d.drop.c === d.color) arcade.score += 10;
-        else d.lives -= 1;
-        d.drop = { x: rand(120, 840), y: -30, c: Math.floor(rand(0, 4)), vy: rand(150, 240) };
-      }
-      setStatus(`${d.lives} left`);
-      if (d.lives <= 0) endGame("Miss");
-    },
-    draw() {
-      const d = arcade.data;
-      clear();
-      circle(d.drop.x, d.drop.y, 34, colors[d.drop.c]);
-      block(380, 430, 200, 48, colors[d.color]);
-      text("Match this color", 374, 520, 24);
-    },
-    action() {
-      arcade.data.color = (arcade.data.color + 1) % 4;
-    }
-  },
-  "mini-pong": {
-    init() {
-      arcade.data = { paddle: { x: 42, y: 210, w: 26, h: 120 }, ball: { x: 520, y: 260, r: 16, vx: -260, vy: 170 } };
-    },
-    update(dt) {
-      const d = arcade.data;
-      if (arcade.keys.has("up") || arcade.keys.has("left")) d.paddle.y -= 430 * dt;
-      if (arcade.keys.has("down") || arcade.keys.has("right")) d.paddle.y += 430 * dt;
+      if (arcade.keys.has("up") || arcade.keys.has("left")) d.paddle.y -= 460 * dt;
+      if (arcade.keys.has("down") || arcade.keys.has("right")) d.paddle.y += 460 * dt;
       d.paddle.y = Math.max(12, Math.min(canvas.height - d.paddle.h - 12, d.paddle.y));
       const b = d.ball;
       b.x += b.vx * dt;
       b.y += b.vy * dt;
       if (b.y < b.r || b.y > canvas.height - b.r) b.vy *= -1;
       if (overlap(d.paddle, { x: b.x - b.r, y: b.y - b.r, w: b.r * 2, h: b.r * 2 })) {
-        b.vx = Math.abs(b.vx) + 18;
+        b.vx = Math.abs(b.vx) + 22;
+        b.vy += ((b.y - (d.paddle.y + d.paddle.h / 2)) / d.paddle.h) * 180;
         arcade.score += 5;
       }
       if (b.x > canvas.width - b.r) b.vx = -Math.abs(b.vx);
-      if (b.x < -20) endGame("Lost");
+      if (b.x < -25) endGame("Lost");
     },
     draw() {
       const d = arcade.data;
       clear();
       block(d.paddle.x, d.paddle.y, d.paddle.w, d.paddle.h, aqua);
       circle(d.ball.x, d.ball.y, d.ball.r, yellow);
+    }
+  },
+  "falling-blocks": {
+    init() {
+      arcade.data = { cols: 10, rows: 18, cell: 28, x: 340, y: 18, board: Array.from({ length: 18 }, () => Array(10).fill(null)), piece: newPiece(), drop: 0, speed: 0.62 };
+    },
+    collide(piece, offX = 0, offY = 0, shape = piece.shape) {
+      const d = arcade.data;
+      for (let y = 0; y < shape.length; y += 1) {
+        for (let x = 0; x < shape[y].length; x += 1) {
+          if (!shape[y][x]) continue;
+          const px = piece.x + x + offX;
+          const py = piece.y + y + offY;
+          if (px < 0 || px >= d.cols || py >= d.rows || (py >= 0 && d.board[py][px])) return true;
+        }
+      }
+      return false;
+    },
+    lockPiece() {
+      const d = arcade.data;
+      for (let y = 0; y < d.piece.shape.length; y += 1) {
+        for (let x = 0; x < d.piece.shape[y].length; x += 1) {
+          if (d.piece.shape[y][x]) d.board[d.piece.y + y][d.piece.x + x] = d.piece.color;
+        }
+      }
+      let cleared = 0;
+      d.board = d.board.filter((row) => {
+        if (row.every(Boolean)) {
+          cleared += 1;
+          return false;
+        }
+        return true;
+      });
+      while (d.board.length < d.rows) d.board.unshift(Array(d.cols).fill(null));
+      arcade.score += cleared * cleared * 100;
+      d.piece = newPiece();
+      if (this.collide(d.piece)) endGame("Stacked");
+    },
+    update(dt) {
+      const d = arcade.data;
+      if (consumeTap("left") && !this.collide(d.piece, -1, 0)) d.piece.x -= 1;
+      if (consumeTap("right") && !this.collide(d.piece, 1, 0)) d.piece.x += 1;
+      if (consumeTap("action") || consumeTap("up")) {
+        const rotated = rotateMatrix(d.piece.shape);
+        if (!this.collide(d.piece, 0, 0, rotated)) d.piece.shape = rotated;
+      }
+      if (arcade.keys.has("down")) d.drop += dt * 5;
+      d.drop += dt;
+      if (d.drop >= d.speed) {
+        d.drop = 0;
+        if (!this.collide(d.piece, 0, 1)) d.piece.y += 1;
+        else this.lockPiece();
+      }
+      setStatus("Drop");
+    },
+    draw() {
+      const d = arcade.data;
+      clear();
+      drawPlayfield(d.x, d.y, d.cols, d.rows, d.cell);
+      d.board.forEach((row, y) => row.forEach((color, x) => {
+        if (color) block(d.x + x * d.cell + 2, d.y + y * d.cell + 2, d.cell - 4, d.cell - 4, color, 4);
+      }));
+      d.piece.shape.forEach((row, y) => row.forEach((cell, x) => {
+        if (cell) block(d.x + (d.piece.x + x) * d.cell + 2, d.y + (d.piece.y + y) * d.cell + 2, d.cell - 4, d.cell - 4, d.piece.color, 4);
+      }));
+      text("Left/Right move, Action rotates", 42, 510, 22);
+    }
+  },
+  "two-player-pong": {
+    init() {
+      arcade.data = {
+        left: { x: 40, y: 210, w: 24, h: 120, score: 0 },
+        right: { x: 896, y: 210, w: 24, h: 120, score: 0 },
+        ball: { x: 480, y: 270, r: 15, vx: 310, vy: 170 }
+      };
+    },
+    update(dt) {
+      const d = arcade.data;
+      if (arcade.keys.has("p1up")) d.left.y -= 460 * dt;
+      if (arcade.keys.has("p1down")) d.left.y += 460 * dt;
+      if (arcade.keys.has("p2up")) d.right.y -= 460 * dt;
+      if (arcade.keys.has("p2down")) d.right.y += 460 * dt;
+      for (const paddle of [d.left, d.right]) paddle.y = Math.max(14, Math.min(canvas.height - paddle.h - 14, paddle.y));
+      const b = d.ball;
+      b.x += b.vx * dt;
+      b.y += b.vy * dt;
+      if (b.y < b.r || b.y > canvas.height - b.r) b.vy *= -1;
+      if (b.vx < 0 && overlap(d.left, { x: b.x - b.r, y: b.y - b.r, w: b.r * 2, h: b.r * 2 })) {
+        b.vx = Math.abs(b.vx) + 20;
+        b.vy += ((b.y - (d.left.y + d.left.h / 2)) / d.left.h) * 190;
+      }
+      if (b.vx > 0 && overlap(d.right, { x: b.x - b.r, y: b.y - b.r, w: b.r * 2, h: b.r * 2 })) {
+        b.vx = -Math.abs(b.vx) - 20;
+        b.vy += ((b.y - (d.right.y + d.right.h / 2)) / d.right.h) * 190;
+      }
+      if (b.x < -30 || b.x > canvas.width + 30) {
+        const rightScored = b.x < 0;
+        if (rightScored) d.right.score += 1;
+        else d.left.score += 1;
+        arcade.score = Math.max(d.left.score, d.right.score);
+        b.x = 480;
+        b.y = 270;
+        b.vx = (rightScored ? 1 : -1) * 310;
+        b.vy = rand(-210, 210);
+      }
+      setStatus(`${d.left.score}-${d.right.score}`);
+      if (d.left.score >= 7 || d.right.score >= 7) endGame(d.left.score > d.right.score ? "P1 wins" : "P2 wins");
+    },
+    draw() {
+      const d = arcade.data;
+      clear();
+      ctx.strokeStyle = "rgba(16,35,63,0.28)";
+      ctx.lineWidth = 6;
+      ctx.setLineDash([16, 16]);
+      ctx.beginPath();
+      ctx.moveTo(480, 26);
+      ctx.lineTo(480, 514);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      block(d.left.x, d.left.y, d.left.w, d.left.h, aqua);
+      block(d.right.x, d.right.y, d.right.w, d.right.h, coral);
+      circle(d.ball.x, d.ball.y, d.ball.r, yellow);
+      text("P1: W/S", 56, 48, 22);
+      text("P2: Up/Down", 760, 48, 22);
+    }
+  },
+  "brick-breaker": {
+    init() {
+      const bricks = [];
+      for (let row = 0; row < 4; row += 1) {
+        for (let col = 0; col < 9; col += 1) bricks.push({ x: 88 + col * 86, y: 54 + row * 42, w: 68, h: 26, color: pieceColors[(row + col) % pieceColors.length] });
+      }
+      arcade.data = { paddle: { x: 390, y: 482, w: 180, h: 24 }, ball: { x: 480, y: 430, r: 13, vx: 260, vy: -280 }, bricks };
+    },
+    update(dt) {
+      const d = arcade.data;
+      if (arcade.keys.has("left")) d.paddle.x -= 520 * dt;
+      if (arcade.keys.has("right")) d.paddle.x += 520 * dt;
+      d.paddle.x = Math.max(20, Math.min(canvas.width - d.paddle.w - 20, d.paddle.x));
+      const b = d.ball;
+      b.x += b.vx * dt;
+      b.y += b.vy * dt;
+      if (b.x < b.r || b.x > canvas.width - b.r) b.vx *= -1;
+      if (b.y < b.r) b.vy *= -1;
+      if (overlap(d.paddle, { x: b.x - b.r, y: b.y - b.r, w: b.r * 2, h: b.r * 2 })) {
+        b.vy = -Math.abs(b.vy);
+        b.vx += ((b.x - (d.paddle.x + d.paddle.w / 2)) / d.paddle.w) * 180;
+      }
+      for (let i = d.bricks.length - 1; i >= 0; i -= 1) {
+        if (overlap(d.bricks[i], { x: b.x - b.r, y: b.y - b.r, w: b.r * 2, h: b.r * 2 })) {
+          d.bricks.splice(i, 1);
+          b.vy *= -1;
+          arcade.score += 10;
+          break;
+        }
+      }
+      if (d.bricks.length === 0) endGame("Cleared");
+      if (b.y > canvas.height + 30) endGame("Dropped");
+      setStatus(`${d.bricks.length} bricks`);
+    },
+    draw() {
+      const d = arcade.data;
+      clear();
+      d.bricks.forEach((brick) => block(brick.x, brick.y, brick.w, brick.h, brick.color, 5));
+      block(d.paddle.x, d.paddle.y, d.paddle.w, d.paddle.h, aqua);
+      circle(d.ball.x, d.ball.y, d.ball.r, yellow);
+    }
+  },
+  "asteroid-drift": {
+    init() {
+      arcade.data = { ship: { x: 130, y: 260, w: 48, h: 42 }, rocks: [], spawn: 0, lives: 3 };
+    },
+    update(dt) {
+      const d = arcade.data;
+      if (arcade.keys.has("up") || arcade.keys.has("action")) d.ship.y -= 360 * dt;
+      if (arcade.keys.has("down")) d.ship.y += 360 * dt;
+      if (arcade.keys.has("left")) d.ship.x -= 260 * dt;
+      if (arcade.keys.has("right")) d.ship.x += 260 * dt;
+      d.ship.x = Math.max(18, Math.min(430, d.ship.x));
+      d.ship.y = Math.max(18, Math.min(canvas.height - d.ship.h - 18, d.ship.y));
+      d.spawn -= dt;
+      if (d.spawn <= 0) {
+        d.rocks.push({ x: 990, y: rand(42, 490), r: rand(18, 42), vx: rand(190, 360) });
+        d.spawn = rand(0.35, 0.75);
+      }
+      d.rocks.forEach((rock) => rock.x -= rock.vx * dt);
+      for (let i = d.rocks.length - 1; i >= 0; i -= 1) {
+        const rock = d.rocks[i];
+        if (overlap(d.ship, { x: rock.x - rock.r, y: rock.y - rock.r, w: rock.r * 2, h: rock.r * 2 })) {
+          d.lives -= 1;
+          d.rocks.splice(i, 1);
+        } else if (rock.x < -80) {
+          d.rocks.splice(i, 1);
+          arcade.score += 3;
+        }
+      }
+      setStatus(`${d.lives} lives`);
+      if (d.lives <= 0) endGame("Crashed");
+    },
+    draw() {
+      const d = arcade.data;
+      clear();
+      d.rocks.forEach((rock) => circle(rock.x, rock.y, rock.r, coral));
+      ctx.fillStyle = aqua;
+      ctx.strokeStyle = ink;
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(d.ship.x + d.ship.w, d.ship.y + d.ship.h / 2);
+      ctx.lineTo(d.ship.x, d.ship.y);
+      ctx.lineTo(d.ship.x + 8, d.ship.y + d.ship.h / 2);
+      ctx.lineTo(d.ship.x, d.ship.y + d.ship.h);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+  },
+  "invader-blast": {
+    init() {
+      const invaders = [];
+      for (let row = 0; row < 3; row += 1) {
+        for (let col = 0; col < 8; col += 1) invaders.push({ x: 142 + col * 84, y: 70 + row * 54, w: 42, h: 30 });
+      }
+      arcade.data = { player: { x: 450, y: 480, w: 58, h: 26 }, shots: [], invaders, dir: 1, step: 0 };
+    },
+    update(dt) {
+      const d = arcade.data;
+      if (arcade.keys.has("left")) d.player.x -= 500 * dt;
+      if (arcade.keys.has("right")) d.player.x += 500 * dt;
+      d.player.x = Math.max(20, Math.min(canvas.width - d.player.w - 20, d.player.x));
+      if (consumeTap("action") && d.shots.length < 3) d.shots.push({ x: d.player.x + d.player.w / 2 - 4, y: d.player.y - 18, w: 8, h: 20 });
+      d.shots.forEach((shot) => shot.y -= 520 * dt);
+      d.shots = d.shots.filter((shot) => shot.y > -30);
+      d.step += dt;
+      if (d.step > 0.45) {
+        d.step = 0;
+        const edge = d.invaders.some((item) => item.x < 40 || item.x > 880);
+        if (edge) {
+          d.dir *= -1;
+          d.invaders.forEach((item) => item.y += 24);
+        } else {
+          d.invaders.forEach((item) => item.x += d.dir * 18);
+        }
+      }
+      for (let s = d.shots.length - 1; s >= 0; s -= 1) {
+        for (let i = d.invaders.length - 1; i >= 0; i -= 1) {
+          if (overlap(d.shots[s], d.invaders[i])) {
+            d.shots.splice(s, 1);
+            d.invaders.splice(i, 1);
+            arcade.score += 10;
+            break;
+          }
+        }
+      }
+      if (d.invaders.length === 0) endGame("Cleared");
+      if (d.invaders.some((item) => item.y > 430)) endGame("Invaded");
+      setStatus(`${d.invaders.length} left`);
+    },
+    draw() {
+      const d = arcade.data;
+      clear();
+      block(d.player.x, d.player.y, d.player.w, d.player.h, aqua);
+      d.shots.forEach((shot) => block(shot.x, shot.y, shot.w, shot.h, yellow, 3));
+      d.invaders.forEach((item) => block(item.x, item.y, item.w, item.h, coral, 6));
     }
   },
   "maze-run": {
@@ -380,7 +533,7 @@ const games = {
       const old = { ...d.player };
       if (arcade.keys.has("left")) d.player.x -= 260 * dt;
       if (arcade.keys.has("right")) d.player.x += 260 * dt;
-      if (arcade.keys.has("up")) d.player.y -= 260 * dt;
+      if (arcade.keys.has("up") || arcade.keys.has("action")) d.player.y -= 260 * dt;
       if (arcade.keys.has("down")) d.player.y += 260 * dt;
       d.player.x = Math.max(10, Math.min(canvas.width - d.player.w - 10, d.player.x));
       d.player.y = Math.max(10, Math.min(canvas.height - d.player.h - 10, d.player.y));
@@ -394,10 +547,6 @@ const games = {
       block(d.goal.x, d.goal.y, d.goal.w, d.goal.h, green);
       d.walls.forEach((wall) => block(wall.x, wall.y, wall.w, wall.h, coral, 4));
       block(d.player.x, d.player.y, d.player.w, d.player.h, aqua, 6);
-    },
-    action() {
-      arcade.keys.add("up");
-      setTimeout(() => arcade.keys.delete("up"), 120);
     }
   },
   "stack-jump": {
@@ -406,6 +555,7 @@ const games = {
     },
     update(dt) {
       const d = arcade.data;
+      if (consumeTap("action") && d.runner.y >= 386) d.runner.vy = -520;
       d.runner.vy += 900 * dt;
       d.runner.y += d.runner.vy * dt;
       if (d.runner.y > 386) {
@@ -435,41 +585,29 @@ const games = {
       ctx.stroke();
       d.blocks.forEach((item) => block(item.x, item.y, item.w, item.h, coral));
       block(d.runner.x, d.runner.y, d.runner.w, d.runner.h, aqua);
-    },
-    action() {
-      if (arcade.data.runner.y >= 386) arcade.data.runner.vy = -520;
     }
   },
-  "number-nudge": {
+  "target-pop": {
     init() {
-      arcade.data = { value: 5, target: Math.floor(rand(1, 10)), timer: 15 };
+      arcade.data = { target: { x: 480, y: 270, r: 46 }, timer: 20 };
     },
     update(dt) {
-      const d = arcade.data;
-      if (arcade.keys.has("left")) d.value = Math.max(0, d.value - 1);
-      if (arcade.keys.has("right")) d.value = Math.min(10, d.value + 1);
-      arcade.keys.delete("left");
-      arcade.keys.delete("right");
-      d.timer -= dt;
-      setStatus(`${Math.ceil(d.timer)}s`);
-      if (d.timer <= 0) endGame("Time");
+      arcade.data.timer -= dt;
+      setStatus(`${Math.ceil(arcade.data.timer)}s`);
+      if (arcade.data.timer <= 0) endGame("Time");
     },
     draw() {
-      const d = arcade.data;
       clear();
-      text(`Target: ${d.target}`, 360, 180, 44);
-      text(`Your number: ${d.value}`, 330, 286, 44);
-      block(350, 340, 260, 60, yellow);
-      text("Press Action", 392, 382, 24);
+      circle(arcade.data.target.x, arcade.data.target.y, arcade.data.target.r, coral);
+      circle(arcade.data.target.x, arcade.data.target.y, arcade.data.target.r * 0.48, yellow);
     },
-    action() {
-      const d = arcade.data;
-      if (d.value === d.target) {
-        arcade.score += 20;
-        d.target = Math.floor(rand(1, 10));
-        d.timer = Math.min(20, d.timer + 5);
-      } else {
-        arcade.score = Math.max(0, arcade.score - 5);
+    click(x, y) {
+      const t = arcade.data.target;
+      if (Math.hypot(x - t.x, y - t.y) <= t.r) {
+        arcade.score += 10;
+        t.x = rand(70, 890);
+        t.y = rand(70, 470);
+        t.r = Math.max(22, t.r - 1);
       }
     }
   }
@@ -480,6 +618,8 @@ function selectGame(id) {
   arcade.running = false;
   arcade.score = 0;
   arcade.best = Number(localStorage.getItem(bestKey(id)) || 0);
+  arcade.keys.clear();
+  arcade.taps.clear();
   titleEl.textContent = gameTitles[id];
   scoreEl.textContent = "0";
   bestEl.textContent = arcade.best;
@@ -495,6 +635,7 @@ function startGame() {
   arcade.score = 0;
   arcade.last = performance.now();
   arcade.keys.clear();
+  arcade.taps.clear();
   setStatus("Play");
   games[arcade.id].init();
   hideMessage();
@@ -532,25 +673,72 @@ leftButton.addEventListener("pointerleave", () => arcade.keys.delete("left"));
 rightButton.addEventListener("pointerdown", () => arcade.keys.add("right"));
 rightButton.addEventListener("pointerup", () => arcade.keys.delete("right"));
 rightButton.addEventListener("pointerleave", () => arcade.keys.delete("right"));
-actionButton.addEventListener("click", () => games[arcade.id].action?.());
+actionButton.addEventListener("pointerdown", () => {
+  arcade.keys.add("action");
+  arcade.taps.add("action");
+});
+actionButton.addEventListener("pointerup", () => arcade.keys.delete("action"));
+actionButton.addEventListener("pointerleave", () => arcade.keys.delete("action"));
 canvas.addEventListener("click", (event) => games[arcade.id].click?.(canvasPoint(event).x, canvasPoint(event).y));
 
 window.addEventListener("keydown", (event) => {
-  if (event.key === "ArrowLeft" || event.key === "a" || event.key === "A") arcade.keys.add("left");
-  if (event.key === "ArrowRight" || event.key === "d" || event.key === "D") arcade.keys.add("right");
-  if (event.key === "ArrowUp" || event.key === "w" || event.key === "W") arcade.keys.add("up");
-  if (event.key === "ArrowDown" || event.key === "s" || event.key === "S") arcade.keys.add("down");
+  if (event.key === "ArrowLeft") {
+    arcade.keys.add("left");
+    arcade.taps.add("left");
+  }
+  if (event.key === "ArrowRight") {
+    arcade.keys.add("right");
+    arcade.taps.add("right");
+  }
+  if (event.key === "ArrowUp") {
+    arcade.keys.add("up");
+    arcade.keys.add("p2up");
+    arcade.taps.add("up");
+  }
+  if (event.key === "ArrowDown") {
+    arcade.keys.add("down");
+    arcade.keys.add("p2down");
+  }
+  if (event.key === "a" || event.key === "A") {
+    arcade.keys.add("left");
+    arcade.taps.add("left");
+  }
+  if (event.key === "d" || event.key === "D") {
+    arcade.keys.add("right");
+    arcade.taps.add("right");
+  }
+  if (event.key === "w" || event.key === "W") {
+    arcade.keys.add("p1up");
+    arcade.keys.add("up");
+    arcade.taps.add("up");
+  }
+  if (event.key === "s" || event.key === "S") {
+    arcade.keys.add("p1down");
+    arcade.keys.add("down");
+  }
   if (event.key === " " || event.key === "Enter") {
     event.preventDefault();
-    games[arcade.id].action?.();
+    arcade.keys.add("action");
+    arcade.taps.add("action");
   }
 });
 
 window.addEventListener("keyup", (event) => {
   if (event.key === "ArrowLeft" || event.key === "a" || event.key === "A") arcade.keys.delete("left");
   if (event.key === "ArrowRight" || event.key === "d" || event.key === "D") arcade.keys.delete("right");
-  if (event.key === "ArrowUp" || event.key === "w" || event.key === "W") arcade.keys.delete("up");
-  if (event.key === "ArrowDown" || event.key === "s" || event.key === "S") arcade.keys.delete("down");
+  if (event.key === "ArrowUp") {
+    arcade.keys.delete("up");
+    arcade.keys.delete("p2up");
+  }
+  if (event.key === "ArrowDown") {
+    arcade.keys.delete("down");
+    arcade.keys.delete("p2down");
+  }
+  if (event.key === "w" || event.key === "W") arcade.keys.delete("up");
+  if (event.key === "s" || event.key === "S") arcade.keys.delete("down");
+  if (event.key === "w" || event.key === "W") arcade.keys.delete("p1up");
+  if (event.key === "s" || event.key === "S") arcade.keys.delete("p1down");
+  if (event.key === " " || event.key === "Enter") arcade.keys.delete("action");
 });
 
-selectGame("dot-dodge");
+selectGame("classic-snake");

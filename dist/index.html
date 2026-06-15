@@ -3,13 +3,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Do Stuff &amp; Have Fun | 10 Mini Games</title>
-    <meta name="description" content="A bright little arcade with 10 quick browser games and a link to EPICMAPPING." />
+    <title>Do Stuff &amp; Have Fun | Snake, Pong, Blocks, and Multiplayer</title>
+    <meta name="description" content="A classic-style browser arcade with Snake, Pong, falling blocks, two-player Pong, and more quick games." />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <link rel="canonical" href="https://dostuffandhavefun.com/" />
     <link rel="stylesheet" href="/assets/global.css" />
     <meta property="og:title" content="Do Stuff & Have Fun Games" />
-    <meta property="og:description" content="A bright little arcade with 10 quick browser games and a link to EPICMAPPING." />
+    <meta property="og:description" content="A classic-style browser arcade with Snake, Pong, falling blocks, two-player Pong, and more quick games." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://dostuffandhavefun.com/" />
     <meta property="og:image" content="https://dostuffandhavefun.com/assets/play-lab-hero.png" />
@@ -26,55 +26,55 @@
     <main>
       <section class="games-hero">
         <div class="games-hero-copy">
-          <p class="eyebrow">10-game mini arcade</p>
-          <h1>Pick a game and start playing.</h1>
-          <p class="lede">Tiny browser games with chunky controls, quick rounds, and a hand-built arcade feel.</p>
+          <p class="eyebrow">Classic-style arcade</p>
+          <h1>Snake, Pong, blocks, and multiplayer.</h1>
+          <p class="lede">Play classic-style games in the browser, including a local two-player Pong match.</p>
           <div class="hero-actions"><a class="button primary" href="#play">Play now</a><a class="button secondary" href="https://www.youtube.com/@EPICMAPPING023">EPICMAPPING</a></div>
         </div>
         <div class="cabinet-preview" aria-hidden="true"><div class="cabinet-screen"><span></span><span></span><span></span><strong>10</strong></div><div class="cabinet-controls"><i></i><i></i><i></i></div></div>
       </section>
       <section id="play" class="play-section">
         <div class="arcade-machine">
-          <div class="machine-head"><div><p class="eyebrow">Now playing</p><h2 id="currentGameTitle">Dot Dodge</h2></div><div class="score-pills" aria-label="Game stats"><span>Score <strong id="score">0</strong></span><span>Best <strong id="best">0</strong></span><span>Status <strong id="status">Ready</strong></span></div></div>
+          <div class="machine-head"><div><p class="eyebrow">Now playing</p><h2 id="currentGameTitle">Classic Snake</h2></div><div class="score-pills" aria-label="Game stats"><span>Score <strong id="score">0</strong></span><span>Best <strong id="best">0</strong></span><span>Status <strong id="status">Ready</strong></span></div></div>
           <div class="game-stage"><canvas id="arcadeCanvas" width="960" height="540" aria-label="Game play area"></canvas><div class="game-message" id="gameMessage"><p class="eyebrow">Ready?</p><h3>Choose a game below, then press Start.</h3></div></div>
           <div class="machine-controls"><button id="startButton" type="button">Start</button><button id="leftButton" type="button">Left</button><button id="actionButton" type="button">Action</button><button id="rightButton" type="button">Right</button></div>
         </div>
       </section>
-      <section id="games" class="section games-list-section"><div class="section-heading"><p class="eyebrow">Game shelf</p><h2>10 games</h2><p>Just games, plus the EPICMAPPING link.</p></div><div class="ten-game-grid" id="gamePicker"><button class="selected" type="button" data-game="dot-dodge">
-              <span>Dodge</span>
-              <strong>Dot Dodge</strong>
-              <em>Move the square and dodge falling blocks.</em>
-              <small>A and D or buttons</small>
-            </button><button class="" type="button" data-game="star-catch">
-              <span>Catch</span>
-              <strong>Star Catch</strong>
-              <em>Slide the tray and catch the bright drops.</em>
-              <small>A and D or buttons</small>
-            </button><button class="" type="button" data-game="snake-snack">
+      <section id="games" class="section games-list-section"><div class="section-heading"><p class="eyebrow">Game shelf</p><h2>10 games</h2><p>Classic arcade ideas, quick controls, and one EPICMAPPING link.</p></div><div class="ten-game-grid" id="gamePicker"><button class="selected" type="button" data-game="classic-snake">
               <span>Snake</span>
-              <strong>Snake Snack</strong>
-              <em>Steer the snake, eat snacks, avoid yourself.</em>
+              <strong>Classic Snake</strong>
+              <em>Eat snacks, grow longer, and do not crash into yourself.</em>
               <small>Arrow keys or buttons</small>
-            </button><button class="" type="button" data-game="memory-match">
-              <span>Memory</span>
-              <strong>Memory Match</strong>
-              <em>Flip cards and find every pair.</em>
-              <small>Click cards</small>
-            </button><button class="" type="button" data-game="target-pop">
-              <span>Pop</span>
-              <strong>Target Pop</strong>
-              <em>Pop targets before the timer runs out.</em>
-              <small>Click targets</small>
-            </button><button class="" type="button" data-game="color-swap">
-              <span>Color</span>
-              <strong>Color Swap</strong>
-              <em>Match the falling color before it lands.</em>
-              <small>A and D or buttons</small>
-            </button><button class="" type="button" data-game="mini-pong">
+            </button><button class="" type="button" data-game="solo-pong">
               <span>Pong</span>
-              <strong>Mini Pong</strong>
-              <em>Keep the ball away from your side.</em>
-              <small>W and S or buttons</small>
+              <strong>Solo Pong</strong>
+              <em>Keep the ball alive with one paddle and chase a high score.</em>
+              <small>W/S, arrows, or buttons</small>
+            </button><button class="" type="button" data-game="falling-blocks">
+              <span>Blocks</span>
+              <strong>Falling Blocks</strong>
+              <em>Drop, rotate, and clear rows in a Tetris-style puzzle.</em>
+              <small>Arrows, Space, or buttons</small>
+            </button><button class="" type="button" data-game="two-player-pong">
+              <span>2P Pong</span>
+              <strong>Two Player Pong</strong>
+              <em>A local multiplayer Pong match for two people.</em>
+              <small>P1 W/S, P2 Up/Down</small>
+            </button><button class="" type="button" data-game="brick-breaker">
+              <span>Break</span>
+              <strong>Brick Breaker</strong>
+              <em>Bounce the ball and smash every brick.</em>
+              <small>A/D, arrows, or buttons</small>
+            </button><button class="" type="button" data-game="asteroid-drift">
+              <span>Drift</span>
+              <strong>Asteroid Drift</strong>
+              <em>Pilot through drifting rocks and stay alive.</em>
+              <small>Arrows, Space, or buttons</small>
+            </button><button class="" type="button" data-game="invader-blast">
+              <span>Blast</span>
+              <strong>Invader Blast</strong>
+              <em>Slide, shoot, and knock down the invader row.</em>
+              <small>A/D, Space, or buttons</small>
             </button><button class="" type="button" data-game="maze-run">
               <span>Maze</span>
               <strong>Maze Run</strong>
@@ -85,11 +85,11 @@
               <strong>Stack Jump</strong>
               <em>Jump over blocks and keep running.</em>
               <small>Space or button</small>
-            </button><button class="" type="button" data-game="number-nudge">
-              <span>Nudge</span>
-              <strong>Number Nudge</strong>
-              <em>Hit the target number before time runs out.</em>
-              <small>A and D or buttons</small>
+            </button><button class="" type="button" data-game="target-pop">
+              <span>Pop</span>
+              <strong>Target Pop</strong>
+              <em>Click targets before the timer runs out.</em>
+              <small>Click or tap targets</small>
             </button></div></section>
     </main>
     <footer><p>Do Stuff & Have Fun Games</p><a href="https://www.youtube.com/@EPICMAPPING023">EPICMAPPING on YouTube</a></footer>

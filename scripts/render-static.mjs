@@ -24,8 +24,8 @@ async function writePage(path, html) {
 }
 
 function htmlShell(body) {
-  const title = "Do Stuff & Have Fun | 10 Mini Games";
-  const description = "A bright little arcade with 10 quick browser games and a link to EPICMAPPING.";
+  const title = "Do Stuff & Have Fun | Snake, Pong, Blocks, and Multiplayer";
+  const description = "A classic-style browser arcade with Snake, Pong, falling blocks, two-player Pong, and more quick games.";
   const schema = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -78,9 +78,9 @@ async function renderHome() {
     <main>
       <section class="games-hero">
         <div class="games-hero-copy">
-          <p class="eyebrow">10-game mini arcade</p>
-          <h1>Pick a game and start playing.</h1>
-          <p class="lede">Tiny browser games with chunky controls, quick rounds, and a hand-built arcade feel.</p>
+          <p class="eyebrow">Classic-style arcade</p>
+          <h1>Snake, Pong, blocks, and multiplayer.</h1>
+          <p class="lede">Play classic-style games in the browser, including a local two-player Pong match.</p>
           <div class="hero-actions"><a class="button primary" href="#play">Play now</a><a class="button secondary" href="${epicMappingUrl}">EPICMAPPING</a></div>
         </div>
         <div class="cabinet-preview" aria-hidden="true"><div class="cabinet-screen"><span></span><span></span><span></span><strong>10</strong></div><div class="cabinet-controls"><i></i><i></i><i></i></div></div>
@@ -92,7 +92,7 @@ async function renderHome() {
           <div class="machine-controls"><button id="startButton" type="button">Start</button><button id="leftButton" type="button">Left</button><button id="actionButton" type="button">Action</button><button id="rightButton" type="button">Right</button></div>
         </div>
       </section>
-      <section id="games" class="section games-list-section"><div class="section-heading"><p class="eyebrow">Game shelf</p><h2>10 games</h2><p>Just games, plus the EPICMAPPING link.</p></div><div class="ten-game-grid" id="gamePicker">${renderGameButtons()}</div></section>
+      <section id="games" class="section games-list-section"><div class="section-heading"><p class="eyebrow">Game shelf</p><h2>10 games</h2><p>Classic arcade ideas, quick controls, and one EPICMAPPING link.</p></div><div class="ten-game-grid" id="gamePicker">${renderGameButtons()}</div></section>
     </main>
     <footer><p>Do Stuff & Have Fun Games</p><a href="${epicMappingUrl}">EPICMAPPING on YouTube</a></footer>`;
   await writePage("", htmlShell(body));

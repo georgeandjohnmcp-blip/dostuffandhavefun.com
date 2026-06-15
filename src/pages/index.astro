@@ -3,8 +3,8 @@ import { epicMappingUrl, games } from "../data/games.js";
 import { tracking } from "../data/tracking.js";
 import "../styles/global.css";
 
-const pageTitle = "Do Stuff & Have Fun | 10 Mini Games";
-const pageDescription = "A bright little arcade with 10 quick browser games and a link to EPICMAPPING.";
+const pageTitle = "Do Stuff & Have Fun | Snake, Pong, Blocks, and Multiplayer";
+const pageDescription = "A classic-style browser arcade with Snake, Pong, falling blocks, two-player Pong, and more quick games.";
 const schema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
@@ -55,10 +55,10 @@ const schema = {
     <main>
       <section class="games-hero">
         <div class="games-hero-copy">
-          <p class="eyebrow">10-game mini arcade</p>
-          <h1>Pick a game and start playing.</h1>
+          <p class="eyebrow">Classic-style arcade</p>
+          <h1>Snake, Pong, blocks, and multiplayer.</h1>
           <p class="lede">
-            Tiny browser games with chunky controls, quick rounds, and a hand-built arcade feel.
+            Play classic-style games in the browser, including a local two-player Pong match.
           </p>
           <div class="hero-actions">
             <a class="button primary" href="#play">Play now</a>
@@ -113,7 +113,7 @@ const schema = {
         <div class="section-heading">
           <p class="eyebrow">Game shelf</p>
           <h2>10 games</h2>
-          <p>Just games, plus the EPICMAPPING link.</p>
+          <p>Classic arcade ideas, quick controls, and one EPICMAPPING link.</p>
         </div>
         <div class="ten-game-grid" id="gamePicker">
           {games.map((game, index) => (
