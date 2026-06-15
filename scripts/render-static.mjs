@@ -43,7 +43,7 @@ function htmlShell(body) {
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <link rel="canonical" href="https://dostuffandhavefun.com/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/assets/global.css" />
+    <link rel="stylesheet" href="/assets/global.css?v=spotlight-3d-20260615" />
     <meta property="og:title" content="Do Stuff & Have Fun Games" />
     <meta property="og:description" content="${esc(description)}" />
     <meta property="og:type" content="website" />
