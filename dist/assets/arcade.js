@@ -60,7 +60,7 @@ const gameTitles = {
 };
 
 const arcade = {
-  id: "neon-cube-dash",
+  id: "turbo-racer-3d",
   running: false,
   score: 0,
   best: 0,
@@ -2790,4 +2790,4 @@ window.addEventListener("keyup", (event) => {
   if (event.key === " " || event.key === "Enter") arcade.keys.delete("action");
 });
 
-selectGame("neon-cube-dash");
+selectGame("turbo-racer-3d");

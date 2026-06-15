@@ -5,6 +5,8 @@ import "../styles/global.css";
 
 const pageTitle = "Welcome to Have Fun and Do Stuff | 3D Racing, FPS, and Arcade Games";
 const pageDescription = "A browser arcade led by 3D racing, block-building, platforming, first-person shooting, rhythm dash games, and more quick games.";
+const featuredGameId = "turbo-racer-3d";
+const featuredGame = games.find((game) => game.id === featuredGameId) ?? games[0];
 const laggyGames = games.filter((game) => game.id === "neon-cube-dash");
 const regularGames = games.filter((game) => game.id !== "neon-cube-dash");
 const schema = {
@@ -88,7 +90,7 @@ const schema = {
           <div class="machine-head">
             <div>
               <p class="eyebrow">Now playing</p>
-              <h2 id="currentGameTitle">{games[0].title}</h2>
+              <h2 id="currentGameTitle">{featuredGame.title}</h2>
             </div>
             <div class="score-pills" aria-label="Game stats">
               <span>Score <strong id="score">0</strong></span>
@@ -120,7 +122,7 @@ const schema = {
         </div>
         <div class="ten-game-grid" data-game-picker>
           {laggyGames.map((game) => (
-            <button class="selected" type="button" data-game={game.id}>
+            <button type="button" data-game={game.id}>
               <span>{game.label}</span>
               <strong>{game.title}</strong>
               <em>{game.description}</em>
@@ -138,7 +140,7 @@ const schema = {
         </div>
         <div class="ten-game-grid" data-game-picker>
           {regularGames.map((game) => (
-            <button type="button" data-game={game.id}>
+            <button class={game.id === featuredGameId ? "selected" : ""} type="button" data-game={game.id}>
               <span>{game.label}</span>
               <strong>{game.title}</strong>
               <em>{game.description}</em>
@@ -154,6 +156,6 @@ const schema = {
       <a href={epicMappingUrl}>EPICMAPPING on YouTube</a>
     </footer>
 
-    <script type="module" src="/assets/arcade.js?v=laggy-games-20260615"></script>
+    <script type="module" src="/assets/arcade.js?v=racing-first-20260615"></script>
   </body>
 </html>
