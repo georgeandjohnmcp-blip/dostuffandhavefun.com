@@ -907,10 +907,8 @@ async function setupSpotlight3d() {
 
 function clearFpsScene() {
   if (!fps3d.scene) return;
-  [...fps3d.bots, ...fps3d.walls, ...fps3d.cover, ...fps3d.beams, fps3d.remote].filter(Boolean).forEach((item) => fps3d.scene.remove(item));
+  [...fps3d.bots, ...fps3d.beams, fps3d.remote].filter(Boolean).forEach((item) => fps3d.scene.remove(item));
   fps3d.bots = [];
-  fps3d.walls = [];
-  fps3d.cover = [];
   fps3d.beams = [];
   fps3d.remote = null;
 }
@@ -933,29 +931,50 @@ async function setupFps3d() {
     const THREE = await loadThree();
     fps3d.THREE = THREE;
     const renderer = get3dRenderer();
-    renderer.setClearColor(0x07090f, 1);
+    renderer.setClearColor(0x8bdcff, 1);
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.Fog(0x07090f, 12, 64);
+    scene.background = new THREE.Color(0x8bdcff);
+    scene.fog = new THREE.Fog(0x8bdcff, 28, 92);
     const camera = new THREE.PerspectiveCamera(72, 16 / 9, 0.1, 90);
 
-    const ambient = new THREE.HemisphereLight(0x7aa7ff, 0x07090f, 0.58);
+    const ambient = new THREE.HemisphereLight(0xcaf6ff, 0x26345c, 1.06);
     scene.add(ambient);
-    const arenaLight = new THREE.SpotLight(0xfff0a0, 520, 50, Math.PI / 4.6, 0.45, 1);
-    arenaLight.position.set(0, 16, 0);
+    const arenaLight = new THREE.SpotLight(0xfff0a0, 620, 62, Math.PI / 4.2, 0.52, 1);
+    arenaLight.position.set(-7, 20, 8);
     arenaLight.castShadow = true;
     scene.add(arenaLight);
     scene.add(arenaLight.target);
 
+    const sun = new THREE.Mesh(
+      new THREE.SphereGeometry(2.1, 24, 16),
+      new THREE.MeshBasicMaterial({ color: 0xfff0a0 })
+    );
+    sun.position.set(-21, 24, -35);
+    scene.add(sun);
+
+    const cloudMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+    for (let i = 0; i < 7; i += 1) {
+      const cloud = new THREE.Group();
+      [0, 0.7, -0.72, 1.32].forEach((offset, index) => {
+        const puff = new THREE.Mesh(new THREE.SphereGeometry(index === 1 ? 0.72 : 0.52, 16, 10), cloudMat);
+        puff.position.set(offset, Math.sin(index) * 0.18, 0);
+        cloud.add(puff);
+      });
+      cloud.position.set(-22 + i * 7.3, 11.5 + Math.sin(i * 1.4) * 1.1, -26 - (i % 3) * 8);
+      scene.add(cloud);
+      fps3d.cover.push(cloud);
+    }
+
     const floor = new THREE.Mesh(
       new THREE.PlaneGeometry(34, 34, 20, 20),
-      new THREE.MeshStandardMaterial({ color: 0x101a31, roughness: 0.72, metalness: 0.08 })
+      new THREE.MeshStandardMaterial({ color: 0x496b5c, roughness: 0.82, metalness: 0.03 })
     );
     floor.rotation.x = -Math.PI / 2;
     floor.receiveShadow = true;
     scene.add(floor);
 
-    const gridMat = new THREE.MeshBasicMaterial({ color: 0x25c7d9, transparent: true, opacity: 0.18 });
+    const gridMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.2 });
     for (let i = -16; i <= 16; i += 4) {
       const a = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.035, 32), gridMat);
       a.position.set(i, 0.03, 0);
@@ -965,7 +984,7 @@ async function setupFps3d() {
       scene.add(b);
     }
 
-    const wallMat = new THREE.MeshStandardMaterial({ color: 0x26345c, roughness: 0.58, metalness: 0.1 });
+    const wallMat = new THREE.MeshStandardMaterial({ color: 0x2d3d65, roughness: 0.62, metalness: 0.08 });
     [[0, -16, 34, 1], [0, 16, 34, 1], [-16, 0, 1, 34], [16, 0, 1, 34]].forEach(([x, z, w, d]) => {
       const wall = new THREE.Mesh(new THREE.BoxGeometry(w, 3.4, d), wallMat);
       wall.position.set(x, 1.7, z);
@@ -975,20 +994,39 @@ async function setupFps3d() {
       fps3d.walls.push(wall);
     });
 
-    const coverMat = new THREE.MeshStandardMaterial({ color: 0x34466f, roughness: 0.5, metalness: 0.12 });
+    const coverMat = new THREE.MeshStandardMaterial({ color: 0x34466f, roughness: 0.56, metalness: 0.12 });
+    const crateMat = new THREE.MeshStandardMaterial({ color: 0xb56a3a, roughness: 0.82, metalness: 0.03 });
+    const barrierMat = new THREE.MeshStandardMaterial({ color: 0xffd23f, roughness: 0.5, metalness: 0.05 });
     [
-      [-7, -4, 2.2, 1.8, 1.6],
-      [6, -3, 1.8, 2.4, 2.0],
-      [-4, 5, 2.8, 1.5, 1.4],
-      [7, 6, 2.0, 2.0, 1.8],
-      [0, -10, 4.2, 1.2, 1.2]
-    ].forEach(([x, z, w, d, h]) => {
-      const cover = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), coverMat);
+      [-8.4, -6.2, 2.2, 2.2, 1.7, coverMat],
+      [-5.8, -0.8, 1.45, 4.8, 1.15, barrierMat],
+      [-8.7, 5.9, 3.4, 1.3, 1.4, crateMat],
+      [-3.2, 6.4, 1.5, 2.8, 2.05, coverMat],
+      [0, -8.8, 4.9, 1.15, 1.25, barrierMat],
+      [0, -1.2, 1.4, 5.4, 1.35, coverMat],
+      [3.8, 3.6, 5.2, 1.25, 1.15, barrierMat],
+      [6.4, -4.1, 2.1, 3.4, 1.9, coverMat],
+      [8.8, 1.7, 1.55, 2.1, 1.35, crateMat],
+      [8.0, 7.1, 3.0, 1.4, 1.55, crateMat],
+      [-11.6, 0.4, 1.4, 2.9, 1.6, crateMat],
+      [11.7, -8.1, 1.45, 4.2, 1.2, barrierMat]
+    ].forEach(([x, z, w, d, h, material]) => {
+      const cover = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
       cover.position.set(x, h / 2, z);
       cover.castShadow = true;
       cover.receiveShadow = true;
       scene.add(cover);
       fps3d.cover.push(cover);
+    });
+
+    const pillarMat = new THREE.MeshStandardMaterial({ color: 0x8d5cff, roughness: 0.45, metalness: 0.12 });
+    [[-11, -11], [11, -11], [-11, 10], [11, 10], [-2.5, -4.4], [4.7, -0.2]].forEach(([x, z]) => {
+      const pillar = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.74, 2.9, 18), pillarMat);
+      pillar.position.set(x, 1.45, z);
+      pillar.castShadow = true;
+      pillar.receiveShadow = true;
+      scene.add(pillar);
+      fps3d.cover.push(pillar);
     });
 
     const bannerMat = new THREE.MeshBasicMaterial({ color: 0xff5b4a });
@@ -1090,8 +1128,40 @@ function makeFpsBot(x, z, color = 0xff5b4a) {
   mouth.position.set(0, 0.78, -0.318);
   mouth.rotation.z = 0.08;
   bot.add(mouth);
+
+  const weapon = new THREE.Group();
+  const weaponMat = new THREE.MeshStandardMaterial({ color: 0x17213b, roughness: 0.42, metalness: 0.35 });
+  const glowMat = new THREE.MeshStandardMaterial({ color: 0xff5b4a, emissive: 0x431008, roughness: 0.3, metalness: 0.18 });
+  const grip = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.32, 0.18), weaponMat);
+  grip.position.set(0.32, 0.1, -0.18);
+  grip.rotation.x = -0.24;
+  weapon.add(grip);
+  const blasterBody = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.2, 0.52), glowMat);
+  blasterBody.position.set(0.32, 0.24, -0.46);
+  blasterBody.castShadow = true;
+  weapon.add(blasterBody);
+  const barrel = new THREE.Mesh(
+    new THREE.CylinderGeometry(0.045, 0.06, 0.52, 14),
+    new THREE.MeshStandardMaterial({ color: 0x25c7d9, emissive: 0x082f38, roughness: 0.26, metalness: 0.42 })
+  );
+  barrel.rotation.x = Math.PI / 2;
+  barrel.position.set(0.32, 0.24, -0.88);
+  weapon.add(barrel);
+  const muzzleLight = new THREE.PointLight(0xff5b4a, 0, 6);
+  muzzleLight.position.set(0.32, 0.24, -1.18);
+  weapon.add(muzzleLight);
+  bot.add(weapon);
+
   bot.position.set(x, 0.9, z);
-  bot.userData = { hp: 3, cooldown: rand(0.4, 1.2), strafe: rand(-1, 1), step: rand(0.05, 0.45) };
+  bot.userData = {
+    hp: 3,
+    cooldown: rand(0.4, 1.2),
+    strafe: rand(-1, 1),
+    step: rand(0.05, 0.45),
+    shotFlash: 0,
+    muzzleLight,
+    barrel
+  };
   fps3d.scene.add(bot);
   return bot;
 }
@@ -1106,6 +1176,20 @@ function addShotBeam(endPoint, hit = false) {
     new THREE.LineBasicMaterial({ color: hit ? 0xffd23f : 0x25c7d9, transparent: true, opacity: 0.95 })
   );
   beam.userData.life = 0.12;
+  fps3d.scene.add(beam);
+  fps3d.beams.push(beam);
+}
+
+function addEnemyShotBeam(bot, endPoint) {
+  const THREE = fps3d.THREE;
+  const start = new THREE.Vector3(0.32, 0.24, -1.18);
+  bot.localToWorld(start);
+  const geometry = new THREE.BufferGeometry().setFromPoints([start, endPoint]);
+  const beam = new THREE.Line(
+    geometry,
+    new THREE.LineBasicMaterial({ color: 0xff5b4a, transparent: true, opacity: 0.92 })
+  );
+  beam.userData.life = 0.16;
   fps3d.scene.add(beam);
   fps3d.beams.push(beam);
 }
@@ -1578,9 +1662,14 @@ const games = {
         playEnemyStep(dist, bot.position.x - p.x);
         bot.userData.step = Math.max(0.24, 0.68 - Math.max(0, 1 - dist / 17) * 0.22 + rand(-0.04, 0.08));
       }
+      bot.userData.shotFlash = Math.max(0, bot.userData.shotFlash - dt * 7);
+      if (bot.userData.muzzleLight) bot.userData.muzzleLight.intensity = bot.userData.shotFlash > 0 ? 12 : 0;
+      if (bot.userData.barrel) bot.userData.barrel.material.emissive.setHex(bot.userData.shotFlash > 0 ? 0xff5b4a : 0x082f38);
       bot.userData.cooldown -= dt;
       if (dist < 10 && bot.userData.cooldown <= 0) {
         arcade.data.hp -= 8;
+        bot.userData.shotFlash = 1;
+        addEnemyShotBeam(bot, new fps3d.THREE.Vector3(p.x, p.y + 0.1, p.z));
         bot.userData.cooldown = rand(0.65, 1.35);
         setStatus(`${Math.max(0, Math.ceil(arcade.data.hp))} HP`);
       }
@@ -1597,7 +1686,19 @@ const games = {
       const ray = new fps3d.THREE.Raycaster();
       ray.setFromCamera(new fps3d.THREE.Vector2(0, 0), fps3d.camera);
       const targets = fps3d.mode === "bots" ? fps3d.bots : [fps3d.remote].filter(Boolean);
-      const hits = ray.intersectObjects(targets, true);
+      const solidHits = ray.intersectObjects([...targets, ...fps3d.cover, ...fps3d.walls], true);
+      const hits = solidHits.filter((hit) => {
+        let target = hit.object;
+        while (target.parent && !targets.includes(target)) target = target.parent;
+        return targets.includes(target);
+      });
+      const firstHit = solidHits[0];
+      if (firstHit && (!hits.length || firstHit.distance < hits[0].distance)) {
+        addShotBeam(firstHit.point, false);
+        showHitMarker(false);
+        setStatus("Cover hit");
+        return;
+      }
       if (!hits.length) {
         const missPoint = new fps3d.THREE.Vector3(0, 0, -28).applyMatrix4(fps3d.camera.matrixWorld);
         addShotBeam(missPoint, false);
@@ -1629,7 +1730,7 @@ const games = {
     draw() {
       if (!fps3d.ready) return;
       resize3d();
-      fps3d.renderer.setClearColor(0x07090f, 1);
+      fps3d.renderer.setClearColor(0x8bdcff, 1);
       fps3d.renderer.render(fps3d.scene, fps3d.camera);
       const ctx2d = ctx;
       ctx2d.clearRect(0, 0, canvas.width, canvas.height);
