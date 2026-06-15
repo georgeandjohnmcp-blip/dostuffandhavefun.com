@@ -23,6 +23,13 @@ export const games = [
     controls: "Left/Right, Action boost"
   },
   {
+    id: "sky-platformer-3d",
+    title: "Sky Platformer 3D",
+    label: "Jump",
+    description: "A 3D platform run with floating islands, coins, lava, and a finish gate.",
+    controls: "Left/Right, Action jump"
+  },
+  {
     id: "classic-snake",
     title: "Classic Snake",
     label: "Snake",

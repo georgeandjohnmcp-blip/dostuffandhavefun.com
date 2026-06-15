@@ -4,7 +4,7 @@ import { tracking } from "../data/tracking.js";
 import "../styles/global.css";
 
 const pageTitle = "Welcome to Have Fun and Do Stuff | 3D Racing, FPS, and Arcade Games";
-const pageDescription = "A browser arcade led by a one-minute 3D racing game against bot cars, plus a 3D first-person shooter and more quick games.";
+const pageDescription = "A browser arcade led by a one-minute 3D racing game, a 3D platformer, a first-person shooter, and more quick games.";
 const schema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
@@ -114,7 +114,7 @@ const schema = {
         <div class="section-heading">
           <p class="eyebrow">Game shelf</p>
           <h2>{games.length} games</h2>
-          <p>A 3D racer, a 3D FPS, a 3D spotlight runner, quick arcade classics, and one EPICMAPPING link.</p>
+          <p>A 3D racer, a 3D platformer, a 3D FPS, quick arcade classics, and one EPICMAPPING link.</p>
         </div>
         <div class="ten-game-grid" id="gamePicker">
           {games.map((game, index) => (
@@ -134,6 +134,6 @@ const schema = {
       <a href={epicMappingUrl}>EPICMAPPING on YouTube</a>
     </footer>
 
-    <script type="module" src="/assets/arcade.js?v=racer-bots-1min-20260615"></script>
+    <script type="module" src="/assets/arcade.js?v=platformer3d-20260615"></script>
   </body>
 </html>

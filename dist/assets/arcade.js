@@ -33,12 +33,13 @@ const green = "#7bd629";
 const blue = "#2968e8";
 const purple = "#8d5cff";
 const pieceColors = [aqua, yellow, coral, green, blue, purple];
-const threeGameIds = new Set(["turbo-racer-3d", "arena-fps-3d", "spotlight-dash-3d"]);
+const threeGameIds = new Set(["turbo-racer-3d", "arena-fps-3d", "spotlight-dash-3d", "sky-platformer-3d"]);
 
 const gameTitles = {
   "turbo-racer-3d": "Turbo Racer 3D",
   "arena-fps-3d": "Arena FPS 3D",
   "spotlight-dash-3d": "Spotlight Dash 3D",
+  "sky-platformer-3d": "Sky Platformer 3D",
   "classic-snake": "Classic Snake",
   "solo-pong": "Solo Pong",
   "falling-blocks": "Falling Blocks",
@@ -127,6 +128,22 @@ const racing3d = {
   laneMarkers: []
 };
 
+const platform3d = {
+  ready: false,
+  loading: false,
+  failed: false,
+  THREE: null,
+  renderer: null,
+  scene: null,
+  camera: null,
+  player: null,
+  goal: null,
+  objects: [],
+  platforms: [],
+  coins: [],
+  hazards: []
+};
+
 function setStageMode(is3d) {
   canvas.hidden = is3d;
   spotlightCanvas.hidden = !is3d;
@@ -204,11 +221,23 @@ function resize3d() {
   const width = Math.max(1, spotlightCanvas.clientWidth);
   const height = Math.max(1, spotlightCanvas.clientHeight);
   if (shared3dRenderer) shared3dRenderer.setSize(width, height, false);
-  for (const camera of [spotlight3d.camera, fps3d.camera, racing3d.camera]) {
+  for (const camera of [spotlight3d.camera, fps3d.camera, racing3d.camera, platform3d.camera]) {
     if (!camera) continue;
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
   }
+}
+
+function clearPlatformScene() {
+  if (!platform3d.scene) return;
+  [...platform3d.objects, ...platform3d.platforms.map((item) => item.mesh), ...platform3d.coins.map((item) => item.mesh), ...platform3d.hazards.map((item) => item.mesh), platform3d.goal].forEach((item) => {
+    if (item) platform3d.scene.remove(item);
+  });
+  platform3d.objects = [];
+  platform3d.platforms = [];
+  platform3d.coins = [];
+  platform3d.hazards = [];
+  platform3d.goal = null;
 }
 
 function clearRacingScene() {
@@ -375,6 +404,177 @@ function raceClock(seconds) {
   const mins = Math.floor(safe / 60);
   const secs = String(safe % 60).padStart(2, "0");
   return `${mins}:${secs}`;
+}
+
+function makePlatformPlayer() {
+  const THREE = platform3d.THREE;
+  const player = new THREE.Group();
+  const body = new THREE.Mesh(
+    new THREE.BoxGeometry(0.9, 1.15, 0.9),
+    new THREE.MeshStandardMaterial({ color: 0xff5b4a, roughness: 0.36, metalness: 0.08 })
+  );
+  body.position.y = 0.58;
+  body.castShadow = true;
+  player.add(body);
+  const head = new THREE.Mesh(
+    new THREE.SphereGeometry(0.38, 24, 18),
+    new THREE.MeshStandardMaterial({ color: 0xffd23f, roughness: 0.4 })
+  );
+  head.position.y = 1.34;
+  head.castShadow = true;
+  player.add(head);
+  const eyeMat = new THREE.MeshBasicMaterial({ color: 0x10233f });
+  [-0.13, 0.13].forEach((x) => {
+    const eye = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.08, 0.04), eyeMat);
+    eye.position.set(x, 1.42, 0.34);
+    player.add(eye);
+  });
+  return player;
+}
+
+function addPlatformBlock(x, top, width, color = 0x25c7d9) {
+  const THREE = platform3d.THREE;
+  const height = 0.52;
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(width, height, 5.2),
+    new THREE.MeshStandardMaterial({ color, roughness: 0.58, metalness: 0.06 })
+  );
+  mesh.position.set(x, top - height / 2, 0);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  platform3d.scene.add(mesh);
+  platform3d.platforms.push({ x, top, width, height, mesh });
+  const grass = new THREE.Mesh(
+    new THREE.BoxGeometry(width + 0.08, 0.08, 5.28),
+    new THREE.MeshBasicMaterial({ color: 0x7bd629 })
+  );
+  grass.position.set(x, top + 0.055, 0);
+  platform3d.scene.add(grass);
+  platform3d.objects.push(grass);
+}
+
+function addPlatformCoin(x, y) {
+  const THREE = platform3d.THREE;
+  const mesh = new THREE.Mesh(
+    new THREE.TorusGeometry(0.34, 0.08, 14, 30),
+    new THREE.MeshStandardMaterial({ color: 0xffd23f, emissive: 0x604400, roughness: 0.28 })
+  );
+  mesh.position.set(x, y, 0);
+  mesh.rotation.y = Math.PI / 2;
+  mesh.castShadow = true;
+  platform3d.scene.add(mesh);
+  platform3d.coins.push({ x, y, mesh, taken: false });
+}
+
+function addPlatformHazard(x, width) {
+  const THREE = platform3d.THREE;
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(width, 0.18, 5.4),
+    new THREE.MeshStandardMaterial({ color: 0xff5b4a, emissive: 0x541000, roughness: 0.4 })
+  );
+  mesh.position.set(x, -0.2, 0);
+  platform3d.scene.add(mesh);
+  platform3d.hazards.push({ x, width, mesh });
+}
+
+function buildPlatformLevel() {
+  const THREE = platform3d.THREE;
+  clearPlatformScene();
+  [
+    [-9, 0, 7.2],
+    [-1.6, 1.15, 3.6],
+    [3.8, 2.18, 3.2],
+    [8.6, 1.18, 3.2],
+    [13.7, 2.7, 3.3],
+    [19.4, 1.55, 4.0],
+    [25.4, 2.18, 4.7],
+    [30, 1.5, 4.2]
+  ].forEach(([x, top, width], index) => addPlatformBlock(x, top, width, index % 2 ? 0x2968e8 : 0x25c7d9));
+
+  [[-2, 2.05], [3.8, 3.15], [8.7, 2.12], [13.6, 3.68], [19.5, 2.48], [24.4, 3.1], [27.1, 3.1]].forEach(([x, y]) => addPlatformCoin(x, y));
+  addPlatformHazard(5.8, 3.4);
+  addPlatformHazard(16.4, 3.2);
+  addPlatformHazard(22.5, 2.2);
+
+  const goal = new THREE.Group();
+  const postMat = new THREE.MeshStandardMaterial({ color: 0x8d5cff, roughness: 0.35, metalness: 0.12 });
+  const topMat = new THREE.MeshBasicMaterial({ color: 0xffd23f });
+  [-0.8, 0.8].forEach((x) => {
+    const post = new THREE.Mesh(new THREE.BoxGeometry(0.18, 2.7, 0.18), postMat);
+    post.position.set(x, 1.25, 0);
+    post.castShadow = true;
+    goal.add(post);
+  });
+  const top = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.22, 0.2), topMat);
+  top.position.set(0, 2.65, 0);
+  goal.add(top);
+  goal.position.set(29.5, 1.5, 0);
+  platform3d.scene.add(goal);
+  platform3d.goal = goal;
+}
+
+async function setupPlatform3d() {
+  if (platform3d.ready || platform3d.loading || platform3d.failed) return;
+  platform3d.loading = true;
+  setStatus("Loading jump");
+  try {
+    const THREE = await loadThree();
+    platform3d.THREE = THREE;
+    fps3d.THREE = THREE;
+    const renderer = get3dRenderer();
+    renderer.setClearColor(0x8bdcff, 1);
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x8bdcff, 24, 86);
+    const camera = new THREE.PerspectiveCamera(58, 16 / 9, 0.1, 120);
+    camera.position.set(0, 5.5, 12);
+    camera.lookAt(2, 1.4, 0);
+
+    const sun = new THREE.DirectionalLight(0xfff0a0, 2.7);
+    sun.position.set(-8, 14, 10);
+    sun.castShadow = true;
+    sun.shadow.mapSize.width = 2048;
+    sun.shadow.mapSize.height = 2048;
+    scene.add(sun);
+    scene.add(new THREE.HemisphereLight(0xcaf6ff, 0x355522, 1.1));
+
+    const skyBase = new THREE.Mesh(
+      new THREE.PlaneGeometry(90, 24),
+      new THREE.MeshBasicMaterial({ color: 0xb9f2ff })
+    );
+    skyBase.position.set(20, -1.0, -3.1);
+    scene.add(skyBase);
+
+    for (let i = 0; i < 9; i += 1) {
+      const cloud = new THREE.Group();
+      const mat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+      [0, 0.55, -0.55].forEach((offset, index) => {
+        const puff = new THREE.Mesh(new THREE.SphereGeometry(index === 1 ? 0.55 : 0.42, 16, 10), mat);
+        puff.position.x = offset;
+        cloud.add(puff);
+      });
+      cloud.position.set(-8 + i * 6.2, 5.6 + Math.sin(i) * 0.7, -3.4);
+      scene.add(cloud);
+    }
+
+    platform3d.renderer = renderer;
+    platform3d.scene = scene;
+    platform3d.camera = camera;
+    platform3d.player = makePlatformPlayer();
+    platform3d.player.position.set(-8.6, 0.65, 0);
+    scene.add(platform3d.player);
+
+    platform3d.ready = true;
+    platform3d.loading = false;
+    buildPlatformLevel();
+    resize3d();
+    games["sky-platformer-3d"].draw();
+  } catch {
+    platform3d.failed = true;
+    platform3d.loading = false;
+    setStatus("Jump failed");
+    showMessage("The 3D platform game did not load. Refresh and try again.", "3D");
+  }
 }
 
 async function setupSpotlight3d() {
@@ -1311,6 +1511,115 @@ const games = {
       spotlight3d.camera.position.x += (d.playerX * 0.18 - spotlight3d.camera.position.x) * 0.06;
       spotlight3d.camera.lookAt(d.playerX * 0.16, 0.75, -12);
       spotlight3d.renderer.render(spotlight3d.scene, spotlight3d.camera);
+    }
+  },
+  "sky-platformer-3d": {
+    init() {
+      setStageMode(true);
+      arcade.data = {
+        x: -8.6,
+        y: 0.65,
+        vy: 0,
+        grounded: false,
+        coins: 0,
+        jumps: 0,
+        time: 0,
+        respawnX: -8.6,
+        respawnY: 0.65,
+        won: false
+      };
+      if (platform3d.ready) {
+        buildPlatformLevel();
+        platform3d.player.position.set(arcade.data.x, arcade.data.y, 0);
+        platform3d.player.rotation.set(0, 0, 0);
+      }
+      setupPlatform3d();
+    },
+    respawn() {
+      const d = arcade.data;
+      d.x = d.respawnX;
+      d.y = d.respawnY;
+      d.vy = 0;
+      d.grounded = false;
+      setStatus("Lava");
+    },
+    update(dt) {
+      const d = arcade.data;
+      if (!platform3d.ready) {
+        setupPlatform3d();
+        return;
+      }
+      d.time += dt;
+      const move = (arcade.keys.has("right") ? 1 : 0) - (arcade.keys.has("left") ? 1 : 0);
+      d.x += move * dt * 6.2;
+      if ((consumeTap("action") || consumeTap("up")) && d.grounded) {
+        d.vy = 8.8;
+        d.grounded = false;
+        d.jumps += 1;
+        setStatus("Jump");
+      }
+      const oldY = d.y;
+      d.vy -= 20 * dt;
+      d.y += d.vy * dt;
+      d.grounded = false;
+
+      platform3d.platforms.forEach((platform) => {
+        const half = platform.width / 2 + 0.34;
+        const footNow = d.y - 0.65;
+        const footBefore = oldY - 0.65;
+        const onX = d.x > platform.x - half && d.x < platform.x + half;
+        if (onX && d.vy <= 0 && footBefore >= platform.top - 0.08 && footNow <= platform.top + 0.22) {
+          d.y = platform.top + 0.65;
+          d.vy = 0;
+          d.grounded = true;
+          if (platform.top > d.respawnY - 0.8) {
+            d.respawnX = platform.x;
+            d.respawnY = platform.top + 0.65;
+          }
+        }
+      });
+
+      platform3d.coins.forEach((coin) => {
+        if (coin.taken) return;
+        coin.mesh.rotation.y += dt * 4.5;
+        coin.mesh.position.y = coin.y + Math.sin(d.time * 4 + coin.x) * 0.08;
+        if (Math.hypot(coin.x - d.x, coin.y - d.y) < 1.0) {
+          coin.taken = true;
+          coin.mesh.visible = false;
+          d.coins += 1;
+          arcade.score += 25;
+          setStatus(`${d.coins}/7 coins`);
+        }
+      });
+
+      const inLava = platform3d.hazards.some((hazard) => d.x > hazard.x - hazard.width / 2 && d.x < hazard.x + hazard.width / 2 && d.y < 0.95);
+      if (inLava || d.y < -4.2) this.respawn();
+
+      platform3d.player.position.set(d.x, d.y, 0);
+      platform3d.player.rotation.y = move < 0 ? -0.28 : move > 0 ? 0.28 : platform3d.player.rotation.y * 0.9;
+      platform3d.player.rotation.z = Math.sin(d.time * 8) * (move ? 0.08 : 0.02);
+      if (platform3d.goal) platform3d.goal.rotation.y = Math.sin(d.time * 1.7) * 0.08;
+
+      arcade.score += dt * 2;
+      if (!d.won && d.x > 29.0 && d.y > 1.2) {
+        d.won = true;
+        arcade.score += 100 + d.coins * 15;
+        endGame("Gate clear");
+        return;
+      }
+      if (!d.grounded && d.vy > 0) setStatus("Jump");
+      else if (!d.grounded) setStatus("Fall");
+      else setStatus(`${d.coins}/7 coins`);
+    },
+    draw() {
+      if (!platform3d.ready) return;
+      resize3d();
+      const d = arcade.data;
+      platform3d.camera.position.x += (d.x + 1.8 - platform3d.camera.position.x) * 0.08;
+      platform3d.camera.position.y += (Math.max(4.6, d.y + 4.3) - platform3d.camera.position.y) * 0.08;
+      platform3d.camera.lookAt(d.x + 2.2, Math.max(1.2, d.y + 0.4), 0);
+      platform3d.renderer.setClearColor(0x8bdcff, 1);
+      platform3d.renderer.render(platform3d.scene, platform3d.camera);
     }
   },
   "classic-snake": {
