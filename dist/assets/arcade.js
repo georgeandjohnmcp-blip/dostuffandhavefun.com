@@ -1,5 +1,13 @@
 const canvas = document.getElementById("arcadeCanvas");
 const ctx = canvas.getContext("2d");
+const stage = canvas.parentElement;
+const spotlightCanvas = document.createElement("canvas");
+spotlightCanvas.id = "spotlightCanvas";
+spotlightCanvas.width = canvas.width;
+spotlightCanvas.height = canvas.height;
+spotlightCanvas.hidden = true;
+spotlightCanvas.setAttribute("aria-label", "3D spotlight game area");
+canvas.after(spotlightCanvas);
 const titleEl = document.getElementById("currentGameTitle");
 const scoreEl = document.getElementById("score");
 const bestEl = document.getElementById("best");
@@ -22,6 +30,7 @@ const purple = "#8d5cff";
 const pieceColors = [aqua, yellow, coral, green, blue, purple];
 
 const gameTitles = {
+  "spotlight-dash-3d": "Spotlight Dash 3D",
   "classic-snake": "Classic Snake",
   "solo-pong": "Solo Pong",
   "falling-blocks": "Falling Blocks",
@@ -35,7 +44,7 @@ const gameTitles = {
 };
 
 const arcade = {
-  id: "classic-snake",
+  id: "spotlight-dash-3d",
   running: false,
   score: 0,
   best: 0,
@@ -44,6 +53,139 @@ const arcade = {
   taps: new Set(),
   data: {}
 };
+
+let threePromise;
+const spotlight3d = {
+  ready: false,
+  loading: false,
+  failed: false,
+  THREE: null,
+  renderer: null,
+  scene: null,
+  camera: null,
+  player: null,
+  floor: null,
+  spotlight: null,
+  spotlightTarget: null,
+  cone: null,
+  objects: []
+};
+
+function setStageMode(is3d) {
+  canvas.hidden = is3d;
+  spotlightCanvas.hidden = !is3d;
+  stage.classList.toggle("is-3d", is3d);
+}
+
+function loadThree() {
+  threePromise ??= import("/assets/three.module.js");
+  return threePromise;
+}
+
+function resize3d() {
+  if (!spotlight3d.renderer || !spotlight3d.camera) return;
+  const width = Math.max(1, spotlightCanvas.clientWidth);
+  const height = Math.max(1, spotlightCanvas.clientHeight);
+  spotlight3d.renderer.setSize(width, height, false);
+  spotlight3d.camera.aspect = width / height;
+  spotlight3d.camera.updateProjectionMatrix();
+}
+
+async function setupSpotlight3d() {
+  if (spotlight3d.ready || spotlight3d.loading || spotlight3d.failed) return;
+  spotlight3d.loading = true;
+  setStatus("Loading 3D");
+  try {
+    const THREE = await loadThree();
+    spotlight3d.THREE = THREE;
+    const renderer = new THREE.WebGLRenderer({ canvas: spotlightCanvas, antialias: true, alpha: false, preserveDrawingBuffer: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setClearColor(0x060711, 1);
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x060711, 16, 72);
+
+    const camera = new THREE.PerspectiveCamera(54, 16 / 9, 0.1, 120);
+    camera.position.set(0, 6.4, 13);
+    camera.lookAt(0, 0.9, -12);
+
+    const hemi = new THREE.HemisphereLight(0x315cff, 0x060711, 0.5);
+    scene.add(hemi);
+
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(18, 120, 18, 80),
+      new THREE.MeshStandardMaterial({ color: 0x101a31, roughness: 0.75, metalness: 0.06 })
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.z = -28;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    const laneMaterial = new THREE.MeshBasicMaterial({ color: 0x25c7d9, transparent: true, opacity: 0.22 });
+    [-3, 0, 3].forEach((x) => {
+      const lane = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.04, 106), laneMaterial);
+      lane.position.set(x, 0.04, -28);
+      scene.add(lane);
+    });
+
+    const player = new THREE.Group();
+    const body = new THREE.Mesh(
+      new THREE.BoxGeometry(1.15, 0.72, 1.15),
+      new THREE.MeshStandardMaterial({ color: 0xffd23f, roughness: 0.38, metalness: 0.12 })
+    );
+    body.castShadow = true;
+    player.add(body);
+    const crown = new THREE.Mesh(
+      new THREE.SphereGeometry(0.42, 24, 16),
+      new THREE.MeshStandardMaterial({ color: 0xff5b4a, roughness: 0.4 })
+    );
+    crown.position.y = 0.72;
+    crown.castShadow = true;
+    player.add(crown);
+    player.position.set(0, 0.74, 5);
+    scene.add(player);
+
+    const spotlightTarget = new THREE.Object3D();
+    spotlightTarget.position.set(0, 0.5, 4);
+    scene.add(spotlightTarget);
+
+    const spotlight = new THREE.SpotLight(0xfff2a3, 420, 46, Math.PI / 5.4, 0.5, 1.05);
+    spotlight.position.set(0, 13, 8);
+    spotlight.target = spotlightTarget;
+    spotlight.castShadow = true;
+    spotlight.shadow.mapSize.width = 2048;
+    spotlight.shadow.mapSize.height = 2048;
+    scene.add(spotlight);
+    scene.add(spotlight.target);
+
+    const cone = new THREE.Mesh(
+      new THREE.ConeGeometry(5.8, 12, 48, 1, true),
+      new THREE.MeshBasicMaterial({ color: 0xfff0a0, transparent: true, opacity: 0.16, side: THREE.DoubleSide, depthWrite: false })
+    );
+    cone.position.set(0, 6.4, 4.4);
+    scene.add(cone);
+
+    spotlight3d.renderer = renderer;
+    spotlight3d.scene = scene;
+    spotlight3d.camera = camera;
+    spotlight3d.player = player;
+    spotlight3d.floor = floor;
+    spotlight3d.spotlight = spotlight;
+    spotlight3d.spotlightTarget = spotlightTarget;
+    spotlight3d.cone = cone;
+    spotlight3d.ready = true;
+    spotlight3d.loading = false;
+    resize3d();
+    games["spotlight-dash-3d"].draw();
+  } catch {
+    spotlight3d.failed = true;
+    spotlight3d.loading = false;
+    setStatus("3D failed");
+    showMessage("The 3D engine did not load. Refresh and try again.", "3D");
+  }
+}
 
 function rand(min, max) {
   return min + Math.random() * (max - min);
@@ -177,6 +319,106 @@ function newPiece() {
 }
 
 const games = {
+  "spotlight-dash-3d": {
+    init() {
+      setStageMode(true);
+      if (spotlight3d.ready) {
+        spotlight3d.objects.forEach((object) => spotlight3d.scene.remove(object));
+        spotlight3d.objects = [];
+      }
+      arcade.data = {
+        playerX: 0,
+        targetX: 0,
+        speed: 16,
+        spawn: 0.18,
+        time: 0,
+        objects: []
+      };
+      setupSpotlight3d();
+    },
+    makeObject(kind) {
+      const THREE = spotlight3d.THREE;
+      const lane = [-3, 0, 3][Math.floor(rand(0, 3))];
+      const isRing = kind === "ring";
+      const mesh = isRing
+        ? new THREE.Mesh(
+            new THREE.TorusGeometry(0.74, 0.11, 14, 34),
+            new THREE.MeshStandardMaterial({ color: 0xffd23f, emissive: 0x6b4d00, roughness: 0.32 })
+          )
+        : new THREE.Mesh(
+            new THREE.BoxGeometry(1.35, rand(1.2, 2.4), 1.35),
+            new THREE.MeshStandardMaterial({ color: 0xff5b4a, emissive: 0x2a0502, roughness: 0.55 })
+          );
+      mesh.position.set(lane, isRing ? 1.55 : 0.68, -58);
+      mesh.rotation.set(isRing ? Math.PI / 2 : 0, rand(-0.5, 0.5), rand(-0.2, 0.2));
+      mesh.castShadow = true;
+      mesh.userData = { kind, lane, hit: false };
+      spotlight3d.scene.add(mesh);
+      spotlight3d.objects.push(mesh);
+      arcade.data.objects.push(mesh);
+    },
+    update(dt) {
+      const d = arcade.data;
+      if (!spotlight3d.ready) {
+        setupSpotlight3d();
+        return;
+      }
+      if (consumeTap("left")) d.targetX = Math.max(-3, d.targetX - 3);
+      if (consumeTap("right")) d.targetX = Math.min(3, d.targetX + 3);
+      const boost = arcade.keys.has("action") ? 1.55 : 1;
+      d.time += dt;
+      d.speed = Math.min(30, d.speed + dt * 0.45);
+      d.playerX += (d.targetX - d.playerX) * Math.min(1, dt * 9);
+      d.spawn -= dt;
+      if (d.spawn <= 0) {
+        this.makeObject(Math.random() > 0.72 ? "ring" : "block");
+        d.spawn = Math.max(0.48, 1.05 - d.time * 0.008);
+      }
+      spotlight3d.player.position.x = d.playerX;
+      spotlight3d.player.rotation.y += dt * 2.8 * boost;
+      spotlight3d.spotlight.position.x += (d.playerX - spotlight3d.spotlight.position.x) * Math.min(1, dt * 5);
+      spotlight3d.spotlight.intensity = arcade.keys.has("action") ? 620 : 420;
+      spotlight3d.spotlightTarget.position.x = d.playerX;
+      spotlight3d.cone.position.x = d.playerX;
+      spotlight3d.cone.scale.setScalar(arcade.keys.has("action") ? 1.12 : 1);
+
+      for (let i = d.objects.length - 1; i >= 0; i -= 1) {
+        const item = d.objects[i];
+        item.position.z += d.speed * boost * dt;
+        item.rotation.y += dt * (item.userData.kind === "ring" ? 3.2 : 0.75);
+        const nearPlayer = Math.abs(item.position.z - 5) < 1.05;
+        const inLane = Math.abs(item.position.x - d.playerX) < 1.05;
+        if (nearPlayer && inLane && !item.userData.hit) {
+          item.userData.hit = true;
+          if (item.userData.kind === "ring") {
+            arcade.score += 20;
+            spotlight3d.scene.remove(item);
+            d.objects.splice(i, 1);
+            spotlight3d.objects = spotlight3d.objects.filter((object) => object !== item);
+          } else {
+            endGame("Hit");
+            return;
+          }
+        } else if (item.position.z > 12) {
+          if (item.userData.kind === "block") arcade.score += 6;
+          spotlight3d.scene.remove(item);
+          d.objects.splice(i, 1);
+          spotlight3d.objects = spotlight3d.objects.filter((object) => object !== item);
+        }
+      }
+      arcade.score += dt * boost * 3;
+      setStatus(arcade.keys.has("action") ? "Boost" : "Spotlight");
+    },
+    draw() {
+      if (!spotlight3d.ready) return;
+      resize3d();
+      const d = arcade.data;
+      spotlight3d.floor.position.z = -28 + ((d.time * d.speed) % 6);
+      spotlight3d.camera.position.x += (d.playerX * 0.18 - spotlight3d.camera.position.x) * 0.06;
+      spotlight3d.camera.lookAt(d.playerX * 0.16, 0.75, -12);
+      spotlight3d.renderer.render(spotlight3d.scene, spotlight3d.camera);
+    }
+  },
   "classic-snake": {
     init() {
       arcade.data = {
@@ -616,6 +858,7 @@ const games = {
 function selectGame(id) {
   arcade.id = id;
   arcade.running = false;
+  setStageMode(id === "spotlight-dash-3d");
   arcade.score = 0;
   arcade.best = Number(localStorage.getItem(bestKey(id)) || 0);
   arcade.keys.clear();
@@ -632,6 +875,7 @@ function selectGame(id) {
 
 function startGame() {
   arcade.running = true;
+  setStageMode(arcade.id === "spotlight-dash-3d");
   arcade.score = 0;
   arcade.last = performance.now();
   arcade.keys.clear();
@@ -686,6 +930,7 @@ actionButton.addEventListener("pointerdown", () => {
 actionButton.addEventListener("pointerup", () => arcade.keys.delete("action"));
 actionButton.addEventListener("pointerleave", () => arcade.keys.delete("action"));
 canvas.addEventListener("click", (event) => games[arcade.id].click?.(canvasPoint(event).x, canvasPoint(event).y));
+window.addEventListener("resize", resize3d);
 
 window.addEventListener("keydown", (event) => {
   if (event.key === "ArrowLeft") {
@@ -747,4 +992,4 @@ window.addEventListener("keyup", (event) => {
   if (event.key === " " || event.key === "Enter") arcade.keys.delete("action");
 });
 
-selectGame("classic-snake");
+selectGame("spotlight-dash-3d");

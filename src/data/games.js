@@ -2,6 +2,13 @@ export const epicMappingUrl = "https://www.youtube.com/@EPICMAPPING023";
 
 export const games = [
   {
+    id: "spotlight-dash-3d",
+    title: "Spotlight Dash 3D",
+    label: "3D",
+    description: "Race through a dark stage while a giant spotlight follows you.",
+    controls: "Left/Right, Action boost"
+  },
+  {
     id: "classic-snake",
     title: "Classic Snake",
     label: "Snake",

@@ -24,8 +24,8 @@ async function writePage(path, html) {
 }
 
 function htmlShell(body) {
-  const title = "Do Stuff & Have Fun | Snake, Pong, Blocks, and Multiplayer";
-  const description = "A classic-style browser arcade with Snake, Pong, falling blocks, two-player Pong, and more quick games.";
+  const title = "Do Stuff & Have Fun | 3D Spotlight Game, Snake, Pong, and Blocks";
+  const description = "A browser arcade led by a 3D spotlight runner, plus Snake, Pong, falling blocks, two-player Pong, and more quick games.";
   const schema = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -42,6 +42,7 @@ function htmlShell(body) {
     <meta name="description" content="${esc(description)}" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <link rel="canonical" href="https://dostuffandhavefun.com/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/assets/global.css" />
     <meta property="og:title" content="Do Stuff & Have Fun Games" />
     <meta property="og:description" content="${esc(description)}" />
@@ -55,7 +56,7 @@ function htmlShell(body) {
   </head>
   <body class="game-site">
     ${body}
-    <script type="module" src="/assets/arcade.js?v=games-fix-20260615"></script>
+    <script type="module" src="/assets/arcade.js?v=spotlight-3d-20260615"></script>
   </body>
 </html>
 `;
@@ -73,17 +74,17 @@ function renderGameButtons() {
 async function renderHome() {
   const body = `<header class="topbar arcade-topbar" aria-label="Site header">
       <a class="brand wordmark" href="/" aria-label="Do Stuff and Have Fun home"><span>Do Stuff</span><strong>Games</strong></a>
-      <nav aria-label="Main navigation"><a href="#play">Play</a><a href="#games">10 Games</a><a href="${epicMappingUrl}">EPICMAPPING</a></nav>
+      <nav aria-label="Main navigation"><a href="#play">Play</a><a href="#games">${games.length} Games</a><a href="${epicMappingUrl}">EPICMAPPING</a></nav>
     </header>
     <main>
       <section class="games-hero">
         <div class="games-hero-copy">
-          <p class="eyebrow">Classic-style arcade</p>
-          <h1>Snake, Pong, blocks, and multiplayer.</h1>
-          <p class="lede">Play classic-style games in the browser, including a local two-player Pong match.</p>
+          <p class="eyebrow">3D spotlight arcade</p>
+          <h1>A giant spotlight. A fast 3D run.</h1>
+          <p class="lede">Dodge glowing blocks in a dark 3D stage, then jump into Snake, Pong, blocks, and local multiplayer.</p>
           <div class="hero-actions"><a class="button primary" href="#play">Play now</a><a class="button secondary" href="${epicMappingUrl}">EPICMAPPING</a></div>
         </div>
-        <div class="cabinet-preview" aria-hidden="true"><div class="cabinet-screen"><span></span><span></span><span></span><strong>10</strong></div><div class="cabinet-controls"><i></i><i></i><i></i></div></div>
+        <div class="cabinet-preview" aria-hidden="true"><div class="cabinet-screen"><span></span><span></span><span></span><strong>${games.length}</strong></div><div class="cabinet-controls"><i></i><i></i><i></i></div></div>
       </section>
       <section id="play" class="play-section">
         <div class="arcade-machine">
@@ -92,7 +93,7 @@ async function renderHome() {
           <div class="machine-controls"><button id="startButton" type="button">Start</button><button id="leftButton" type="button">Left</button><button id="actionButton" type="button">Action</button><button id="rightButton" type="button">Right</button></div>
         </div>
       </section>
-      <section id="games" class="section games-list-section"><div class="section-heading"><p class="eyebrow">Game shelf</p><h2>10 games</h2><p>Classic arcade ideas, quick controls, and one EPICMAPPING link.</p></div><div class="ten-game-grid" id="gamePicker">${renderGameButtons()}</div></section>
+      <section id="games" class="section games-list-section"><div class="section-heading"><p class="eyebrow">Game shelf</p><h2>${games.length} games</h2><p>A 3D spotlight game plus quick arcade classics and one EPICMAPPING link.</p></div><div class="ten-game-grid" id="gamePicker">${renderGameButtons()}</div></section>
     </main>
     <footer><p>Do Stuff & Have Fun Games</p><a href="${epicMappingUrl}">EPICMAPPING on YouTube</a></footer>`;
   await writePage("", htmlShell(body));
@@ -102,7 +103,7 @@ async function renderTextFiles() {
   await writeFile(join(dist, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: https://dostuffandhavefun.com/sitemap-index.xml\n\nLLMS: https://dostuffandhavefun.com/llms.txt\n`);
   await writeFile(join(dist, "sitemap-index.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <sitemap>\n    <loc>https://dostuffandhavefun.com/sitemap-0.xml</loc>\n  </sitemap>\n</sitemapindex>\n`);
   await writeFile(join(dist, "sitemap-0.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url>\n    <loc>https://dostuffandhavefun.com/</loc>\n    <lastmod>2026-06-14</lastmod>\n  </url>\n  <url>\n    <loc>https://dostuffandhavefun.com/llms.txt</loc>\n    <lastmod>2026-06-14</lastmod>\n  </url>\n</urlset>\n`);
-  await writeFile(join(dist, "llms.txt"), `# Do Stuff & Have Fun\n\nDo Stuff & Have Fun is a 10-game browser arcade. The site has one YouTube link: ${epicMappingUrl}\n\nMain page:\n- https://dostuffandhavefun.com/\n\nGames:\n${games.map((game) => `- ${game.title}: ${game.description}`).join("\n")}\n`);
+  await writeFile(join(dist, "llms.txt"), `# Do Stuff & Have Fun\n\nDo Stuff & Have Fun is an ${games.length}-game browser arcade led by a 3D spotlight game. The site has one YouTube link: ${epicMappingUrl}\n\nMain page:\n- https://dostuffandhavefun.com/\n\nGames:\n${games.map((game) => `- ${game.title}: ${game.description}`).join("\n")}\n`);
 }
 
 await rm(dist, { recursive: true, force: true });

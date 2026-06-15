@@ -315,6 +315,7 @@ h3 {
 .game-stage {
   position: relative;
   background: var(--paper);
+  min-height: 220px;
 }
 
 .game-stage canvas {
@@ -322,6 +323,20 @@ h3 {
   width: 100%;
   aspect-ratio: 16 / 9;
   background: var(--paper);
+}
+
+.game-stage canvas[hidden] {
+  display: none;
+}
+
+.game-stage.is-3d {
+  background: #060711;
+}
+
+#spotlightCanvas {
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 242, 163, 0.22), transparent 24%),
+    linear-gradient(180deg, #080916 0%, #101a31 100%);
 }
 
 .game-message {

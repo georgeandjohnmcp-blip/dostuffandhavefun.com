@@ -1,11 +1,12 @@
 # Do Stuff & Have Fun
 
-Do Stuff & Have Fun is a 10-game browser arcade. The site has one YouTube link: https://www.youtube.com/@EPICMAPPING023
+Do Stuff & Have Fun is an 11-game browser arcade led by a 3D spotlight game. The site has one YouTube link: https://www.youtube.com/@EPICMAPPING023
 
 Main page:
 - https://dostuffandhavefun.com/
 
 Games:
+- Spotlight Dash 3D: Race through a dark stage while a giant spotlight follows you.
 - Classic Snake: Eat snacks, grow longer, and do not crash into yourself.
 - Solo Pong: Keep the ball alive with one paddle and chase a high score.
 - Falling Blocks: Drop, rotate, and clear rows in a Tetris-style puzzle.
