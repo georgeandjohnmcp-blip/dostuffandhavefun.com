@@ -8,6 +8,11 @@ spotlightCanvas.height = canvas.height;
 spotlightCanvas.hidden = true;
 spotlightCanvas.setAttribute("aria-label", "3D spotlight game area");
 canvas.after(spotlightCanvas);
+const fpsOverlay = document.createElement("div");
+fpsOverlay.className = "fps-overlay";
+fpsOverlay.hidden = true;
+fpsOverlay.innerHTML = `<div class="fps-hud"><span id="fpsHealth">HP 100</span><span id="fpsAmmo">Ammo ∞</span><span id="fpsMode">Bots</span></div><div class="fps-crosshair" aria-hidden="true"></div><div class="fps-hit" id="fpsHit">HIT</div>`;
+spotlightCanvas.after(fpsOverlay);
 const titleEl = document.getElementById("currentGameTitle");
 const scoreEl = document.getElementById("score");
 const bestEl = document.getElementById("best");
@@ -85,7 +90,11 @@ const fps3d = {
   camera: null,
   playerRig: null,
   muzzle: null,
+  muzzleLight: null,
+  weapon: null,
   bots: [],
+  cover: [],
+  beams: [],
   remote: null,
   walls: [],
   yaw: 0,
@@ -100,6 +109,7 @@ function setStageMode(is3d) {
   canvas.hidden = is3d;
   spotlightCanvas.hidden = !is3d;
   stage.classList.toggle("is-3d", is3d);
+  fpsOverlay.hidden = arcade.id !== "arena-fps-3d";
 }
 
 function is3dGame(id) {
@@ -228,10 +238,22 @@ async function setupSpotlight3d() {
 
 function clearFpsScene() {
   if (!fps3d.scene) return;
-  [...fps3d.bots, ...fps3d.walls, fps3d.remote].filter(Boolean).forEach((item) => fps3d.scene.remove(item));
+  [...fps3d.bots, ...fps3d.walls, ...fps3d.cover, ...fps3d.beams, fps3d.remote].filter(Boolean).forEach((item) => fps3d.scene.remove(item));
   fps3d.bots = [];
   fps3d.walls = [];
+  fps3d.cover = [];
+  fps3d.beams = [];
   fps3d.remote = null;
+}
+
+function updateFpsHud(extra = "") {
+  const health = document.getElementById("fpsHealth");
+  const ammo = document.getElementById("fpsAmmo");
+  const mode = document.getElementById("fpsMode");
+  if (!health || !ammo || !mode) return;
+  health.textContent = `HP ${Math.max(0, Math.ceil(arcade.data.hp ?? 100))}`;
+  ammo.textContent = extra || (arcade.data.flash > 0 ? "BLAST" : "Ammo ∞");
+  mode.textContent = fps3d.mode === "online" ? (fps3d.connected ? "Online" : "Room") : "Bots";
 }
 
 async function setupFps3d() {
@@ -284,23 +306,74 @@ async function setupFps3d() {
       fps3d.walls.push(wall);
     });
 
+    const coverMat = new THREE.MeshStandardMaterial({ color: 0x34466f, roughness: 0.5, metalness: 0.12 });
+    [
+      [-7, -4, 2.2, 1.8, 1.6],
+      [6, -3, 1.8, 2.4, 2.0],
+      [-4, 5, 2.8, 1.5, 1.4],
+      [7, 6, 2.0, 2.0, 1.8],
+      [0, -10, 4.2, 1.2, 1.2]
+    ].forEach(([x, z, w, d, h]) => {
+      const cover = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), coverMat);
+      cover.position.set(x, h / 2, z);
+      cover.castShadow = true;
+      cover.receiveShadow = true;
+      scene.add(cover);
+      fps3d.cover.push(cover);
+    });
+
+    const bannerMat = new THREE.MeshBasicMaterial({ color: 0xff5b4a });
+    [-10, 10].forEach((x) => {
+      const banner = new THREE.Mesh(new THREE.BoxGeometry(3.4, 0.22, 0.16), bannerMat);
+      banner.position.set(x, 3.2, -15.42);
+      scene.add(banner);
+      fps3d.cover.push(banner);
+    });
+
     const rig = new THREE.Object3D();
     rig.position.set(0, 1.45, 10);
     scene.add(rig);
     rig.add(camera);
 
-    const muzzle = new THREE.Mesh(
-      new THREE.BoxGeometry(0.18, 0.16, 0.8),
-      new THREE.MeshStandardMaterial({ color: 0xffd23f, emissive: 0x3b2d00, roughness: 0.4 })
+    const weapon = new THREE.Group();
+    const grip = new THREE.Mesh(
+      new THREE.BoxGeometry(0.18, 0.42, 0.28),
+      new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.45, metalness: 0.35 })
     );
-    muzzle.position.set(0.42, -0.34, -0.78);
-    camera.add(muzzle);
+    grip.position.set(0.34, -0.55, -0.58);
+    grip.rotation.x = -0.18;
+    weapon.add(grip);
+    const body = new THREE.Mesh(
+      new THREE.BoxGeometry(0.42, 0.24, 0.78),
+      new THREE.MeshStandardMaterial({ color: 0xffd23f, emissive: 0x211600, roughness: 0.32, metalness: 0.18 })
+    );
+    body.position.set(0.36, -0.38, -0.92);
+    weapon.add(body);
+    const barrel = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.055, 0.075, 0.74, 16),
+      new THREE.MeshStandardMaterial({ color: 0x25c7d9, emissive: 0x08363b, roughness: 0.26, metalness: 0.45 })
+    );
+    barrel.rotation.x = Math.PI / 2;
+    barrel.position.set(0.36, -0.34, -1.38);
+    weapon.add(barrel);
+    const sight = new THREE.Mesh(
+      new THREE.BoxGeometry(0.2, 0.08, 0.16),
+      new THREE.MeshBasicMaterial({ color: 0xff5b4a })
+    );
+    sight.position.set(0.36, -0.21, -1.05);
+    weapon.add(sight);
+    const muzzleLight = new THREE.PointLight(0xffd23f, 0, 8);
+    muzzleLight.position.set(0.36, -0.34, -1.8);
+    weapon.add(muzzleLight);
+    camera.add(weapon);
 
     fps3d.renderer = renderer;
     fps3d.scene = scene;
     fps3d.camera = camera;
     fps3d.playerRig = rig;
-    fps3d.muzzle = muzzle;
+    fps3d.weapon = weapon;
+    fps3d.muzzle = barrel;
+    fps3d.muzzleLight = muzzleLight;
     fps3d.ready = true;
     fps3d.loading = false;
     resize3d();
@@ -317,18 +390,51 @@ function makeFpsBot(x, z, color = 0xff5b4a) {
   const THREE = fps3d.THREE;
   const bot = new THREE.Group();
   const body = new THREE.Mesh(
-    new THREE.CapsuleGeometry(0.45, 1.0, 6, 14),
+    new THREE.CapsuleGeometry(0.48, 1.05, 8, 18),
     new THREE.MeshStandardMaterial({ color, roughness: 0.42, metalness: 0.04 })
   );
   body.castShadow = true;
   bot.add(body);
+  const head = new THREE.Mesh(
+    new THREE.SphereGeometry(0.34, 18, 14),
+    new THREE.MeshStandardMaterial({ color: 0xffd23f, emissive: 0x251500, roughness: 0.36 })
+  );
+  head.position.set(0, 0.9, 0);
+  head.castShadow = true;
+  bot.add(head);
   const eye = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.1, 0.08), new THREE.MeshBasicMaterial({ color: 0xfff0a0 }));
-  eye.position.set(0, 0.38, -0.42);
+  eye.position.set(0, 0.96, -0.3);
   bot.add(eye);
   bot.position.set(x, 0.9, z);
   bot.userData = { hp: 3, cooldown: rand(0.4, 1.2), strafe: rand(-1, 1) };
   fps3d.scene.add(bot);
   return bot;
+}
+
+function addShotBeam(endPoint, hit = false) {
+  const THREE = fps3d.THREE;
+  const start = new THREE.Vector3(0.36, -0.34, -1.78);
+  fps3d.camera.localToWorld(start);
+  const geometry = new THREE.BufferGeometry().setFromPoints([start, endPoint]);
+  const beam = new THREE.Line(
+    geometry,
+    new THREE.LineBasicMaterial({ color: hit ? 0xffd23f : 0x25c7d9, transparent: true, opacity: 0.95 })
+  );
+  beam.userData.life = 0.12;
+  fps3d.scene.add(beam);
+  fps3d.beams.push(beam);
+}
+
+function showHitMarker(hit = false) {
+  const marker = document.getElementById("fpsHit");
+  if (!marker) return;
+  marker.textContent = hit ? "HIT" : "SHOT";
+  marker.classList.toggle("active", true);
+  marker.classList.toggle("miss", !hit);
+  window.clearTimeout(showHitMarker.timer);
+  showHitMarker.timer = window.setTimeout(() => {
+    marker.classList.remove("active", "miss");
+  }, 160);
 }
 
 function showFpsLobby() {
@@ -562,6 +668,7 @@ const games = {
         hp: 100,
         fire: 0,
         flash: 0,
+        recoil: 0,
         botSpawn: 0,
         onlineNotice: 0
       };
@@ -571,9 +678,10 @@ const games = {
       if (fps3d.ready) {
         fps3d.playerRig.position.set(0, 1.45, 10);
         if (fps3d.mode === "bots") {
-          fps3d.bots = [makeFpsBot(-6, -5), makeFpsBot(4, -7), makeFpsBot(0, -12)];
+          fps3d.bots = [makeFpsBot(0, -7), makeFpsBot(-6, -5), makeFpsBot(5, -10)];
         }
       }
+      updateFpsHud();
     },
     update(dt) {
       const d = arcade.data;
@@ -599,6 +707,7 @@ const games = {
       fps3d.camera.rotation.x = fps3d.pitch;
       d.fire -= dt;
       d.flash = Math.max(0, d.flash - dt * 5);
+      d.recoil = Math.max(0, d.recoil - dt * 7);
       if (consumeTap("action") || consumeTap("shoot")) this.shoot();
 
       if (fps3d.mode === "bots") {
@@ -613,7 +722,19 @@ const games = {
         d.onlineNotice += dt;
         setStatus(fps3d.connected ? "Online" : "Room code");
       }
-      fps3d.muzzle.material.emissive.setHex(d.flash > 0 ? 0xffd23f : 0x3b2d00);
+      fps3d.muzzle.material.emissive.setHex(d.flash > 0 ? 0xffd23f : 0x08363b);
+      fps3d.muzzleLight.intensity = d.flash > 0 ? 18 : 0;
+      fps3d.weapon.position.z = d.recoil * 0.18;
+      for (let i = fps3d.beams.length - 1; i >= 0; i -= 1) {
+        const beam = fps3d.beams[i];
+        beam.userData.life -= dt;
+        beam.material.opacity = Math.max(0, beam.userData.life / 0.12);
+        if (beam.userData.life <= 0) {
+          fps3d.scene.remove(beam);
+          fps3d.beams.splice(i, 1);
+        }
+      }
+      updateFpsHud();
       if (d.hp <= 0) endGame("Tagged out");
     },
     updateBot(bot, dt) {
@@ -640,15 +761,23 @@ const games = {
       if (d.fire > 0 || !fps3d.ready) return;
       d.fire = 0.18;
       d.flash = 1;
+      d.recoil = 1;
       arcade.score += 1;
+      fps3d.camera.updateMatrixWorld(true);
+      fps3d.scene.updateMatrixWorld(true);
       const ray = new fps3d.THREE.Raycaster();
       ray.setFromCamera(new fps3d.THREE.Vector2(0, 0), fps3d.camera);
       const targets = fps3d.mode === "bots" ? fps3d.bots : [fps3d.remote].filter(Boolean);
       const hits = ray.intersectObjects(targets, true);
       if (!hits.length) {
+        const missPoint = new fps3d.THREE.Vector3(0, 0, -28).applyMatrix4(fps3d.camera.matrixWorld);
+        addShotBeam(missPoint, false);
+        showHitMarker(false);
         setStatus(fps3d.mode === "online" ? "Miss" : "Fired");
         return;
       }
+      addShotBeam(hits[0].point, true);
+      showHitMarker(true);
       let target = hits[0].object;
       while (target.parent && !targets.includes(target)) target = target.parent;
       target.userData.hp -= 1;
