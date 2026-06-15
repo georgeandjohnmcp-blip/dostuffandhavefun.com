@@ -54,6 +54,7 @@ const gameTitles = {
   "asteroid-drift": "Asteroid Drift",
   "invader-blast": "Invader Blast",
   "maze-run": "Maze Run",
+  "neon-cube-dash": "Neon Cube Dash",
   "stack-jump": "Stack Jump",
   "target-pop": "Target Pop"
 };
@@ -2366,6 +2367,183 @@ const games = {
       block(d.player.x, d.player.y, d.player.w, d.player.h, aqua, 6);
     }
   },
+  "neon-cube-dash": {
+    init() {
+      const ground = 438;
+      arcade.data = {
+        ground,
+        cube: { x: 150, y: ground - 48, w: 48, h: 48, vy: 0, rotation: 0 },
+        distance: 0,
+        speed: 330,
+        pulse: 0,
+        jumpGrace: 0,
+        length: 4650,
+        finished: false,
+        orbsHit: new Set(),
+        course: [
+          { type: "spike", x: 720 },
+          { type: "spike", x: 930 },
+          { type: "block", x: 1160, y: ground - 42, w: 96, h: 42 },
+          { type: "orb", x: 1390, y: ground - 122 },
+          { type: "spike", x: 1620 },
+          { type: "spike", x: 1760 },
+          { type: "platform", x: 1980, y: ground - 118, w: 210, h: 28 },
+          { type: "spike", x: 2240 },
+          { type: "block", x: 2470, y: ground - 70, w: 116, h: 70 },
+          { type: "orb", x: 2720, y: ground - 154 },
+          { type: "spike", x: 2950 },
+          { type: "spike", x: 3090 },
+          { type: "platform", x: 3310, y: ground - 155, w: 240, h: 28 },
+          { type: "orb", x: 3610, y: ground - 135 },
+          { type: "spike", x: 3830 },
+          { type: "block", x: 4060, y: ground - 58, w: 92, h: 58 },
+          { type: "spike", x: 4245 },
+          { type: "finish", x: 4550 }
+        ]
+      };
+      setStatus("0%");
+    },
+    jump(power = 720) {
+      const d = arcade.data;
+      d.cube.vy = -power;
+      d.jumpGrace = 0;
+      setStatus("Jump");
+    },
+    update(dt) {
+      const d = arcade.data;
+      const cube = d.cube;
+      d.pulse += dt;
+      d.distance += d.speed * dt;
+      d.speed = Math.min(460, d.speed + dt * 4.5);
+      d.jumpGrace = Math.max(0, d.jumpGrace - dt);
+      const jumpPressed = consumeTap("action") || consumeTap("up");
+      if (jumpPressed && d.jumpGrace > 0) this.jump();
+
+      cube.vy += 1850 * dt;
+      cube.y += cube.vy * dt;
+      cube.rotation += dt * (cube.vy < 0 ? 8.2 : 6.4);
+      let floor = d.ground - cube.h;
+      d.course.forEach((item) => {
+        if (item.type !== "platform" && item.type !== "block") return;
+        const screenX = item.x - d.distance + cube.x;
+        const cubeWorldX = d.distance + cube.x;
+        const closeX = cubeWorldX + cube.w > item.x && cubeWorldX < item.x + item.w;
+        const top = item.y - cube.h;
+        if (closeX && cube.y <= top + 22 && cube.y + cube.h + cube.vy * dt >= item.y - 4) floor = Math.min(floor, top);
+        if (screenX < -180 || screenX > canvas.width + 180) return;
+      });
+      if (cube.y >= floor) {
+        cube.y = floor;
+        cube.vy = 0;
+        d.jumpGrace = 0.11;
+        cube.rotation = Math.round(cube.rotation / (Math.PI / 2)) * (Math.PI / 2);
+      }
+      if (cube.y > canvas.height + 80) {
+        endGame("Dropped");
+        return;
+      }
+
+      const cubeWorld = { x: d.distance + cube.x + 7, y: cube.y + 7, w: cube.w - 14, h: cube.h - 14 };
+      for (const item of d.course) {
+        if (item.type === "finish" && d.distance + cube.x > item.x) {
+          endGame("Clear");
+          return;
+        }
+        if (item.type === "spike") {
+          const hazard = { x: item.x + 12, y: d.ground - 48, w: 36, h: 48 };
+          if (overlap(cubeWorld, hazard)) {
+            endGame("Spiked");
+            return;
+          }
+        }
+        if (item.type === "block") {
+          const wall = { x: item.x + 8, y: item.y + 6, w: item.w - 16, h: item.h - 6 };
+          if (overlap(cubeWorld, wall) && cubeWorld.y + cubeWorld.h > item.y + 18) {
+            endGame("Bonked");
+            return;
+          }
+        }
+        if (item.type === "orb") {
+          const orbBox = { x: item.x - 23, y: item.y - 23, w: 46, h: 46 };
+          if (overlap(cubeWorld, orbBox) && !d.orbsHit.has(item.x)) {
+            d.orbsHit.add(item.x);
+            arcade.score += 40;
+            if (jumpPressed || arcade.keys.has("action")) this.jump(820);
+            setStatus("Orb");
+          }
+        }
+      }
+      const progress = Math.min(100, Math.floor((d.distance / d.length) * 100));
+      arcade.score += dt * 9 + progress * dt * 0.12;
+      setStatus(`${progress}%`);
+      if (d.distance > d.length) endGame("Clear");
+    },
+    drawSpike(x, ground, pulse) {
+      ctx.fillStyle = coral;
+      ctx.strokeStyle = ink;
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(x, ground);
+      ctx.lineTo(x + 30, ground - 56 - pulse * 7);
+      ctx.lineTo(x + 60, ground);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    },
+    draw() {
+      const d = arcade.data;
+      const beat = (Math.sin(d.pulse * 9) + 1) / 2;
+      ctx.fillStyle = "#101a31";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.strokeStyle = `rgba(37,199,217,${0.12 + beat * 0.12})`;
+      ctx.lineWidth = 2;
+      for (let x = -((d.distance * 0.45) % 54); x < canvas.width; x += 54) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 30; y < canvas.height; y += 54) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
+      ctx.fillStyle = "#172344";
+      ctx.fillRect(0, d.ground, canvas.width, canvas.height - d.ground);
+      ctx.fillStyle = `rgba(255,210,63,${0.16 + beat * 0.18})`;
+      ctx.fillRect(0, d.ground - 6, canvas.width, 6);
+      d.course.forEach((item) => {
+        const x = item.x - d.distance + d.cube.x;
+        if (x < -180 || x > canvas.width + 180) return;
+        if (item.type === "spike") this.drawSpike(x, d.ground, beat);
+        if (item.type === "block" || item.type === "platform") block(x, item.y, item.w, item.h, item.type === "platform" ? aqua : purple, item.type === "platform" ? 5 : 3);
+        if (item.type === "orb" && !d.orbsHit.has(item.x)) {
+          circle(x, item.y, 22 + beat * 3, yellow);
+          ctx.fillStyle = aqua;
+          ctx.beginPath();
+          ctx.arc(x, item.y, 8, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        if (item.type === "finish") {
+          block(x, d.ground - 136, 22, 136, green, 4);
+          text("FINISH", x - 42, d.ground - 152, 22);
+        }
+      });
+      ctx.save();
+      ctx.translate(d.cube.x + d.cube.w / 2, d.cube.y + d.cube.h / 2);
+      ctx.rotate(d.cube.rotation);
+      block(-d.cube.w / 2, -d.cube.h / 2, d.cube.w, d.cube.h, yellow, 5);
+      ctx.fillStyle = ink;
+      ctx.fillRect(4, -13, 8, 8);
+      ctx.restore();
+      const progress = Math.min(1, d.distance / d.length);
+      block(54, 34, 852, 18, "rgba(255,255,255,0.9)", 8);
+      ctx.fillStyle = aqua;
+      ctx.fillRect(58, 38, 844 * progress, 10);
+      text("Neon Cube Dash", 54, 88, 24);
+    }
+  },
   "stack-jump": {
     init() {
       arcade.data = { runner: { x: 130, y: 386, w: 50, h: 62, vy: 0 }, blocks: [], spawn: 0.9, speed: 260 };
@@ -2451,6 +2629,7 @@ function selectGame(id) {
 
 function startGame() {
   if (arcade.id === "arena-fps-3d") ensureFpsAudio();
+  startButton.blur();
   arcade.running = true;
   setStageMode(is3dGame(arcade.id));
   arcade.score = 0;

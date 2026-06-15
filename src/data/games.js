@@ -93,6 +93,13 @@ export const games = [
     controls: "Arrow keys or buttons"
   },
   {
+    id: "neon-cube-dash",
+    title: "Neon Cube Dash",
+    label: "Dash",
+    description: "A rhythm cube runner with spikes, platforms, orbs, and pulsing neon lanes.",
+    controls: "Action, Space, or Up jump"
+  },
+  {
     id: "stack-jump",
     title: "Stack Jump",
     label: "Jump",
