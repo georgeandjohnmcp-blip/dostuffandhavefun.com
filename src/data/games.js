@@ -2,6 +2,13 @@ export const epicMappingUrl = "https://www.youtube.com/@EPICMAPPING023";
 
 export const games = [
   {
+    id: "neon-cube-dash",
+    title: "Neon Cube Dash",
+    label: "Dash",
+    description: "A rhythm cube runner with spikes, platforms, orbs, and pulsing neon lanes.",
+    controls: "Action, Space, or Up jump"
+  },
+  {
     id: "turbo-racer-3d",
     title: "Turbo Racer 3D",
     label: "Race",
@@ -91,13 +98,6 @@ export const games = [
     label: "Maze",
     description: "Reach the exit without touching walls.",
     controls: "Arrow keys or buttons"
-  },
-  {
-    id: "neon-cube-dash",
-    title: "Neon Cube Dash",
-    label: "Dash",
-    description: "A rhythm cube runner with spikes, platforms, orbs, and pulsing neon lanes.",
-    controls: "Action, Space, or Up jump"
   },
   {
     id: "stack-jump",

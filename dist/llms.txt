@@ -6,6 +6,7 @@ Main page:
 - https://dostuffandhavefun.com/
 
 Games:
+- Neon Cube Dash: A rhythm cube runner with spikes, platforms, orbs, and pulsing neon lanes.
 - Turbo Racer 3D: A one-minute 3D race against bot cars with boost, coins, and traffic.
 - Arena FPS 3D: A first-person blaster with bots and browser-to-browser online duels.
 - Spotlight Dash 3D: Race through a dark stage while a giant spotlight follows you.
@@ -19,6 +20,5 @@ Games:
 - Asteroid Drift: Pilot through drifting rocks and stay alive.
 - Invader Blast: Slide, shoot, and knock down the invader row.
 - Maze Run: Reach the exit without touching walls.
-- Neon Cube Dash: A rhythm cube runner with spikes, platforms, orbs, and pulsing neon lanes.
 - Stack Jump: Jump over blocks and keep running.
 - Target Pop: Click targets before the timer runs out.

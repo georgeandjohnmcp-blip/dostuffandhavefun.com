@@ -60,7 +60,7 @@ const gameTitles = {
 };
 
 const arcade = {
-  id: "turbo-racer-3d",
+  id: "neon-cube-dash",
   running: false,
   score: 0,
   best: 0,
@@ -2450,7 +2450,7 @@ const games = {
           return;
         }
         if (item.type === "spike") {
-          const hazard = { x: item.x + 12, y: d.ground - 48, w: 36, h: 48 };
+          const hazard = { x: item.x + 22, y: d.ground - 34, w: 16, h: 34 };
           if (overlap(cubeWorld, hazard)) {
             endGame("Spiked");
             return;
@@ -2483,9 +2483,9 @@ const games = {
       ctx.strokeStyle = ink;
       ctx.lineWidth = 5;
       ctx.beginPath();
-      ctx.moveTo(x, ground);
-      ctx.lineTo(x + 30, ground - 56 - pulse * 7);
-      ctx.lineTo(x + 60, ground);
+      ctx.moveTo(x + 7, ground);
+      ctx.lineTo(x + 30, ground - 48 - pulse * 5);
+      ctx.lineTo(x + 53, ground);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
@@ -2788,4 +2788,4 @@ window.addEventListener("keyup", (event) => {
   if (event.key === " " || event.key === "Enter") arcade.keys.delete("action");
 });
 
-selectGame("turbo-racer-3d");
+selectGame("neon-cube-dash");
