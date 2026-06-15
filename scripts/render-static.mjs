@@ -55,7 +55,7 @@ function htmlShell(body) {
   </head>
   <body class="game-site">
     ${body}
-    <script type="module" src="/assets/arcade.js"></script>
+    <script type="module" src="/assets/arcade.js?v=games-fix-20260615"></script>
   </body>
 </html>
 `;

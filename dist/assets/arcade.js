@@ -667,10 +667,16 @@ picker.addEventListener("click", (event) => {
 });
 
 startButton.addEventListener("click", startGame);
-leftButton.addEventListener("pointerdown", () => arcade.keys.add("left"));
+leftButton.addEventListener("pointerdown", () => {
+  arcade.keys.add("left");
+  arcade.taps.add("left");
+});
 leftButton.addEventListener("pointerup", () => arcade.keys.delete("left"));
 leftButton.addEventListener("pointerleave", () => arcade.keys.delete("left"));
-rightButton.addEventListener("pointerdown", () => arcade.keys.add("right"));
+rightButton.addEventListener("pointerdown", () => {
+  arcade.keys.add("right");
+  arcade.taps.add("right");
+});
 rightButton.addEventListener("pointerup", () => arcade.keys.delete("right"));
 rightButton.addEventListener("pointerleave", () => arcade.keys.delete("right"));
 actionButton.addEventListener("pointerdown", () => {
