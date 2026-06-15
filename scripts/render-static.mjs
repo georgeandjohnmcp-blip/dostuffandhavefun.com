@@ -109,6 +109,7 @@ async function renderTextFiles() {
 await rm(dist, { recursive: true, force: true });
 await mkdir(dist, { recursive: true });
 await cp(publicDir, dist, { recursive: true });
+await cp(join(publicDir, ".htaccess"), join(dist, ".htaccess"));
 await cp(join(root, "src/styles/global.css"), join(dist, "assets/global.css"));
 await renderHome();
 await renderTextFiles();
