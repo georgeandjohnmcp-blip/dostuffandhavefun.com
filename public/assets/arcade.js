@@ -402,9 +402,25 @@ function makeFpsBot(x, z, color = 0xff5b4a) {
   head.position.set(0, 0.9, 0);
   head.castShadow = true;
   bot.add(head);
-  const eye = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.1, 0.08), new THREE.MeshBasicMaterial({ color: 0xfff0a0 }));
-  eye.position.set(0, 0.96, -0.3);
-  bot.add(eye);
+  const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0xfff0a0 });
+  [-0.13, 0.13].forEach((eyeX) => {
+    const eye = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.09, 0.07), eyeMaterial);
+    eye.position.set(eyeX, 0.98, -0.31);
+    bot.add(eye);
+  });
+  const browMaterial = new THREE.MeshBasicMaterial({ color: 0x111827 });
+  const leftBrow = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.055, 0.07), browMaterial);
+  leftBrow.position.set(-0.14, 1.09, -0.305);
+  leftBrow.rotation.z = -0.48;
+  bot.add(leftBrow);
+  const rightBrow = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.055, 0.07), browMaterial);
+  rightBrow.position.set(0.14, 1.09, -0.305);
+  rightBrow.rotation.z = 0.48;
+  bot.add(rightBrow);
+  const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.055, 0.07), browMaterial);
+  mouth.position.set(0, 0.78, -0.318);
+  mouth.rotation.z = 0.08;
+  bot.add(mouth);
   bot.position.set(x, 0.9, z);
   bot.userData = { hp: 3, cooldown: rand(0.4, 1.2), strafe: rand(-1, 1) };
   fps3d.scene.add(bot);
