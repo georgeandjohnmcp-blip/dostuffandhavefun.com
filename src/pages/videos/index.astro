@@ -7,7 +7,7 @@ const videos = buildFeaturedVideos(generatedVideos);
 const hasConnectedVideos = Array.isArray(generatedVideos) && generatedVideos.length > 0;
 const pageTitle = "Video Library | Do Stuff & Have Fun";
 const pageDescription =
-  "A growing library for Do Stuff & Have Fun videos, kid-friendly challenges, Shorts, crafts, and experiments.";
+  "A growing library for Do Stuff & Have Fun videos from the connected YouTube channels.";
 ---
 
 <!doctype html>
@@ -25,16 +25,16 @@ const pageDescription =
     <meta property="og:url" content="https://dostuffandhavefun.com/videos/" />
     <meta property="og:image" content="https://dostuffandhavefun.com/assets/play-lab-hero.png" />
   </head>
-  <body>
+  <body class="video-site">
     <header class="topbar" aria-label="Site header">
-      <a class="brand" href="/" aria-label="Do Stuff and Have Fun home">
-        <img src="/assets/do-stuff-logo.png" alt="Do Stuff & Have Fun logo" />
+      <a class="brand wordmark" href="/" aria-label="Do Stuff and Have Fun home">
+        <span>Do Stuff</span>
+        <strong>Videos</strong>
       </a>
       <nav aria-label="Main navigation">
-        <a href="/videos/">Videos</a>
-        <a href="/games/pong/">Game</a>
+        <a href="/#videos">Latest</a>
         <a href="/#channels">Channels</a>
-        <a href="/#growth">Growth Engine</a>
+        <a href="/videos/">All Videos</a>
       </nav>
     </header>
 
@@ -45,10 +45,10 @@ const pageDescription =
           <h1>Videos Built For Curious Clicks</h1>
           <p>
             {hasConnectedVideos
-              ? "The newest connected YouTube uploads appear here automatically, with search-friendly summaries and watch paths."
-              : "This is the launch-ready video library. Once the real YouTube channels are connected, new uploads can appear here automatically."}
+              ? "The newest connected YouTube uploads appear here automatically."
+              : "Once the YouTube channels are connected, new uploads can appear here automatically."}
           </p>
-          <a class="button primary" href="/#youtube-connection">Connect real channels</a>
+          <a class="button primary" href="/">Back to latest</a>
         </div>
       </section>
 
@@ -75,8 +75,7 @@ const pageDescription =
     </main>
 
     <footer>
-      <img src="/assets/do-stuff-logo.png" alt="" />
-      <p>Do Stuff & Have Fun is being built as a playful, family-friendly video hub.</p>
+      <p>Do Stuff & Have Fun. Latest connected videos, updated from YouTube.</p>
     </footer>
   </body>
 </html>

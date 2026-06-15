@@ -1,76 +1,46 @@
 ---
-import { channels, buildFeaturedVideos, growthLoops, topicHubs, youtubeConnectionSteps } from "../data/site.js";
+import { channels, buildFeaturedVideos } from "../data/site.js";
 import generatedVideos from "../data/videos.generated.json";
 import { tracking } from "../data/tracking.js";
 import "../styles/global.css";
 
-const pageTitle = "Do Stuff & Have Fun | Kid-Friendly YouTube Videos, Challenges, Crafts, and Experiments";
+const pageTitle = "Do Stuff & Have Fun | Videos";
 const pageDescription =
-  "A bright home base for Do Stuff & Have Fun videos, playful YouTube channels, family-friendly challenges, crafts, experiments, and kid-safe things to watch next.";
-const featuredVideos = buildFeaturedVideos(generatedVideos);
+  "Watch the latest videos from the connected Do Stuff & Have Fun YouTube channels.";
+const videos = buildFeaturedVideos(generatedVideos);
 const connectedVideoCount = Array.isArray(generatedVideos) ? generatedVideos.length : 0;
 
-const liveVideos = featuredVideos.filter((video) => video.isLive);
 const absoluteImageUrl = (url) => (url?.startsWith("http") ? url : `https://dostuffandhavefun.com${url}`);
-const videoSchema = liveVideos.map((video) => ({
-  "@type": "VideoObject",
-  name: video.title,
-  description: video.description,
-  thumbnailUrl: [absoluteImageUrl(video.thumbnail)],
-  uploadDate: video.published || "2026-06-14",
-  embedUrl: video.url,
-  publisher: {
-    "@type": "Organization",
-    name: "Do Stuff & Have Fun",
-    logo: {
-      "@type": "ImageObject",
-      url: "https://dostuffandhavefun.com/assets/do-stuff-logo.png"
-    }
-  }
-}));
-
 const schema = {
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "Organization",
-      name: "Do Stuff & Have Fun",
-      url: "https://dostuffandhavefun.com",
-      logo: "https://dostuffandhavefun.com/assets/do-stuff-logo.png",
-      sameAs: channels.map((channel) => channel.url).filter((url) => url.startsWith("https://"))
-    },
-    {
       "@type": "WebSite",
       name: "Do Stuff & Have Fun",
-      url: "https://dostuffandhavefun.com",
-      potentialAction: {
-        "@type": "SearchAction",
-        target: "https://dostuffandhavefun.com/?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
+      url: "https://dostuffandhavefun.com"
     },
     {
-      "@type": "FAQPage",
-      mainEntity: [
-        {
-          "@type": "Question",
-          name: "What can kids watch on Do Stuff & Have Fun?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "Kids can find family-friendly videos, playful challenges, crafts, experiments, Shorts, and creative things to do when bored."
-          }
-        },
-        {
-          "@type": "Question",
-          name: "How does this website help the YouTube channels grow?",
-          acceptedAnswer: {
-            "@type": "Answer",
-            text: "The website gives every channel and video a searchable home with clear summaries, topic pages, video schema, FAQs, and internal links that help search engines understand what each video is about."
-          }
-        }
-      ]
+      "@type": "ItemList",
+      name: "Latest videos",
+      itemListElement: videos.map((video, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: video.title,
+        url: video.isLive && video.id ? `https://dostuffandhavefun.com/videos/${video.id}/` : video.url
+      }))
     },
-    ...videoSchema
+    ...videos.filter((video) => video.isLive).map((video) => ({
+      "@type": "VideoObject",
+      name: video.title,
+      description: video.description,
+      thumbnailUrl: [absoluteImageUrl(video.thumbnail)],
+      uploadDate: video.published || "2026-06-14",
+      embedUrl: video.url,
+      publisher: {
+        "@type": "Organization",
+        name: "Do Stuff & Have Fun"
+      }
+    }))
   ]
 };
 ---
@@ -84,11 +54,11 @@ const schema = {
     <meta name="description" content={pageDescription} />
     <meta name="robots" content="index, follow, max-image-preview:large, max-video-preview:-1" />
     <link rel="canonical" href="https://dostuffandhavefun.com/" />
-    <meta property="og:title" content="Do Stuff & Have Fun" />
+    <meta property="og:title" content="Do Stuff & Have Fun Videos" />
     <meta property="og:description" content={pageDescription} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://dostuffandhavefun.com/" />
-    <meta property="og:image" content="https://dostuffandhavefun.com/assets/play-lab-hero.png" />
+    <meta property="og:image" content={videos[0]?.thumbnail || "https://dostuffandhavefun.com/assets/play-lab-hero.png"} />
     <meta name="twitter:card" content="summary_large_image" />
     {tracking.googleSiteVerification && <meta name="google-site-verification" content={tracking.googleSiteVerification} />}
     <script type="application/ld+json" set:html={JSON.stringify(schema)} />
@@ -101,62 +71,55 @@ const schema = {
       </>
     )}
   </head>
-  <body>
+  <body class="video-site">
     <header class="topbar" aria-label="Site header">
-      <a class="brand" href="/" aria-label="Do Stuff and Have Fun home">
-        <img src="/assets/do-stuff-logo.png" alt="Do Stuff & Have Fun logo" />
+      <a class="brand wordmark" href="/" aria-label="Do Stuff and Have Fun home">
+        <span>Do Stuff</span>
+        <strong>Videos</strong>
       </a>
       <nav aria-label="Main navigation">
-        <a href="/videos/">Videos</a>
-        <a href="/games/pong/">Game</a>
+        <a href="#videos">Latest</a>
         <a href="#channels">Channels</a>
-        <a href="#growth">Growth Engine</a>
+        <a href="/videos/">All Videos</a>
       </nav>
     </header>
 
     <main>
-      <section class="hero">
-        <div class="hero-copy">
-          <p class="eyebrow">Kid-friendly video adventures</p>
-          <h1>Do Stuff & Have Fun</h1>
+      <section class="video-hero">
+        <div class="video-hero-copy">
+          <p class="eyebrow">Latest uploads</p>
+          <h1>Your videos, all in one place.</h1>
           <p class="lede">
-            A bright launchpad for playful videos, creative challenges, crafts, experiments,
-            and funny little discoveries kids want to watch next.
+            {connectedVideoCount} videos from the connected YouTube channels, with fresh pages for watching,
+            sharing, and search.
           </p>
           <div class="hero-actions">
-            <a class="button primary" href="/videos/">Watch the showcase</a>
-            <a class="button secondary" href="/games/pong/">Play the game</a>
+            <a class="button primary" href="#videos">Watch latest</a>
+            <a class="button secondary" href="/videos/">Open library</a>
           </div>
         </div>
-        <div class="hero-art" aria-label="Playful creator studio artwork">
-          <img src="/assets/play-lab-hero.png" alt="Colorful craft and video studio with science and art supplies" />
+        <div class="hero-video-stack" aria-label="Featured video thumbnails">
+          {videos.slice(0, 3).map((video) => (
+            <a href={video.isLive && video.id ? `/videos/${video.id}/` : video.url}>
+              <img src={video.thumbnail} alt="" loading="eager" />
+              <span>{video.title}</span>
+            </a>
+          ))}
         </div>
-      </section>
-
-      <section class="search-strip" aria-label="Popular discovery topics">
-        <span>Things to do when bored</span>
-        <span>Safe funny challenges</span>
-        <span>Crafts for kids</span>
-        <span>Easy experiments</span>
-        <span>Family-friendly Shorts</span>
       </section>
 
       <section id="videos" class="section">
         <div class="section-heading">
-          <p class="eyebrow">Featured watch paths</p>
-          <h2>Videos ready for curious clicks</h2>
-          <p>
-            {connectedVideoCount > 0
-              ? `Showing the newest ${Math.min(connectedVideoCount, 9)} videos pulled from connected YouTube channel feeds.`
-              : "These starter lanes are designed for your real uploads: each one has a visual style, a search angle, and a clear job in the growth engine."}
-          </p>
+          <p class="eyebrow">Watch next</p>
+          <h2>Latest videos</h2>
+          <p>Only real uploads from the connected channels are shown here.</p>
         </div>
         <div class="video-grid">
-          {featuredVideos.map((video) => (
+          {videos.map((video) => (
             <article class="video-card">
-              <a href={video.url} aria-label={`Open ${video.title} on YouTube`}>
+              <a href={video.isLive && video.id ? `/videos/${video.id}/` : video.url} aria-label={`Open ${video.title}`}>
                 <img src={video.thumbnail} alt="" loading="lazy" />
-                <span class="play">{video.status ?? "Play"}</span>
+                <span class="play">{video.status ?? "Watch"}</span>
               </a>
               <div class="video-card-copy">
                 <p>{video.channel}</p>
@@ -173,12 +136,9 @@ const schema = {
 
       <section id="channels" class="section channel-band">
         <div class="section-heading">
-          <p class="eyebrow">Channel universe</p>
-          <h2>Several channels, one fun home base</h2>
-          <p>
-            Each channel gets its own lane, audience promise, and topic cluster so visitors can
-            quickly pick the kind of video they want.
-          </p>
+          <p class="eyebrow">Channels</p>
+          <h2>Connected YouTube channels</h2>
+          <p>These are the channels currently feeding the site.</p>
         </div>
         <div class="channel-grid">
           {channels.map((channel) => (
@@ -187,87 +147,15 @@ const schema = {
               <h3>{channel.name}</h3>
               <p>{channel.handle}</p>
               <p>{channel.description}</p>
-              <a href={channel.url}>{channel.url.startsWith("https://") ? "Visit channel" : "Connect channel"}</a>
+              <a href={channel.url}>Visit channel</a>
             </article>
           ))}
         </div>
-      </section>
-
-      <section class="section topic-section">
-        <div class="section-heading">
-          <p class="eyebrow">Search magnets</p>
-          <h2>Topic hubs built for kid-friendly discovery</h2>
-          <p>
-            These are the first content lanes I would grow around. They match what kids and parents
-            naturally search for, then point visitors back to the best YouTube videos.
-          </p>
-        </div>
-        <div class="topic-grid">
-          {topicHubs.map((topic) => (
-            <article class="topic-card">
-              <h3>{topic.title}</h3>
-              <p>{topic.answer}</p>
-              <div class="tags">
-                {topic.keywords.map((keyword) => <span>{keyword}</span>)}
-              </div>
-              <a href={`/topics/${topic.slug}/`}>Open topic hub</a>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section id="growth" class="section growth">
-        <div class="section-heading">
-          <p class="eyebrow">SEO + AEO growth engine</p>
-          <h2>How this becomes a traffic machine</h2>
-          <p>
-            Google says AI answer visibility still depends on strong search basics: indexable pages,
-            useful content, clean structure, and accurate structured data. This site is designed around that.
-          </p>
-        </div>
-        <div class="growth-layout">
-          <ol class="growth-list">
-            {growthLoops.map((item) => <li>{item}</li>)}
-          </ol>
-          <aside class="monetization">
-            <h3>Monetization target</h3>
-            <p>
-              The first YouTube Partner Program milestone is 500 subscribers plus either 3,000 public
-              watch hours in 12 months or 3 million valid Shorts views in 90 days. Ad revenue requires
-              1,000 subscribers plus 4,000 watch hours or 10 million Shorts views.
-            </p>
-          </aside>
-        </div>
-      </section>
-
-      <section id="youtube-connection" class="section connection">
-        <div class="section-heading">
-          <p class="eyebrow">YouTube connector</p>
-          <h2>Ready to pull from the real channels</h2>
-          <p>
-            Add each channel link or handle once, and the site can pull the newest public uploads
-            into the video library, homepage, video pages, sitemap, and search metadata.
-          </p>
-        </div>
-        <ol class="connection-list">
-          {youtubeConnectionSteps.map((step) => <li>{step}</li>)}
-        </ol>
-      </section>
-
-      <section class="section answer-box">
-        <p class="eyebrow">Answer engine bait, but useful</p>
-        <h2>What should my kid watch when they are bored?</h2>
-        <p>
-          Start with a short, funny video if they want quick energy. Pick a challenge video if they
-          want to laugh along. Choose a craft or experiment video if they want something creative to try
-          with an adult nearby.
-        </p>
       </section>
     </main>
 
     <footer>
-      <img src="/assets/do-stuff-logo.png" alt="" />
-      <p>Do Stuff & Have Fun is being built as a playful, family-friendly video hub.</p>
+      <p>Do Stuff & Have Fun. Latest connected videos, updated from YouTube.</p>
     </footer>
   </body>
 </html>

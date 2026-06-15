@@ -1,14 +1,13 @@
 # Do Stuff & Have Fun
 
-This is the new Astro website for `dostuffandhavefun.com`: a bright, playful home base for kid-friendly YouTube videos, channels, challenges, crafts, experiments, and search-friendly video discovery.
+This is the Astro website for `dostuffandhavefun.com`: a video-only home for the connected YouTube channels and their latest public uploads.
 
 ## What Is Here
 
-- The hand-drawn logo from `Drawing.jpeg`, saved as `public/assets/do-stuff-logo.png`
-- Generated hero artwork: `public/assets/play-lab-hero.png`
-- Handcrafted thumbnail artwork for starter video lanes
-- A playable Pong browser game at `/games/pong/`
-- The earlier Spark Catcher bonus game at `/games/spark-catcher/`
+- A logo-free homepage focused on real connected YouTube videos
+- A video library at `/videos/`
+- Individual pages for each public YouTube upload
+- Channel lanes for the connected accounts
 - Astro source files in `src/`
 - A lightweight static preview/deploy copy in `dist/`
 - Deployment instructions in `deploy/`
@@ -16,7 +15,7 @@ This is the new Astro website for `dostuffandhavefun.com`: a bright, playful hom
 
 ## Design Rule
 
-This site should never look like generic AI output. Keep it polished, specific, playful, and trustworthy. If real YouTube data is missing, make the empty state feel intentional and launch-ready.
+This site should never look like generic AI output. Keep it polished, specific, and built around the real video thumbnails, titles, channels, and embeds. Do not add logos, games, filler topic hubs, or "family-friendly" positioning unless the user asks for that again.
 
 ## YouTube Channels
 
@@ -26,7 +25,7 @@ The site is ready to stay updated from YouTube channel feeds. Add each channel U
 npm run youtube:update
 ```
 
-That resolves the public YouTube feed, writes the newest videos to `src/data/videos.generated.json`, and the homepage automatically switches from starter lanes to real YouTube videos.
+That resolves the public YouTube feed, writes the newest videos to `src/data/videos.generated.json`, and the homepage shows real YouTube videos.
 
 Connected channel handles collected from the signed-in YouTube account: `@GeorgeAndJohn`, `@poutineanimates`, `@Monkeyman-g2z`, `@DaEpicDuck-x7h`, `@EPICMAPPING023`, `@Untitledhorror-g5p`, `@SpongeBobifheexploded`, `@EPICMinecrafting`, and editor-access channel `@MapperFromHungaria05`.
 
@@ -53,9 +52,9 @@ Current hosting route: Hostinger has a dedicated website slot for `dostuffandhav
 
 ## Current Live Status
 
-The initial static site is deployed on Hostinger and serves from `https://dostuffandhavefun.com/`. The live site now includes the hand-drawn logo, the Pong game at `/games/pong/`, homepage game links pointing to Pong, and Spark Catcher still available at `/games/spark-catcher/`.
+The current site is video-only: homepage, `/videos/`, individual video pages, connected channel lanes, sitemap, and `llms.txt`. It intentionally does not show a logo or games.
 
-Last verified deploy: June 14, 2026. HTTPS, homepage, logo, sitemap, Pong page, Pong Start button, connected channel lanes, and a generated YouTube video page were verified. Chrome was left open on the updated live homepage after the deploy check.
+Last verified deploy: June 14, 2026. HTTPS, homepage, sitemap, connected channel lanes, and a generated YouTube video page were verified.
 
 Local rebuild note: if npm is unavailable on this Mac, use the no-dependency fallback `/Users/georgiemcpherson/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/render-static.mjs` after running the YouTube updater. It rebuilds `dist/` from the source data without installing `node_modules`.
 

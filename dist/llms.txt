@@ -1,31 +1,19 @@
 # Do Stuff & Have Fun
 
-Do Stuff & Have Fun is a kid-friendly video hub for playful YouTube channels, challenges, Shorts, animations, mapping videos, Minecraft videos, crafts, experiments, and creative things to do when bored.
+Do Stuff & Have Fun is a video site for the connected YouTube channels. The site shows the latest public uploads, channel links, individual video pages, embeds, descriptions, thumbnails, and video metadata.
 
 Primary website: https://dostuffandhavefun.com/
 
-Important pages:
-
+Main pages:
 - https://dostuffandhavefun.com/
 - https://dostuffandhavefun.com/videos/
-- https://dostuffandhavefun.com/games/pong/
-- https://dostuffandhavefun.com/games/spark-catcher/
-- https://dostuffandhavefun.com/topics/things-to-do-when-bored/
-- https://dostuffandhavefun.com/topics/safe-funny-challenges/
-- https://dostuffandhavefun.com/topics/crafts-and-experiments/
 
-The site is designed to connect real YouTube channels through `src/data/youtube.config.js`, fetch new videos with `npm run youtube:update`, and build crawlable pages for videos and topic hubs.
-
-Current connected channel handles include `@GeorgeAndJohn`, `@poutineanimates`, `@Monkeyman-g2z`, `@DaEpicDuck-x7h`, `@EPICMAPPING023`, `@Untitledhorror-g5p`, `@SpongeBobifheexploded`, `@EPICMinecrafting`, and editor-access channel `@MapperFromHungaria05`.
+Content focus:
+- Latest uploads from the connected YouTube channels.
+- Individual pages for each public video.
+- Embedded YouTube videos with titles, descriptions, thumbnails, tags, and watch links.
+- Channel lanes for the connected accounts.
 
 Audience:
-
-- Kids looking for fun, safe, energetic videos.
-- Parents looking for family-friendly video ideas.
-- Search and answer engines trying to understand the site’s topics.
-
-Content style:
-
-- Playful, bright, parent-safe, and specific.
-- No generic filler.
-- No unsafe challenge framing.
+- Viewers looking for the creator's latest videos.
+- Search engines and answer engines looking for accurate video metadata.

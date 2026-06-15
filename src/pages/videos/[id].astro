@@ -13,7 +13,7 @@ export function getStaticPaths() {
 
 const { video } = Astro.props;
 const pageTitle = `${video.title} | Do Stuff & Have Fun`;
-const pageDescription = video.description || "A kid-friendly Do Stuff & Have Fun video.";
+const pageDescription = video.description || "A Do Stuff & Have Fun video.";
 const schema = {
   "@context": "https://schema.org",
   "@type": "VideoObject",
@@ -24,11 +24,7 @@ const schema = {
   embedUrl: video.url,
   publisher: {
     "@type": "Organization",
-    name: "Do Stuff & Have Fun",
-    logo: {
-      "@type": "ImageObject",
-      url: "https://dostuffandhavefun.com/assets/do-stuff-logo.png"
-    }
+    name: "Do Stuff & Have Fun"
   }
 };
 ---
@@ -49,16 +45,16 @@ const schema = {
     <meta property="og:image" content={video.thumbnail || "https://dostuffandhavefun.com/assets/play-lab-hero.png"} />
     <script type="application/ld+json" set:html={JSON.stringify(schema)} />
   </head>
-  <body>
+  <body class="video-site">
     <header class="topbar" aria-label="Site header">
-      <a class="brand" href="/" aria-label="Do Stuff and Have Fun home">
-        <img src="/assets/do-stuff-logo.png" alt="Do Stuff & Have Fun logo" />
+      <a class="brand wordmark" href="/" aria-label="Do Stuff and Have Fun home">
+        <span>Do Stuff</span>
+        <strong>Videos</strong>
       </a>
       <nav aria-label="Main navigation">
-        <a href="/videos/">Videos</a>
-        <a href="/games/pong/">Game</a>
+        <a href="/#videos">Latest</a>
         <a href="/#channels">Channels</a>
-        <a href="/#growth">Growth Engine</a>
+        <a href="/videos/">All Videos</a>
       </nav>
     </header>
 
@@ -87,13 +83,13 @@ const schema = {
       <section class="section">
         <div class="topic-content">
           <article class="topic-panel">
-            <p class="eyebrow">Why this video matters</p>
-            <h2>Search-friendly summary</h2>
+            <p class="eyebrow">Summary</p>
+            <h2>About this video</h2>
             <p>{pageDescription}</p>
           </article>
           <aside class="topic-panel">
-            <p class="eyebrow">Discovery tags</p>
-            <h2>Watch next signals</h2>
+            <p class="eyebrow">Tags</p>
+            <h2>Video signals</h2>
             <div class="tags">
               {(video.keywords || []).map((keyword) => <span>{keyword}</span>)}
             </div>
@@ -103,8 +99,7 @@ const schema = {
     </main>
 
     <footer>
-      <img src="/assets/do-stuff-logo.png" alt="" />
-      <p>Do Stuff & Have Fun is being built as a playful, family-friendly video hub.</p>
+      <p>Do Stuff & Have Fun. Latest connected videos, updated from YouTube.</p>
     </footer>
   </body>
 </html>

@@ -4,7 +4,7 @@ const starterChannels = [
   {
     name: "Adventure Lab",
     handle: "Ready for channel link",
-    description: "The home for bigger playful videos: challenges, experiments, projects, and moments kids can get excited about.",
+    description: "The home for bigger uploads: challenges, projects, gameplay, and creator moments.",
     url: "#youtube-connection",
     theme: "Maker challenges",
     color: "coral"
@@ -20,7 +20,7 @@ const starterChannels = [
   {
     name: "Creative Workshop",
     handle: "Ready for channel link",
-    description: "Crafts, learning moments, and curious little projects with bright visuals and parent-friendly framing.",
+    description: "Creative uploads, experiments, and project videos from the connected channels.",
     url: "#youtube-connection",
     theme: "Crafts and experiments",
     color: "green"
@@ -78,27 +78,27 @@ export const featuredVideos = [
     description: "A spotlight lane for the most clickable challenge videos once the YouTube channel links are connected.",
     url: "#youtube-connection",
     thumbnail: "/assets/thumb-challenges.svg",
-    keywords: ["kids challenge video", "fun videos for kids", "family friendly YouTube"],
+    keywords: ["challenge video", "YouTube video", "Do Stuff & Have Fun"],
     status: "Starter lane",
     isLive: false
   },
   {
     title: "Shorts Watch Path",
     channel: "Shorts Spark",
-    description: "A Shorts-friendly lane for quick clips that can earn repeat views and send viewers to full videos.",
+    description: "A Shorts-focused lane for quick clips that can earn repeat views and send viewers to full videos.",
     url: "#youtube-connection",
     thumbnail: "/assets/thumb-shorts.svg",
-    keywords: ["funny kids shorts", "quick kid videos", "YouTube shorts for kids"],
+    keywords: ["funny shorts", "quick videos", "YouTube shorts"],
     status: "Starter lane",
     isLive: false
   },
   {
     title: "Creative Project Episodes",
     channel: "Creative Workshop",
-    description: "A home for craft, experiment, and learning videos that answer parent and kid search questions.",
+    description: "A home for craft, experiment, and project videos from the connected channels.",
     url: "#youtube-connection",
     thumbnail: "/assets/thumb-crafts.svg",
-    keywords: ["craft videos for kids", "easy kids experiments", "creative kids activities"],
+    keywords: ["craft videos", "experiment videos", "creative videos"],
     status: "Starter lane",
     isLive: false
   }
@@ -117,7 +117,7 @@ export function buildFeaturedVideos(generatedVideos = []) {
     description: video.description || "A new Do Stuff & Have Fun upload, ready to watch on YouTube.",
     url: video.url,
     thumbnail: video.thumbnail || "/assets/thumb-challenges.svg",
-    keywords: video.keywords || ["kid friendly videos", "fun videos for kids"],
+    keywords: video.keywords || ["YouTube videos", "Do Stuff & Have Fun"],
     status: "Watch on YouTube",
     isLive: true,
     published: video.published
@@ -128,10 +128,10 @@ export const topicHubs = [
   {
     slug: "things-to-do-when-bored",
     title: "Things To Do When Bored",
-    answer: "A page cluster for videos that give kids quick, safe ideas when they want something fun to watch or try.",
-    keywords: ["things to do when bored for kids", "fun kid activities", "videos for bored kids"],
+    answer: "A page cluster for videos that give viewers quick ideas when they want something fun to watch.",
+    keywords: ["things to do when bored", "fun videos", "videos to watch"],
     intro:
-      "This hub is for videos that solve the classic bored-kid problem: quick ideas, upbeat energy, and safe prompts that can turn a slow afternoon into something playful.",
+      "This hub is for videos with quick ideas, upbeat energy, and watch-next momentum.",
     watchPlan: [
       "Lead with short videos that create instant momentum.",
       "Pair each video with one simple activity idea a parent can understand in ten seconds.",
@@ -139,8 +139,8 @@ export const topicHubs = [
     ],
     questions: [
       {
-        question: "What can kids watch when they are bored?",
-        answer: "Start with a quick, family-friendly video that gives them an idea to laugh at, copy safely, or talk about with a parent."
+        question: "What can someone watch when they are bored?",
+        answer: "Start with a quick video that has a clear idea, funny moment, or project to follow."
       },
       {
         question: "How does this help the YouTube channels grow?",
@@ -152,18 +152,18 @@ export const topicHubs = [
     slug: "safe-funny-challenges",
     title: "Funny Safe Challenges",
     answer: "A discovery lane for challenge videos that feel energetic without encouraging dangerous copycat behavior.",
-    keywords: ["safe challenges for kids", "funny kid challenges", "family friendly challenge videos"],
+    keywords: ["safe challenges", "funny challenges", "challenge videos"],
     intro:
-      "Challenge videos can be the highest-energy part of the site, but they need to feel parent-safe. This hub frames the fun around laughter, timing, creativity, and harmless surprise.",
+      "Challenge videos can be the highest-energy part of the site. This hub frames the fun around timing, creativity, and surprise.",
     watchPlan: [
       "Show the funniest challenge videos first.",
-      "Use page copy that avoids risky dares and keeps the tone safe.",
+      "Use page copy that avoids risky dares and keeps the tone clear.",
       "Suggest related challenge videos by mood: silly, creative, fast, messy, or teamwork."
     ],
     questions: [
       {
-        question: "What makes a challenge video safe for kids?",
-        answer: "A safe challenge avoids danger, pressure, and copycat risk, while still giving kids a clear playful idea to enjoy."
+        question: "What makes a challenge video work?",
+        answer: "A strong challenge has a simple setup, a clear payoff, and enough surprise to keep viewers watching."
       },
       {
         question: "Why make a dedicated challenge hub?",
@@ -174,19 +174,19 @@ export const topicHubs = [
   {
     slug: "crafts-and-experiments",
     title: "Crafts And Experiments",
-    answer: "A parent-friendly topic hub for creative projects, simple experiments, and watch-next learning videos.",
-    keywords: ["craft videos for kids", "easy experiments for kids", "creative activities for kids"],
+    answer: "A topic hub for creative projects, simple experiments, and watch-next videos.",
+    keywords: ["craft videos", "easy experiments", "creative videos"],
     intro:
-      "This hub turns craft and experiment videos into a trustworthy watch path for parents and a colorful discovery path for kids.",
+      "This hub turns craft and experiment videos into a focused watch path.",
     watchPlan: [
       "Group videos by what the child wants to make, test, or discover.",
-      "Write plain summaries that help parents judge supplies, mess, and supervision.",
+      "Write plain summaries that explain the setup and result.",
       "Use related links to move from one project video into the next natural idea."
     ],
     questions: [
       {
         question: "Are craft and experiment videos good for search traffic?",
-        answer: "Yes. Parents and kids search for specific projects, materials, and easy experiments, which makes these pages strong SEO targets."
+        answer: "Yes. People search for specific projects, materials, and easy experiments, which makes these pages strong SEO targets."
       },
       {
         question: "What should each craft video page include?",
@@ -197,11 +197,11 @@ export const topicHubs = [
 ];
 
 export const growthLoops = [
-  "Create one page per video with a short answer, parent-friendly summary, embedded video, transcript, and related activity ideas.",
+  "Create one page per video with a short summary, embedded video, transcript, and related watch ideas.",
   "Turn each video into 3 discovery paths: a YouTube title, a Google-search question page, and a Shorts teaser.",
-  "Group videos by topics kids search for, such as challenges, crafts, experiments, funny moments, and things to do when bored.",
+  "Group videos by searchable topics such as challenges, crafts, experiments, funny moments, and things to do when bored.",
   "Use clear schema for videos and FAQs so search engines and answer engines can understand the site.",
-  "Keep every page safe, accurate, and family friendly so parents trust the site and kids know what to watch next."
+  "Keep every page accurate, specific, and connected to a real upload."
 ];
 
 export const youtubeConnectionSteps = [

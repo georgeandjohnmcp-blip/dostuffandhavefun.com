@@ -120,7 +120,7 @@ function parseFeed(xml, channel) {
       published,
       description: readTag(entry, "media:description"),
       thumbnail: readAttr(entry, "media:thumbnail", "url"),
-      keywords: [channel.lane, "kid friendly videos", "Do Stuff & Have Fun"].filter(Boolean),
+      keywords: [channel.lane, "YouTube videos", "Do Stuff & Have Fun"].filter(Boolean),
       isLive: Boolean(videoId && title && url)
     };
   });

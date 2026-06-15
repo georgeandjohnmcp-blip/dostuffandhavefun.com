@@ -4,7 +4,7 @@ export const youtubeChannels = [
     channelId: "",
     handle: "@GeorgeAndJohn",
     url: "",
-    description: "The main channel for playful challenges, creative projects, experiments, Shorts, and family-friendly videos.",
+    description: "The main channel for challenges, creative projects, experiments, Shorts, and new uploads.",
     lane: "Latest uploads",
     color: "coral"
   },
@@ -49,7 +49,7 @@ export const youtubeChannels = [
     channelId: "",
     handle: "@Untitledhorror-g5p",
     url: "",
-    description: "A spooky-story lane that should stay clearly labeled so parents can decide what fits their kid.",
+    description: "A spooky-story lane with uploads that stay clearly labeled by theme.",
     lane: "Spooky stories",
     color: "green"
   },
