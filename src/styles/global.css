@@ -564,12 +564,12 @@ h3 {
 }
 
 .section {
-  padding: clamp(3rem, 7vw, 7rem) clamp(1rem, 4vw, 4rem);
+  padding: clamp(2.25rem, 5vw, 4.5rem) clamp(1rem, 4vw, 4rem);
 }
 
 .section-heading {
   max-width: 860px;
-  margin-bottom: 2rem;
+  margin-bottom: 1.25rem;
 }
 
 .section-heading p {
@@ -584,18 +584,18 @@ h3 {
 
 .ten-game-grid {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 0.85rem;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.55rem;
 }
 
 .ten-game-grid button {
-  min-height: 230px;
+  min-height: 142px;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.55rem;
-  padding: 1rem;
-  box-shadow: 7px 7px 0 var(--ink);
+  gap: 0.34rem;
+  padding: 0.62rem;
+  box-shadow: 4px 4px 0 var(--ink);
   text-align: left;
   cursor: pointer;
   transform: rotate(-0.25deg);
@@ -611,26 +611,32 @@ h3 {
 
 .ten-game-grid span {
   background: var(--aqua);
-  font-size: 0.78rem;
+  border-width: 2px;
+  border-radius: 6px;
+  box-shadow: 2px 2px 0 var(--ink);
+  padding: 0.1rem 0.3rem;
+  font-size: 0.58rem;
   text-transform: uppercase;
 }
 
 .ten-game-grid strong {
-  font-size: clamp(1.15rem, 2vw, 1.55rem);
-  line-height: 1.05;
+  font-size: clamp(0.82rem, 1.25vw, 1.05rem);
+  line-height: 1.02;
 }
 
 .ten-game-grid em {
   font-style: normal;
-  font-weight: 760;
-  line-height: 1.35;
+  font-size: 0.72rem;
+  font-weight: 740;
+  line-height: 1.2;
 }
 
 .ten-game-grid small {
   margin-top: auto;
   color: #0b6f7a;
+  font-size: 0.62rem;
   font-weight: 1000;
-  line-height: 1.25;
+  line-height: 1.12;
 }
 
 footer {
@@ -674,7 +680,7 @@ footer a {
   }
 
   .ten-game-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -696,6 +702,15 @@ footer a {
   }
 
   .ten-game-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ten-game-grid button {
+    min-height: 126px;
+    padding: 0.54rem;
+  }
+
+  .ten-game-grid em {
+    font-size: 0.68rem;
   }
 }
