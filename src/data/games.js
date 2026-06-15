@@ -33,8 +33,8 @@ export const games = [
     id: "block-builder-3d",
     title: "Block Builder 3D",
     label: "Build",
-    description: "A block-building 3D sandbox for stacking cubes into a tiny voxel world.",
-    controls: "Arrows move, Action place"
+    description: "A first-person block-building sandbox for stacking cubes inside a tiny voxel world.",
+    controls: "W/S move, Left/Right look, Action place"
   },
   {
     id: "classic-snake",

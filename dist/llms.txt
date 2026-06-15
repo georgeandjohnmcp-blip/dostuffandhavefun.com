@@ -10,7 +10,7 @@ Games:
 - Arena FPS 3D: A first-person blaster with bots and browser-to-browser online duels.
 - Spotlight Dash 3D: Race through a dark stage while a giant spotlight follows you.
 - Sky Platformer 3D: A 20-level 3D platform run with floating islands, coins, lava, and finish gates.
-- Block Builder 3D: A block-building 3D sandbox for stacking cubes into a tiny voxel world.
+- Block Builder 3D: A first-person block-building sandbox for stacking cubes inside a tiny voxel world.
 - Classic Snake: Eat snacks, grow longer, and do not crash into yourself.
 - Solo Pong: Keep the ball alive with one paddle and chase a high score.
 - Falling Blocks: Drop, rotate, and clear rows in a Tetris-style puzzle.

@@ -13,6 +13,11 @@ fpsOverlay.className = "fps-overlay";
 fpsOverlay.hidden = true;
 fpsOverlay.innerHTML = `<div class="fps-hud"><span id="fpsHealth">HP 100</span><span id="fpsAmmo">Ammo ∞</span><span id="fpsMode">Bots</span></div><div class="fps-crosshair" aria-hidden="true"></div><div class="fps-hit" id="fpsHit">HIT</div>`;
 spotlightCanvas.after(fpsOverlay);
+const blockOverlay = document.createElement("div");
+blockOverlay.className = "fps-overlay block-overlay";
+blockOverlay.hidden = true;
+blockOverlay.innerHTML = `<div class="fps-hud"><span id="blockCount">Blocks 0</span><span id="blockTarget">Aim 0,0</span><span id="blockMode">Build</span></div><div class="fps-crosshair block-crosshair" aria-hidden="true"></div>`;
+fpsOverlay.after(blockOverlay);
 const titleEl = document.getElementById("currentGameTitle");
 const scoreEl = document.getElementById("score");
 const bestEl = document.getElementById("best");
@@ -166,6 +171,7 @@ function setStageMode(is3d) {
   spotlightCanvas.hidden = !is3d;
   stage.classList.toggle("is-3d", is3d);
   fpsOverlay.hidden = arcade.id !== "arena-fps-3d";
+  blockOverlay.hidden = arcade.id !== "block-builder-3d";
 }
 
 function is3dGame(id) {
@@ -306,12 +312,32 @@ function moveVoxelCursor(dx, dz) {
   d.cursorZ = Math.max(-6, Math.min(6, d.cursorZ + dz));
 }
 
+function updateFirstPersonVoxelTarget() {
+  const d = arcade.data;
+  if (!d) return;
+  const forwardX = Math.sin(d.yaw || 0);
+  const forwardZ = -Math.cos(d.yaw || 0);
+  d.cursorX = Math.max(-6, Math.min(6, Math.round(d.playerX + forwardX * 2.8)));
+  d.cursorZ = Math.max(-6, Math.min(6, Math.round(d.playerZ + forwardZ * 2.8)));
+}
+
 function updateVoxelSelector() {
   const d = arcade.data;
   if (!block3d.selector || !block3d.marker) return;
   const height = voxelStackHeight(d.cursorX, d.cursorZ);
   block3d.selector.position.set(d.cursorX, height + 0.53, d.cursorZ);
   block3d.marker.position.set(d.cursorX, 0.04, d.cursorZ);
+}
+
+function updateBlockHud() {
+  const count = document.getElementById("blockCount");
+  const target = document.getElementById("blockTarget");
+  const mode = document.getElementById("blockMode");
+  if (!count || !target || !mode) return;
+  const d = arcade.data || {};
+  count.textContent = `Blocks ${block3d.blocks.length}`;
+  target.textContent = `Aim ${d.cursorX ?? 0},${d.cursorZ ?? 0}`;
+  mode.textContent = "First person";
 }
 
 function buildVoxelIsland() {
@@ -396,7 +422,9 @@ async function setupBlock3d() {
     block3d.ready = true;
     block3d.loading = false;
     resize3d();
+    updateFirstPersonVoxelTarget();
     updateVoxelSelector();
+    updateBlockHud();
     games["block-builder-3d"].draw();
   } catch {
     block3d.failed = true;
@@ -1872,6 +1900,10 @@ const games = {
       arcade.data = {
         cursorX: 0,
         cursorZ: 0,
+        playerX: 0,
+        playerZ: 7,
+        yaw: 0,
+        pitch: -0.1,
         placed: 0,
         materialIndex: 0,
         moveWait: 0,
@@ -1879,7 +1911,9 @@ const games = {
       };
       if (block3d.ready) {
         buildVoxelIsland();
+        updateFirstPersonVoxelTarget();
         updateVoxelSelector();
+        updateBlockHud();
       }
       setupBlock3d();
     },
@@ -1890,6 +1924,7 @@ const games = {
         removeTopVoxelBlock(d.cursorX, d.cursorZ);
         arcade.score = Math.max(0, arcade.score - 2);
         setStatus("Trimmed");
+        updateBlockHud();
         updateVoxelSelector();
         return;
       }
@@ -1899,6 +1934,7 @@ const games = {
       d.placed += 1;
       arcade.score += height >= 4 ? 16 : 8;
       setStatus(`${block3d.blocks.length} blocks`);
+      updateBlockHud();
       updateVoxelSelector();
     },
     update(dt) {
@@ -1909,34 +1945,21 @@ const games = {
       }
       d.time += dt;
       d.moveWait = Math.max(0, d.moveWait - dt);
-      let moved = false;
-      if (consumeTap("left")) {
-        moveVoxelCursor(-1, 0);
-        moved = true;
-      } else if (consumeTap("right")) {
-        moveVoxelCursor(1, 0);
-        moved = true;
-      } else if (consumeTap("up")) {
-        moveVoxelCursor(0, -1);
-        moved = true;
-      } else if (arcade.keys.has("down") && d.moveWait <= 0) {
-        moveVoxelCursor(0, 1);
-        moved = true;
-      } else if (arcade.keys.has("left") && d.moveWait <= 0) {
-        moveVoxelCursor(-1, 0);
-        moved = true;
-      } else if (arcade.keys.has("right") && d.moveWait <= 0) {
-        moveVoxelCursor(1, 0);
-        moved = true;
-      } else if (arcade.keys.has("up") && d.moveWait <= 0) {
-        moveVoxelCursor(0, -1);
-        moved = true;
-      }
-      if (moved) {
-        d.moveWait = 0.13;
-        setStatus(`${block3d.blocks.length} blocks`);
-        updateVoxelSelector();
-      }
+      if (arcade.keys.has("left")) d.yaw += dt * 1.8;
+      if (arcade.keys.has("right")) d.yaw -= dt * 1.8;
+      const forward = (arcade.keys.has("up") ? 1 : 0) - (arcade.keys.has("down") ? 1 : 0);
+      const strafe = (arcade.keys.has("p2up") ? 0 : 0);
+      const forwardX = Math.sin(d.yaw);
+      const forwardZ = -Math.cos(d.yaw);
+      const sideX = Math.cos(d.yaw);
+      const sideZ = Math.sin(d.yaw);
+      d.playerX += (forwardX * forward + sideX * strafe) * dt * 4.1;
+      d.playerZ += (forwardZ * forward + sideZ * strafe) * dt * 4.1;
+      d.playerX = Math.max(-6.4, Math.min(6.4, d.playerX));
+      d.playerZ = Math.max(-6.4, Math.min(6.4, d.playerZ));
+      updateFirstPersonVoxelTarget();
+      updateVoxelSelector();
+      updateBlockHud();
       if (consumeTap("action")) this.placeBlock();
       if (block3d.selector) block3d.selector.rotation.y += dt * 1.8;
       if (block3d.marker) block3d.marker.material.opacity = 0.32 + Math.sin(d.time * 5) * 0.1;
@@ -1946,15 +1969,28 @@ const games = {
       if (!block3d.ready) return;
       resize3d();
       const d = arcade.data;
-      const orbit = Math.sin(d.time * 0.28) * 1.4;
-      block3d.camera.position.x += (d.cursorX + 7.8 + orbit - block3d.camera.position.x) * 0.07;
-      block3d.camera.position.y += (9.4 - block3d.camera.position.y) * 0.06;
-      block3d.camera.position.z += (d.cursorZ + 10.5 - block3d.camera.position.z) * 0.07;
-      block3d.camera.lookAt(d.cursorX, Math.max(0.8, voxelStackHeight(d.cursorX, d.cursorZ) + 0.6), d.cursorZ);
+      const footX = Math.max(-6, Math.min(6, Math.round(d.playerX)));
+      const footZ = Math.max(-6, Math.min(6, Math.round(d.playerZ)));
+      const eyeY = voxelStackHeight(footX, footZ) + 1.72;
+      const look = new block3d.THREE.Vector3(
+        d.playerX + Math.sin(d.yaw) * Math.cos(d.pitch),
+        eyeY + Math.sin(d.pitch),
+        d.playerZ - Math.cos(d.yaw) * Math.cos(d.pitch)
+      );
+      block3d.camera.position.set(d.playerX, eyeY, d.playerZ);
+      block3d.camera.lookAt(look);
       block3d.renderer.setClearColor(0x8bdcff, 1);
       block3d.renderer.render(block3d.scene, block3d.camera);
     },
     click() {
+      if (spotlightCanvas.requestPointerLock && arcade.running) {
+        try {
+          const lock = spotlightCanvas.requestPointerLock();
+          lock?.catch?.(() => {});
+        } catch {
+          // Pointer lock can be blocked in automated browsers.
+        }
+      }
       this.placeBlock();
     }
   },
@@ -2499,9 +2535,18 @@ messageEl.addEventListener("click", async (event) => {
 });
 window.addEventListener("resize", resize3d);
 document.addEventListener("mousemove", (event) => {
-  if (document.pointerLockElement !== spotlightCanvas || arcade.id !== "arena-fps-3d") return;
-  fps3d.yaw -= event.movementX * 0.0025;
-  fps3d.pitch = Math.max(-1.05, Math.min(1.05, fps3d.pitch - event.movementY * 0.002));
+  if (document.pointerLockElement !== spotlightCanvas) return;
+  if (arcade.id === "arena-fps-3d") {
+    fps3d.yaw -= event.movementX * 0.0025;
+    fps3d.pitch = Math.max(-1.05, Math.min(1.05, fps3d.pitch - event.movementY * 0.002));
+  }
+  if (arcade.id === "block-builder-3d") {
+    arcade.data.yaw -= event.movementX * 0.0025;
+    arcade.data.pitch = Math.max(-0.72, Math.min(0.42, arcade.data.pitch - event.movementY * 0.0018));
+    updateFirstPersonVoxelTarget();
+    updateVoxelSelector();
+    updateBlockHud();
+  }
 });
 
 window.addEventListener("keydown", (event) => {
