@@ -2443,14 +2443,14 @@ const games = {
         return;
       }
 
-      const cubeWorld = { x: d.distance + cube.x + 7, y: cube.y + 7, w: cube.w - 14, h: cube.h - 14 };
+      const cubeWorld = { x: d.distance + cube.x + 14, y: cube.y + 14, w: cube.w - 28, h: cube.h - 18 };
       for (const item of d.course) {
         if (item.type === "finish" && d.distance + cube.x > item.x) {
           endGame("Clear");
           return;
         }
         if (item.type === "spike") {
-          const hazard = { x: item.x + 22, y: d.ground - 34, w: 16, h: 34 };
+          const hazard = { x: item.x + 27, y: d.ground - 24, w: 6, h: 24 };
           if (overlap(cubeWorld, hazard)) {
             endGame("Spiked");
             return;
@@ -2483,9 +2483,9 @@ const games = {
       ctx.strokeStyle = ink;
       ctx.lineWidth = 5;
       ctx.beginPath();
-      ctx.moveTo(x + 7, ground);
-      ctx.lineTo(x + 30, ground - 48 - pulse * 5);
-      ctx.lineTo(x + 53, ground);
+      ctx.moveTo(x + 12, ground);
+      ctx.lineTo(x + 30, ground - 40 - pulse * 4);
+      ctx.lineTo(x + 48, ground);
       ctx.closePath();
       ctx.fill();
       ctx.stroke();
