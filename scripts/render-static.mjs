@@ -25,7 +25,7 @@ async function writePage(path, html) {
 
 function htmlShell(body) {
   const title = "Welcome to Have Fun and Do Stuff | 3D Racing, FPS, and Arcade Games";
-  const description = "A browser arcade led by a 3D racing game, plus a 3D first-person shooter, Snake, Pong, blocks, and more quick games.";
+  const description = "A browser arcade led by a two-minute 3D racing game against bot cars, plus a 3D first-person shooter and more quick games.";
   const schema = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -43,7 +43,7 @@ function htmlShell(body) {
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <link rel="canonical" href="https://dostuffandhavefun.com/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/assets/global.css?v=racer-3d-20260615" />
+    <link rel="stylesheet" href="/assets/global.css?v=racer-bots-2min-20260615" />
     <meta property="og:title" content="Do Stuff & Have Fun Games" />
     <meta property="og:description" content="${esc(description)}" />
     <meta property="og:type" content="website" />
@@ -56,7 +56,7 @@ function htmlShell(body) {
   </head>
   <body class="game-site">
     ${body}
-    <script type="module" src="/assets/arcade.js?v=racer-3d-20260615"></script>
+    <script type="module" src="/assets/arcade.js?v=racer-bots-2min-20260615"></script>
   </body>
 </html>
 `;
@@ -81,7 +81,7 @@ async function renderHome() {
         <div class="games-hero-copy">
           <p class="eyebrow">3D racing arcade</p>
           <h1>Welcome to Have Fun and Do Stuff.</h1>
-          <p class="lede">Race a bright 3D track, dodge traffic, grab coins, boost hard, then jump into FPS battles and classic arcade games.</p>
+          <p class="lede">Race bot cars for two minutes, dodge traffic, grab coins, boost hard, then jump into FPS battles and classic arcade games.</p>
           <div class="hero-actions"><a class="button primary" href="#play">Play now</a><a class="button secondary" href="${epicMappingUrl}">EPICMAPPING</a></div>
         </div>
         <div class="cabinet-preview" aria-hidden="true"><div class="cabinet-screen"><span></span><span></span><span></span><strong>${games.length}</strong></div><div class="cabinet-controls"><i></i><i></i><i></i></div></div>
@@ -103,7 +103,7 @@ async function renderTextFiles() {
   await writeFile(join(dist, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: https://dostuffandhavefun.com/sitemap-index.xml\n\nLLMS: https://dostuffandhavefun.com/llms.txt\n`);
   await writeFile(join(dist, "sitemap-index.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <sitemap>\n    <loc>https://dostuffandhavefun.com/sitemap-0.xml</loc>\n  </sitemap>\n</sitemapindex>\n`);
   await writeFile(join(dist, "sitemap-0.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url>\n    <loc>https://dostuffandhavefun.com/</loc>\n    <lastmod>2026-06-14</lastmod>\n  </url>\n  <url>\n    <loc>https://dostuffandhavefun.com/llms.txt</loc>\n    <lastmod>2026-06-14</lastmod>\n  </url>\n</urlset>\n`);
-  await writeFile(join(dist, "llms.txt"), `# Welcome to Have Fun and Do Stuff\n\nHave Fun and Do Stuff is a ${games.length}-game browser arcade led by a 3D racing game, with a 3D first-person shooter and classic arcade games. The site has one YouTube link: ${epicMappingUrl}\n\nMain page:\n- https://dostuffandhavefun.com/\n\nGames:\n${games.map((game) => `- ${game.title}: ${game.description}`).join("\n")}\n`);
+  await writeFile(join(dist, "llms.txt"), `# Welcome to Have Fun and Do Stuff\n\nHave Fun and Do Stuff is a ${games.length}-game browser arcade led by a two-minute 3D racing game against bot cars, with a 3D first-person shooter and classic arcade games. The site has one YouTube link: ${epicMappingUrl}\n\nMain page:\n- https://dostuffandhavefun.com/\n\nGames:\n${games.map((game) => `- ${game.title}: ${game.description}`).join("\n")}\n`);
 }
 
 await rm(dist, { recursive: true, force: true });

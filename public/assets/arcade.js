@@ -123,6 +123,7 @@ const racing3d = {
   car: null,
   road: null,
   objects: [],
+  botCars: [],
   laneMarkers: []
 };
 
@@ -212,9 +213,48 @@ function resize3d() {
 
 function clearRacingScene() {
   if (!racing3d.scene) return;
-  [...racing3d.objects, ...racing3d.laneMarkers].forEach((item) => racing3d.scene.remove(item));
+  [...racing3d.objects, ...racing3d.laneMarkers, ...racing3d.botCars.map((bot) => bot.mesh)].forEach((item) => racing3d.scene.remove(item));
   racing3d.objects = [];
+  racing3d.botCars = [];
   racing3d.laneMarkers = [];
+}
+
+function makeRacingCar(color = 0xff5b4a, accent = 0xffd23f) {
+  const THREE = racing3d.THREE;
+  const car = new THREE.Group();
+  const body = new THREE.Mesh(
+    new THREE.BoxGeometry(1.7, 0.62, 2.9),
+    new THREE.MeshStandardMaterial({ color, roughness: 0.32, metalness: 0.24 })
+  );
+  body.position.y = 0.55;
+  body.castShadow = true;
+  car.add(body);
+  const cabin = new THREE.Mesh(
+    new THREE.BoxGeometry(1.05, 0.48, 1.18),
+    new THREE.MeshStandardMaterial({ color: 0x25c7d9, roughness: 0.2, metalness: 0.1 })
+  );
+  cabin.position.set(0, 1.03, -0.28);
+  cabin.castShadow = true;
+  car.add(cabin);
+  const nose = new THREE.Mesh(
+    new THREE.BoxGeometry(1.42, 0.18, 0.16),
+    new THREE.MeshBasicMaterial({ color: accent })
+  );
+  nose.position.set(0, 0.72, -1.54);
+  car.add(nose);
+  [-0.68, 0.68].forEach((x) => {
+    [-1.02, 1.02].forEach((z) => {
+      const wheel = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.28, 0.28, 0.24, 18),
+        new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.5 })
+      );
+      wheel.rotation.z = Math.PI / 2;
+      wheel.position.set(x, 0.34, z);
+      wheel.castShadow = true;
+      car.add(wheel);
+    });
+  });
+  return car;
 }
 
 async function setupRacing3d() {
@@ -259,39 +299,7 @@ async function setupRacing3d() {
     road.receiveShadow = true;
     scene.add(road);
 
-    const car = new THREE.Group();
-    const body = new THREE.Mesh(
-      new THREE.BoxGeometry(1.7, 0.62, 2.9),
-      new THREE.MeshStandardMaterial({ color: 0xff5b4a, roughness: 0.32, metalness: 0.24 })
-    );
-    body.position.y = 0.55;
-    body.castShadow = true;
-    car.add(body);
-    const cabin = new THREE.Mesh(
-      new THREE.BoxGeometry(1.05, 0.48, 1.18),
-      new THREE.MeshStandardMaterial({ color: 0x25c7d9, roughness: 0.2, metalness: 0.1 })
-    );
-    cabin.position.set(0, 1.03, -0.28);
-    cabin.castShadow = true;
-    car.add(cabin);
-    const nose = new THREE.Mesh(
-      new THREE.BoxGeometry(1.42, 0.18, 0.16),
-      new THREE.MeshBasicMaterial({ color: 0xffd23f })
-    );
-    nose.position.set(0, 0.72, -1.54);
-    car.add(nose);
-    [-0.68, 0.68].forEach((x) => {
-      [-1.02, 1.02].forEach((z) => {
-        const wheel = new THREE.Mesh(
-          new THREE.CylinderGeometry(0.28, 0.28, 0.24, 18),
-          new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.5 })
-        );
-        wheel.rotation.z = Math.PI / 2;
-        wheel.position.set(x, 0.34, z);
-        wheel.castShadow = true;
-        car.add(wheel);
-      });
-    });
+    const car = makeRacingCar(0xff5b4a, 0xffd23f);
     car.position.set(0, 0, 6);
     scene.add(car);
 
@@ -330,6 +338,43 @@ function makeRaceObject(kind) {
   mesh.userData = { kind, lane, hit: false };
   racing3d.scene.add(mesh);
   racing3d.objects.push(mesh);
+}
+
+function makeRaceBotCar(name, lane, distance, speed, color, accent) {
+  const mesh = makeRacingCar(color, accent);
+  mesh.position.set(lane, 0, 6 - (distance - arcade.data.distance));
+  mesh.scale.setScalar(0.95);
+  racing3d.scene.add(mesh);
+  const bot = {
+    name,
+    mesh,
+    lane,
+    targetLane: lane,
+    distance,
+    speed,
+    laneTimer: rand(1.2, 3.2)
+  };
+  racing3d.botCars.push(bot);
+  return bot;
+}
+
+function racePlace() {
+  const racers = [
+    { name: "You", distance: arcade.data.distance },
+    ...racing3d.botCars.map((bot) => ({ name: bot.name, distance: bot.distance }))
+  ].sort((a, b) => b.distance - a.distance);
+  return racers.findIndex((racer) => racer.name === "You") + 1;
+}
+
+function racePlaceLabel(place) {
+  return ["1st", "2nd", "3rd", "4th"][place - 1] || `${place}th`;
+}
+
+function raceClock(seconds) {
+  const safe = Math.max(0, Math.ceil(seconds));
+  const mins = Math.floor(safe / 60);
+  const secs = String(safe % 60).padStart(2, "0");
+  return `${mins}:${secs}`;
 }
 
 async function setupSpotlight3d() {
@@ -877,11 +922,23 @@ const games = {
         roadPulse: 0,
         spawn: 0.25,
         distance: 0,
-        boost: 0
+        boost: 0,
+        timeLeft: 120,
+        bumped: 0,
+        finished: false
       };
       setupRacing3d();
-      if (racing3d.ready) {
-        racing3d.car.position.set(0, 0, 6);
+      this.prepareRace();
+    },
+    prepareRace() {
+      if (!racing3d.ready) return;
+      racing3d.car.position.set(0, 0, 6);
+      if (!racing3d.botCars.length) {
+        makeRaceBotCar("Bolt", -4, 4, 34, 0x2968e8, 0xfff0a0);
+        makeRaceBotCar("Flash", 0, -7, 35.5, 0xffd23f, 0xff5b4a);
+        makeRaceBotCar("Zap", 4, -14, 33.2, 0x7bd629, 0x10233f);
+      }
+      if (!racing3d.laneMarkers.length) {
         for (let z = -6; z > -78; z -= 8) this.addMarker(z);
       }
     },
@@ -904,12 +961,20 @@ const games = {
         setupRacing3d();
         return;
       }
+      this.prepareRace();
+      d.timeLeft -= dt;
+      d.bumped = Math.max(0, d.bumped - dt);
+      if (d.timeLeft <= 0) {
+        const place = racePlace();
+        endGame(place === 1 ? "You win" : `${racePlaceLabel(place)} place`);
+        return;
+      }
       if (consumeTap("left")) d.targetX = Math.max(-4, d.targetX - 4);
       if (consumeTap("right")) d.targetX = Math.min(4, d.targetX + 4);
-      const boost = arcade.keys.has("action") ? 1.55 : 1;
+      const boost = arcade.keys.has("action") && d.bumped <= 0 ? 1.55 : 1;
       d.speed = Math.min(52, d.speed + dt * 0.75);
       d.boost = boost;
-      d.distance += dt * d.speed * boost;
+      d.distance += dt * d.speed * boost * (d.bumped > 0 ? 0.58 : 1);
       d.carX += (d.targetX - d.carX) * Math.min(1, dt * 8.5);
       racing3d.car.position.x = d.carX;
       racing3d.car.rotation.z = (d.carX - d.targetX) * -0.04;
@@ -924,6 +989,27 @@ const games = {
       racing3d.laneMarkers.forEach((marker) => {
         marker.position.z += d.speed * boost * dt;
         if (marker.position.z > 10) marker.position.z -= 88;
+      });
+      racing3d.botCars.forEach((bot) => {
+        bot.laneTimer -= dt;
+        if (bot.laneTimer <= 0) {
+          bot.targetLane = [-4, 0, 4][Math.floor(rand(0, 3))];
+          bot.laneTimer = rand(1.4, 3.7);
+        }
+        bot.distance += bot.speed * dt * (0.92 + Math.sin(performance.now() * 0.001 + bot.speed) * 0.05);
+        bot.lane += (bot.targetLane - bot.lane) * Math.min(1, dt * 2.4);
+        bot.mesh.position.x = bot.lane;
+        bot.mesh.position.z = 6 - (bot.distance - d.distance);
+        bot.mesh.position.y = 0;
+        bot.mesh.rotation.z = (bot.lane - bot.targetLane) * -0.025;
+        bot.mesh.visible = bot.mesh.position.z > -82 && bot.mesh.position.z < 22;
+        const near = Math.abs(bot.mesh.position.z - racing3d.car.position.z) < 2;
+        const sideBySide = Math.abs(bot.mesh.position.x - d.carX) < 1.55;
+        if (near && sideBySide && d.bumped <= 0) {
+          d.bumped = 1.15;
+          d.speed = Math.max(18, d.speed - 9);
+          setStatus("Bumped");
+        }
       });
       for (let i = racing3d.objects.length - 1; i >= 0; i -= 1) {
         const object = racing3d.objects[i];
@@ -949,7 +1035,9 @@ const games = {
         }
       }
       arcade.score += dt * boost * 6;
-      setStatus(boost > 1 ? "Boost" : `${Math.floor(d.speed)} mph`);
+      const place = racePlace();
+      if (d.bumped > 0) setStatus("Bumped");
+      else setStatus(`${racePlaceLabel(place)} ${raceClock(d.timeLeft)}`);
     },
     draw() {
       if (!racing3d.ready) return;
