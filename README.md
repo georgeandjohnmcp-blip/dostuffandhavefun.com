@@ -1,38 +1,30 @@
 # Do Stuff & Have Fun
 
-This is the Astro website for `dostuffandhavefun.com`: a video-only home for the connected YouTube channels and their latest public uploads.
+This is the Astro website for `dostuffandhavefun.com`: a 10-game browser arcade with one YouTube link to EPICMAPPING.
 
 ## What Is Here
 
-- A logo-free homepage focused on real connected YouTube videos
-- A video library at `/videos/`
-- Individual pages for each public YouTube upload
-- Channel lanes for the connected accounts
+- One games-first homepage
+- 10 playable mini-games in the browser
+- One external YouTube link: `https://www.youtube.com/@EPICMAPPING023`
+- No extra content sections or logo assets
 - Astro source files in `src/`
-- A lightweight static preview/deploy copy in `dist/`
+- A lightweight static deploy copy in `dist/`
 - Deployment instructions in `deploy/`
-- `llms.txt` for answer-engine context
 
 ## Design Rule
 
-This site should never look like generic AI output. Keep it polished, specific, and built around the real video thumbnails, titles, channels, and embeds. Do not add logos, games, filler topic hubs, or "family-friendly" positioning unless the user asks for that again.
+This site should never look like generic AI output. Keep it handmade, punchy, playful, and specific. The site should be games first.
 
-## YouTube Channels
+## Rebuild
 
-The site is ready to stay updated from YouTube channel feeds. Add each channel URL, handle, or channel ID in `src/data/youtube.config.js`, then run:
+If npm is unavailable on this Mac, use the no-dependency fallback:
 
 ```bash
-npm run youtube:update
+/Users/georgiemcpherson/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/render-static.mjs
 ```
 
-That resolves the public YouTube feed, writes the newest videos to `src/data/videos.generated.json`, and the homepage shows real YouTube videos.
-
-Connected channel handles collected from the signed-in YouTube account: `@GeorgeAndJohn`, `@poutineanimates`, `@Monkeyman-g2z`, `@DaEpicDuck-x7h`, `@EPICMAPPING023`, `@Untitledhorror-g5p`, `@SpongeBobifheexploded`, `@EPICMinecrafting`, and editor-access channel `@MapperFromHungaria05`.
-
-On June 14, 2026, the updater pulled 59 public videos from 9 channels.
-
-GitHub also has a scheduled workflow in `.github/workflows/update-youtube.yml` that can refresh the generated video file twice a day once the channel IDs are filled in.
-The workflow also rebuilds and commits the static `dist/` output so the deployable site stays in sync with the newest videos.
+That rebuilds `dist/` without installing `node_modules`.
 
 ## Analytics And Search Console
 
@@ -52,11 +44,7 @@ Current hosting route: Hostinger has a dedicated website slot for `dostuffandhav
 
 ## Current Live Status
 
-The current site is video-only: homepage, `/videos/`, individual video pages, connected channel lanes, sitemap, and `llms.txt`. It intentionally does not show a logo or games.
-
-Last verified deploy: June 14, 2026. HTTPS, homepage, sitemap, connected channel lanes, and a generated YouTube video page were verified.
-
-Local rebuild note: if npm is unavailable on this Mac, use the no-dependency fallback `/Users/georgiemcpherson/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node scripts/render-static.mjs` after running the YouTube updater. It rebuilds `dist/` from the source data without installing `node_modules`.
+The current site is a 10-game arcade with one EPICMAPPING YouTube link.
 
 Deployment note for future chats: the Hostinger MCP static deploy tool may fail during TUS upload if it follows the returned `Location` URL. The working path is to upload the archive to the original `files/upload-urls` target with `X-Auth`, `X-Auth-Rest`, `Upload-Length`, `Upload-Offset`, and `Tus-Resumable`, then trigger `/api/hosting/v1/accounts/u937775855/websites/dostuffandhavefun.com/deploy` with the archive filename.
 

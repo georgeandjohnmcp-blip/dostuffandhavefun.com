@@ -1,19 +1,9 @@
 # Do Stuff & Have Fun
 
-Do Stuff & Have Fun is a video site for the connected YouTube channels. The site shows the latest public uploads, channel links, individual video pages, embeds, descriptions, thumbnails, and video metadata.
+Do Stuff & Have Fun is a 10-game browser arcade.
 
-Primary website: https://dostuffandhavefun.com/
-
-Main pages:
+Main page:
 - https://dostuffandhavefun.com/
-- https://dostuffandhavefun.com/videos/
 
-Content focus:
-- Latest uploads from the connected YouTube channels.
-- Individual pages for each public video.
-- Embedded YouTube videos with titles, descriptions, thumbnails, tags, and watch links.
-- Channel lanes for the connected accounts.
-
-Audience:
-- Viewers looking for the creator's latest videos.
-- Search engines and answer engines looking for accurate video metadata.
+YouTube link:
+- EPICMAPPING: https://www.youtube.com/@EPICMAPPING023

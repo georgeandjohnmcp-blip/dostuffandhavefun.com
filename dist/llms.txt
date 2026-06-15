@@ -1,19 +1,18 @@
 # Do Stuff & Have Fun
 
-Do Stuff & Have Fun is a video site for the connected YouTube channels. The site shows the latest public uploads, channel links, individual video pages, embeds, descriptions, thumbnails, and video metadata.
+Do Stuff & Have Fun is a 10-game browser arcade. The site has one YouTube link: https://www.youtube.com/@EPICMAPPING023
 
-Primary website: https://dostuffandhavefun.com/
-
-Main pages:
+Main page:
 - https://dostuffandhavefun.com/
-- https://dostuffandhavefun.com/videos/
 
-Content focus:
-- Latest uploads from the connected YouTube channels.
-- Individual pages for each public video.
-- Embedded YouTube videos with titles, descriptions, thumbnails, tags, and watch links.
-- Channel lanes for the connected accounts.
-
-Audience:
-- Viewers looking for the creator's latest videos.
-- Search engines and answer engines looking for accurate video metadata.
+Games:
+- Dot Dodge: Move the square and dodge falling blocks.
+- Star Catch: Slide the tray and catch the bright drops.
+- Snake Snack: Steer the snake, eat snacks, avoid yourself.
+- Memory Match: Flip cards and find every pair.
+- Target Pop: Pop targets before the timer runs out.
+- Color Swap: Match the falling color before it lands.
+- Mini Pong: Keep the ball away from your side.
+- Maze Run: Reach the exit without touching walls.
+- Stack Jump: Jump over blocks and keep running.
+- Number Nudge: Hit the target number before time runs out.

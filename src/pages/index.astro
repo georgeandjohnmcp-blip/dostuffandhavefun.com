@@ -1,47 +1,15 @@
 ---
-import { channels, buildFeaturedVideos } from "../data/site.js";
-import generatedVideos from "../data/videos.generated.json";
+import { epicMappingUrl, games } from "../data/games.js";
 import { tracking } from "../data/tracking.js";
 import "../styles/global.css";
 
-const pageTitle = "Do Stuff & Have Fun | Videos";
-const pageDescription =
-  "Watch the latest videos from the connected Do Stuff & Have Fun YouTube channels.";
-const videos = buildFeaturedVideos(generatedVideos);
-const connectedVideoCount = Array.isArray(generatedVideos) ? generatedVideos.length : 0;
-
-const absoluteImageUrl = (url) => (url?.startsWith("http") ? url : `https://dostuffandhavefun.com${url}`);
+const pageTitle = "Do Stuff & Have Fun | 10 Mini Games";
+const pageDescription = "A bright little arcade with 10 quick browser games and a link to EPICMAPPING.";
 const schema = {
   "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "WebSite",
-      name: "Do Stuff & Have Fun",
-      url: "https://dostuffandhavefun.com"
-    },
-    {
-      "@type": "ItemList",
-      name: "Latest videos",
-      itemListElement: videos.map((video, index) => ({
-        "@type": "ListItem",
-        position: index + 1,
-        name: video.title,
-        url: video.isLive && video.id ? `https://dostuffandhavefun.com/videos/${video.id}/` : video.url
-      }))
-    },
-    ...videos.filter((video) => video.isLive).map((video) => ({
-      "@type": "VideoObject",
-      name: video.title,
-      description: video.description,
-      thumbnailUrl: [absoluteImageUrl(video.thumbnail)],
-      uploadDate: video.published || "2026-06-14",
-      embedUrl: video.url,
-      publisher: {
-        "@type": "Organization",
-        name: "Do Stuff & Have Fun"
-      }
-    }))
-  ]
+  "@type": "WebSite",
+  name: "Do Stuff & Have Fun",
+  url: "https://dostuffandhavefun.com"
 };
 ---
 
@@ -52,13 +20,13 @@ const schema = {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
     <meta name="description" content={pageDescription} />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-video-preview:-1" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
     <link rel="canonical" href="https://dostuffandhavefun.com/" />
-    <meta property="og:title" content="Do Stuff & Have Fun Videos" />
+    <meta property="og:title" content="Do Stuff & Have Fun Games" />
     <meta property="og:description" content={pageDescription} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://dostuffandhavefun.com/" />
-    <meta property="og:image" content={videos[0]?.thumbnail || "https://dostuffandhavefun.com/assets/play-lab-hero.png"} />
+    <meta property="og:image" content="https://dostuffandhavefun.com/assets/play-lab-hero.png" />
     <meta name="twitter:card" content="summary_large_image" />
     {tracking.googleSiteVerification && <meta name="google-site-verification" content={tracking.googleSiteVerification} />}
     <script type="application/ld+json" set:html={JSON.stringify(schema)} />
@@ -71,91 +39,100 @@ const schema = {
       </>
     )}
   </head>
-  <body class="video-site">
-    <header class="topbar" aria-label="Site header">
+  <body class="game-site">
+    <header class="topbar arcade-topbar" aria-label="Site header">
       <a class="brand wordmark" href="/" aria-label="Do Stuff and Have Fun home">
         <span>Do Stuff</span>
-        <strong>Videos</strong>
+        <strong>Games</strong>
       </a>
       <nav aria-label="Main navigation">
-        <a href="#videos">Latest</a>
-        <a href="#channels">Channels</a>
-        <a href="/videos/">All Videos</a>
+        <a href="#play">Play</a>
+        <a href="#games">10 Games</a>
+        <a href={epicMappingUrl}>EPICMAPPING</a>
       </nav>
     </header>
 
     <main>
-      <section class="video-hero">
-        <div class="video-hero-copy">
-          <p class="eyebrow">Latest uploads</p>
-          <h1>Your videos, all in one place.</h1>
+      <section class="games-hero">
+        <div class="games-hero-copy">
+          <p class="eyebrow">10-game mini arcade</p>
+          <h1>Pick a game and start playing.</h1>
           <p class="lede">
-            {connectedVideoCount} videos from the connected YouTube channels, with fresh pages for watching,
-            sharing, and search.
+            Tiny browser games with chunky controls, quick rounds, and a hand-built arcade feel.
           </p>
           <div class="hero-actions">
-            <a class="button primary" href="#videos">Watch latest</a>
-            <a class="button secondary" href="/videos/">Open library</a>
+            <a class="button primary" href="#play">Play now</a>
+            <a class="button secondary" href={epicMappingUrl}>EPICMAPPING</a>
           </div>
         </div>
-        <div class="hero-video-stack" aria-label="Featured video thumbnails">
-          {videos.slice(0, 3).map((video) => (
-            <a href={video.isLive && video.id ? `/videos/${video.id}/` : video.url}>
-              <img src={video.thumbnail} alt="" loading="eager" />
-              <span>{video.title}</span>
-            </a>
-          ))}
+        <div class="cabinet-preview" aria-hidden="true">
+          <div class="cabinet-screen">
+            <span></span>
+            <span></span>
+            <span></span>
+            <strong>10</strong>
+          </div>
+          <div class="cabinet-controls">
+            <i></i>
+            <i></i>
+            <i></i>
+          </div>
         </div>
       </section>
 
-      <section id="videos" class="section">
-        <div class="section-heading">
-          <p class="eyebrow">Watch next</p>
-          <h2>Latest videos</h2>
-          <p>Only real uploads from the connected channels are shown here.</p>
-        </div>
-        <div class="video-grid">
-          {videos.map((video) => (
-            <article class="video-card">
-              <a href={video.isLive && video.id ? `/videos/${video.id}/` : video.url} aria-label={`Open ${video.title}`}>
-                <img src={video.thumbnail} alt="" loading="lazy" />
-                <span class="play">{video.status ?? "Watch"}</span>
-              </a>
-              <div class="video-card-copy">
-                <p>{video.channel}</p>
-                <h3>{video.title}</h3>
-                <p>{video.description}</p>
-                <div class="tags">
-                  {video.keywords.map((keyword) => <span>{keyword}</span>)}
-                </div>
-              </div>
-            </article>
-          ))}
+      <section id="play" class="play-section">
+        <div class="arcade-machine">
+          <div class="machine-head">
+            <div>
+              <p class="eyebrow">Now playing</p>
+              <h2 id="currentGameTitle">{games[0].title}</h2>
+            </div>
+            <div class="score-pills" aria-label="Game stats">
+              <span>Score <strong id="score">0</strong></span>
+              <span>Best <strong id="best">0</strong></span>
+              <span>Status <strong id="status">Ready</strong></span>
+            </div>
+          </div>
+          <div class="game-stage">
+            <canvas id="arcadeCanvas" width="960" height="540" aria-label="Game play area"></canvas>
+            <div class="game-message" id="gameMessage">
+              <p class="eyebrow">Ready?</p>
+              <h3>Choose a game below, then press Start.</h3>
+            </div>
+          </div>
+          <div class="machine-controls">
+            <button id="startButton" type="button">Start</button>
+            <button id="leftButton" type="button">Left</button>
+            <button id="actionButton" type="button">Action</button>
+            <button id="rightButton" type="button">Right</button>
+          </div>
         </div>
       </section>
 
-      <section id="channels" class="section channel-band">
+      <section id="games" class="section games-list-section">
         <div class="section-heading">
-          <p class="eyebrow">Channels</p>
-          <h2>Connected YouTube channels</h2>
-          <p>These are the channels currently feeding the site.</p>
+          <p class="eyebrow">Game shelf</p>
+          <h2>10 games</h2>
+          <p>Just games, plus the EPICMAPPING link.</p>
         </div>
-        <div class="channel-grid">
-          {channels.map((channel) => (
-            <article class={`channel-card ${channel.color}`}>
-              <span>{channel.theme}</span>
-              <h3>{channel.name}</h3>
-              <p>{channel.handle}</p>
-              <p>{channel.description}</p>
-              <a href={channel.url}>Visit channel</a>
-            </article>
+        <div class="ten-game-grid" id="gamePicker">
+          {games.map((game, index) => (
+            <button class={index === 0 ? "selected" : ""} type="button" data-game={game.id}>
+              <span>{game.label}</span>
+              <strong>{game.title}</strong>
+              <em>{game.description}</em>
+              <small>{game.controls}</small>
+            </button>
           ))}
         </div>
       </section>
     </main>
 
     <footer>
-      <p>Do Stuff & Have Fun. Latest connected videos, updated from YouTube.</p>
+      <p>Do Stuff & Have Fun Games</p>
+      <a href={epicMappingUrl}>EPICMAPPING on YouTube</a>
     </footer>
+
+    <script type="module" src="/assets/arcade.js"></script>
   </body>
 </html>
