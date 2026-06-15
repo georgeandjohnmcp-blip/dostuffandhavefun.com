@@ -5,7 +5,7 @@ export const games = [
     id: "turbo-racer-3d",
     title: "Turbo Racer 3D",
     label: "Race",
-    description: "A two-minute 3D race against bot cars with boost, coins, and traffic.",
+    description: "A one-minute 3D race against bot cars with boost, coins, and traffic.",
     controls: "Left/Right, Action boost"
   },
   {

@@ -1,12 +1,12 @@
 # Welcome to Have Fun and Do Stuff
 
-Have Fun and Do Stuff is a 13-game browser arcade led by a two-minute 3D racing game against bot cars, with a 3D first-person shooter and classic arcade games. The site has one YouTube link: https://www.youtube.com/@EPICMAPPING023
+Have Fun and Do Stuff is a 13-game browser arcade led by a one-minute 3D racing game against bot cars, with a 3D first-person shooter and classic arcade games. The site has one YouTube link: https://www.youtube.com/@EPICMAPPING023
 
 Main page:
 - https://dostuffandhavefun.com/
 
 Games:
-- Turbo Racer 3D: A two-minute 3D race against bot cars with boost, coins, and traffic.
+- Turbo Racer 3D: A one-minute 3D race against bot cars with boost, coins, and traffic.
 - Arena FPS 3D: A first-person blaster with bots and browser-to-browser online duels.
 - Spotlight Dash 3D: Race through a dark stage while a giant spotlight follows you.
 - Classic Snake: Eat snacks, grow longer, and do not crash into yourself.

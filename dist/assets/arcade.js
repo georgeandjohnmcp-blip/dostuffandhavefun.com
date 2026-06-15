@@ -923,7 +923,7 @@ const games = {
         spawn: 0.25,
         distance: 0,
         boost: 0,
-        timeLeft: 120,
+        timeLeft: 60,
         bumped: 0,
         finished: false
       };
