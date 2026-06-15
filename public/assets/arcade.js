@@ -33,13 +33,14 @@ const green = "#7bd629";
 const blue = "#2968e8";
 const purple = "#8d5cff";
 const pieceColors = [aqua, yellow, coral, green, blue, purple];
-const threeGameIds = new Set(["turbo-racer-3d", "arena-fps-3d", "spotlight-dash-3d", "sky-platformer-3d"]);
+const threeGameIds = new Set(["turbo-racer-3d", "arena-fps-3d", "spotlight-dash-3d", "sky-platformer-3d", "block-builder-3d"]);
 
 const gameTitles = {
   "turbo-racer-3d": "Turbo Racer 3D",
   "arena-fps-3d": "Arena FPS 3D",
   "spotlight-dash-3d": "Spotlight Dash 3D",
   "sky-platformer-3d": "Sky Platformer 3D",
+  "block-builder-3d": "Block Builder 3D",
   "classic-snake": "Classic Snake",
   "solo-pong": "Solo Pong",
   "falling-blocks": "Falling Blocks",
@@ -144,6 +145,22 @@ const platform3d = {
   hazards: []
 };
 
+const block3d = {
+  ready: false,
+  loading: false,
+  failed: false,
+  THREE: null,
+  renderer: null,
+  scene: null,
+  camera: null,
+  selector: null,
+  marker: null,
+  blocks: [],
+  base: [],
+  blockMap: new Map(),
+  materials: {}
+};
+
 function setStageMode(is3d) {
   canvas.hidden = is3d;
   spotlightCanvas.hidden = !is3d;
@@ -221,7 +238,7 @@ function resize3d() {
   const width = Math.max(1, spotlightCanvas.clientWidth);
   const height = Math.max(1, spotlightCanvas.clientHeight);
   if (shared3dRenderer) shared3dRenderer.setSize(width, height, false);
-  for (const camera of [spotlight3d.camera, fps3d.camera, racing3d.camera, platform3d.camera]) {
+  for (const camera of [spotlight3d.camera, fps3d.camera, racing3d.camera, platform3d.camera, block3d.camera]) {
     if (!camera) continue;
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
@@ -238,6 +255,155 @@ function clearPlatformScene() {
   platform3d.coins = [];
   platform3d.hazards = [];
   platform3d.goal = null;
+}
+
+function clearBlockScene() {
+  if (!block3d.scene) return;
+  [...block3d.blocks, ...block3d.base].forEach((item) => block3d.scene.remove(item));
+  block3d.blocks = [];
+  block3d.base = [];
+  block3d.blockMap.clear();
+}
+
+function voxelKey(x, z) {
+  return `${x},${z}`;
+}
+
+function voxelStackHeight(x, z) {
+  return block3d.blockMap.get(voxelKey(x, z))?.length || 0;
+}
+
+function addVoxelBlock(x, z, layer, materialName = "grass") {
+  const THREE = block3d.THREE;
+  const mesh = new THREE.Mesh(
+    new THREE.BoxGeometry(0.96, 0.96, 0.96),
+    block3d.materials[materialName] || block3d.materials.grass
+  );
+  mesh.position.set(x, layer + 0.48, z);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  mesh.userData = { x, z, layer };
+  block3d.scene.add(mesh);
+  block3d.blocks.push(mesh);
+  const key = voxelKey(x, z);
+  if (!block3d.blockMap.has(key)) block3d.blockMap.set(key, []);
+  block3d.blockMap.get(key).push(mesh);
+  return mesh;
+}
+
+function removeTopVoxelBlock(x, z) {
+  const stack = block3d.blockMap.get(voxelKey(x, z));
+  if (!stack?.length) return false;
+  const mesh = stack.pop();
+  block3d.scene.remove(mesh);
+  block3d.blocks = block3d.blocks.filter((block) => block !== mesh);
+  return true;
+}
+
+function moveVoxelCursor(dx, dz) {
+  const d = arcade.data;
+  d.cursorX = Math.max(-6, Math.min(6, d.cursorX + dx));
+  d.cursorZ = Math.max(-6, Math.min(6, d.cursorZ + dz));
+}
+
+function updateVoxelSelector() {
+  const d = arcade.data;
+  if (!block3d.selector || !block3d.marker) return;
+  const height = voxelStackHeight(d.cursorX, d.cursorZ);
+  block3d.selector.position.set(d.cursorX, height + 0.53, d.cursorZ);
+  block3d.marker.position.set(d.cursorX, 0.04, d.cursorZ);
+}
+
+function buildVoxelIsland() {
+  const THREE = block3d.THREE;
+  clearBlockScene();
+  const baseMaterials = [block3d.materials.groundA, block3d.materials.groundB];
+  for (let x = -6; x <= 6; x += 1) {
+    for (let z = -6; z <= 6; z += 1) {
+      const tile = new THREE.Mesh(
+        new THREE.BoxGeometry(0.98, 0.18, 0.98),
+        baseMaterials[(x + z + 64) % 2]
+      );
+      tile.position.set(x, -0.09, z);
+      tile.receiveShadow = true;
+      block3d.scene.add(tile);
+      block3d.base.push(tile);
+    }
+  }
+  [
+    [-3, -2, 0, "dirt"],
+    [-3, -2, 1, "grass"],
+    [2, 1, 0, "stone"],
+    [3, 1, 0, "stone"],
+    [2, 2, 0, "wood"],
+    [0, -4, 0, "glow"],
+    [0, -4, 1, "glow"]
+  ].forEach(([x, z, layer, material]) => addVoxelBlock(x, z, layer, material));
+}
+
+async function setupBlock3d() {
+  if (block3d.ready || block3d.loading || block3d.failed) return;
+  block3d.loading = true;
+  setStatus("Loading blocks");
+  try {
+    const THREE = await loadThree();
+    block3d.THREE = THREE;
+    fps3d.THREE = THREE;
+    const renderer = get3dRenderer();
+    renderer.setClearColor(0x8bdcff, 1);
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x8bdcff, 18, 55);
+    const camera = new THREE.PerspectiveCamera(56, 16 / 9, 0.1, 90);
+    camera.position.set(8, 10, 12);
+    camera.lookAt(0, 1, 0);
+    scene.add(new THREE.HemisphereLight(0xcaf6ff, 0x385c2c, 1.15));
+    const sun = new THREE.DirectionalLight(0xfff2a3, 2.4);
+    sun.position.set(-8, 14, 10);
+    sun.castShadow = true;
+    sun.shadow.mapSize.width = 2048;
+    sun.shadow.mapSize.height = 2048;
+    scene.add(sun);
+
+    block3d.materials = {
+      grass: new THREE.MeshStandardMaterial({ color: 0x7bd629, roughness: 0.72 }),
+      dirt: new THREE.MeshStandardMaterial({ color: 0x8b5a2b, roughness: 0.86 }),
+      stone: new THREE.MeshStandardMaterial({ color: 0x7c8797, roughness: 0.62, metalness: 0.04 }),
+      wood: new THREE.MeshStandardMaterial({ color: 0xc9863a, roughness: 0.78 }),
+      glow: new THREE.MeshStandardMaterial({ color: 0xffd23f, emissive: 0x775900, roughness: 0.38 }),
+      groundA: new THREE.MeshStandardMaterial({ color: 0x49a454, roughness: 0.9 }),
+      groundB: new THREE.MeshStandardMaterial({ color: 0x3f934c, roughness: 0.9 })
+    };
+
+    const selector = new THREE.Mesh(
+      new THREE.BoxGeometry(1.04, 1.04, 1.04),
+      new THREE.MeshBasicMaterial({ color: 0xffd23f, transparent: true, opacity: 0.24, wireframe: true })
+    );
+    selector.renderOrder = 4;
+    scene.add(selector);
+    const marker = new THREE.Mesh(
+      new THREE.BoxGeometry(1.08, 0.08, 1.08),
+      new THREE.MeshBasicMaterial({ color: 0xfff0a0, transparent: true, opacity: 0.42 })
+    );
+    scene.add(marker);
+
+    block3d.renderer = renderer;
+    block3d.scene = scene;
+    block3d.camera = camera;
+    block3d.selector = selector;
+    block3d.marker = marker;
+    buildVoxelIsland();
+    block3d.ready = true;
+    block3d.loading = false;
+    resize3d();
+    updateVoxelSelector();
+    games["block-builder-3d"].draw();
+  } catch {
+    block3d.failed = true;
+    block3d.loading = false;
+    setStatus("Blocks failed");
+    showMessage("The block-building game did not load. Refresh and try again.", "3D");
+  }
 }
 
 function clearRacingScene() {
@@ -1698,6 +1864,98 @@ const games = {
       platform3d.camera.lookAt(d.x + 2.2, Math.max(1.2, d.y + 0.4), 0);
       platform3d.renderer.setClearColor(0x8bdcff, 1);
       platform3d.renderer.render(platform3d.scene, platform3d.camera);
+    }
+  },
+  "block-builder-3d": {
+    init() {
+      setStageMode(true);
+      arcade.data = {
+        cursorX: 0,
+        cursorZ: 0,
+        placed: 0,
+        materialIndex: 0,
+        moveWait: 0,
+        time: 0
+      };
+      if (block3d.ready) {
+        buildVoxelIsland();
+        updateVoxelSelector();
+      }
+      setupBlock3d();
+    },
+    placeBlock() {
+      const d = arcade.data;
+      const height = voxelStackHeight(d.cursorX, d.cursorZ);
+      if (height >= 6) {
+        removeTopVoxelBlock(d.cursorX, d.cursorZ);
+        arcade.score = Math.max(0, arcade.score - 2);
+        setStatus("Trimmed");
+        updateVoxelSelector();
+        return;
+      }
+      const materials = ["grass", "dirt", "stone", "wood", "glow"];
+      addVoxelBlock(d.cursorX, d.cursorZ, height, materials[d.materialIndex % materials.length]);
+      d.materialIndex += 1;
+      d.placed += 1;
+      arcade.score += height >= 4 ? 16 : 8;
+      setStatus(`${block3d.blocks.length} blocks`);
+      updateVoxelSelector();
+    },
+    update(dt) {
+      const d = arcade.data;
+      if (!block3d.ready) {
+        setupBlock3d();
+        return;
+      }
+      d.time += dt;
+      d.moveWait = Math.max(0, d.moveWait - dt);
+      let moved = false;
+      if (consumeTap("left")) {
+        moveVoxelCursor(-1, 0);
+        moved = true;
+      } else if (consumeTap("right")) {
+        moveVoxelCursor(1, 0);
+        moved = true;
+      } else if (consumeTap("up")) {
+        moveVoxelCursor(0, -1);
+        moved = true;
+      } else if (arcade.keys.has("down") && d.moveWait <= 0) {
+        moveVoxelCursor(0, 1);
+        moved = true;
+      } else if (arcade.keys.has("left") && d.moveWait <= 0) {
+        moveVoxelCursor(-1, 0);
+        moved = true;
+      } else if (arcade.keys.has("right") && d.moveWait <= 0) {
+        moveVoxelCursor(1, 0);
+        moved = true;
+      } else if (arcade.keys.has("up") && d.moveWait <= 0) {
+        moveVoxelCursor(0, -1);
+        moved = true;
+      }
+      if (moved) {
+        d.moveWait = 0.13;
+        setStatus(`${block3d.blocks.length} blocks`);
+        updateVoxelSelector();
+      }
+      if (consumeTap("action")) this.placeBlock();
+      if (block3d.selector) block3d.selector.rotation.y += dt * 1.8;
+      if (block3d.marker) block3d.marker.material.opacity = 0.32 + Math.sin(d.time * 5) * 0.1;
+      arcade.score += dt * Math.min(4, block3d.blocks.length * 0.02);
+    },
+    draw() {
+      if (!block3d.ready) return;
+      resize3d();
+      const d = arcade.data;
+      const orbit = Math.sin(d.time * 0.28) * 1.4;
+      block3d.camera.position.x += (d.cursorX + 7.8 + orbit - block3d.camera.position.x) * 0.07;
+      block3d.camera.position.y += (9.4 - block3d.camera.position.y) * 0.06;
+      block3d.camera.position.z += (d.cursorZ + 10.5 - block3d.camera.position.z) * 0.07;
+      block3d.camera.lookAt(d.cursorX, Math.max(0.8, voxelStackHeight(d.cursorX, d.cursorZ) + 0.6), d.cursorZ);
+      block3d.renderer.setClearColor(0x8bdcff, 1);
+      block3d.renderer.render(block3d.scene, block3d.camera);
+    },
+    click() {
+      this.placeBlock();
     }
   },
   "classic-snake": {

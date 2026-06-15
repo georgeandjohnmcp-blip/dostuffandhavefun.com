@@ -25,7 +25,7 @@ async function writePage(path, html) {
 
 function htmlShell(body) {
   const title = "Welcome to Have Fun and Do Stuff | 3D Racing, FPS, and Arcade Games";
-  const description = "A browser arcade led by a one-minute 3D racing game, a 3D platformer, a first-person shooter, and more quick games.";
+  const description = "A browser arcade led by 3D racing, block-building, platforming, first-person shooting, and more quick games.";
   const schema = JSON.stringify({
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -43,7 +43,7 @@ function htmlShell(body) {
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <link rel="canonical" href="https://dostuffandhavefun.com/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/assets/global.css?v=platformer20-20260615" />
+    <link rel="stylesheet" href="/assets/global.css?v=blockbuilder3d-20260615" />
     <meta property="og:title" content="Do Stuff & Have Fun Games" />
     <meta property="og:description" content="${esc(description)}" />
     <meta property="og:type" content="website" />
@@ -56,7 +56,7 @@ function htmlShell(body) {
   </head>
   <body class="game-site">
     ${body}
-    <script type="module" src="/assets/arcade.js?v=platformer20-20260615"></script>
+    <script type="module" src="/assets/arcade.js?v=blockbuilder3d-20260615"></script>
   </body>
 </html>
 `;
@@ -93,7 +93,7 @@ async function renderHome() {
           <div class="machine-controls"><button id="startButton" type="button">Start</button><button id="leftButton" type="button">Left</button><button id="actionButton" type="button">Action</button><button id="rightButton" type="button">Right</button></div>
         </div>
       </section>
-      <section id="games" class="section games-list-section"><div class="section-heading"><p class="eyebrow">Game shelf</p><h2>${games.length} games</h2><p>A 3D racer, a 3D platformer, a 3D FPS, quick arcade classics, and one EPICMAPPING link.</p></div><div class="ten-game-grid" id="gamePicker">${renderGameButtons()}</div></section>
+      <section id="games" class="section games-list-section"><div class="section-heading"><p class="eyebrow">Game shelf</p><h2>${games.length} games</h2><p>A 3D racer, a 3D block builder, a 3D platformer, quick arcade classics, and one EPICMAPPING link.</p></div><div class="ten-game-grid" id="gamePicker">${renderGameButtons()}</div></section>
     </main>
     <footer><p>Do Stuff & Have Fun Games</p><a href="${epicMappingUrl}">EPICMAPPING on YouTube</a></footer>`;
   await writePage("", htmlShell(body));
@@ -103,7 +103,7 @@ async function renderTextFiles() {
   await writeFile(join(dist, "robots.txt"), `User-agent: *\nAllow: /\n\nSitemap: https://dostuffandhavefun.com/sitemap-index.xml\n\nLLMS: https://dostuffandhavefun.com/llms.txt\n`);
   await writeFile(join(dist, "sitemap-index.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <sitemap>\n    <loc>https://dostuffandhavefun.com/sitemap-0.xml</loc>\n  </sitemap>\n</sitemapindex>\n`);
   await writeFile(join(dist, "sitemap-0.xml"), `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  <url>\n    <loc>https://dostuffandhavefun.com/</loc>\n    <lastmod>2026-06-14</lastmod>\n  </url>\n  <url>\n    <loc>https://dostuffandhavefun.com/llms.txt</loc>\n    <lastmod>2026-06-14</lastmod>\n  </url>\n</urlset>\n`);
-  await writeFile(join(dist, "llms.txt"), `# Welcome to Have Fun and Do Stuff\n\nHave Fun and Do Stuff is a ${games.length}-game browser arcade led by a one-minute 3D racing game, a 3D platformer, a first-person shooter, and classic arcade games. The site has one YouTube link: ${epicMappingUrl}\n\nMain page:\n- https://dostuffandhavefun.com/\n\nGames:\n${games.map((game) => `- ${game.title}: ${game.description}`).join("\n")}\n`);
+  await writeFile(join(dist, "llms.txt"), `# Welcome to Have Fun and Do Stuff\n\nHave Fun and Do Stuff is a ${games.length}-game browser arcade led by 3D racing, block-building, platforming, first-person shooting, and classic arcade games. The site has one YouTube link: ${epicMappingUrl}\n\nMain page:\n- https://dostuffandhavefun.com/\n\nGames:\n${games.map((game) => `- ${game.title}: ${game.description}`).join("\n")}\n`);
 }
 
 await rm(dist, { recursive: true, force: true });

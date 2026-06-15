@@ -1,6 +1,6 @@
 # Welcome to Have Fun and Do Stuff
 
-Have Fun and Do Stuff is a 14-game browser arcade led by a one-minute 3D racing game, a 3D platformer, a first-person shooter, and classic arcade games. The site has one YouTube link: https://www.youtube.com/@EPICMAPPING023
+Have Fun and Do Stuff is a 15-game browser arcade led by 3D racing, block-building, platforming, first-person shooting, and classic arcade games. The site has one YouTube link: https://www.youtube.com/@EPICMAPPING023
 
 Main page:
 - https://dostuffandhavefun.com/
@@ -10,6 +10,7 @@ Games:
 - Arena FPS 3D: A first-person blaster with bots and browser-to-browser online duels.
 - Spotlight Dash 3D: Race through a dark stage while a giant spotlight follows you.
 - Sky Platformer 3D: A 20-level 3D platform run with floating islands, coins, lava, and finish gates.
+- Block Builder 3D: A block-building 3D sandbox for stacking cubes into a tiny voxel world.
 - Classic Snake: Eat snacks, grow longer, and do not crash into yourself.
 - Solo Pong: Keep the ball alive with one paddle and chase a high score.
 - Falling Blocks: Drop, rotate, and clear rows in a Tetris-style puzzle.
