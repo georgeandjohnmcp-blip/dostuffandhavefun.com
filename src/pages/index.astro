@@ -3,8 +3,8 @@ import { epicMappingUrl, games } from "../data/games.js";
 import { tracking } from "../data/tracking.js";
 import "../styles/global.css";
 
-const pageTitle = "Do Stuff & Have Fun | 3D FPS, Online Duels, Bots, and Arcade Games";
-const pageDescription = "A browser arcade led by a 3D first-person shooter with online duels and bots, plus Snake, Pong, blocks, and more quick games.";
+const pageTitle = "Welcome to Have Fun and Do Stuff | 3D Racing, FPS, and Arcade Games";
+const pageDescription = "A browser arcade led by a 3D racing game, plus a 3D first-person shooter, Snake, Pong, blocks, and more quick games.";
 const schema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
@@ -42,9 +42,9 @@ const schema = {
   </head>
   <body class="game-site">
     <header class="topbar arcade-topbar" aria-label="Site header">
-      <a class="brand wordmark" href="/" aria-label="Do Stuff and Have Fun home">
-        <span>Do Stuff</span>
-        <strong>Games</strong>
+      <a class="brand wordmark" href="/" aria-label="Have Fun and Do Stuff home">
+        <span>Welcome to</span>
+        <strong>Have Fun and Do Stuff</strong>
       </a>
       <nav aria-label="Main navigation">
         <a href="#play">Play</a>
@@ -56,10 +56,10 @@ const schema = {
     <main>
       <section class="games-hero">
         <div class="games-hero-copy">
-          <p class="eyebrow">3D shooter arcade</p>
-          <h1>First-person blaster with bots and online duels.</h1>
+          <p class="eyebrow">3D racing arcade</p>
+          <h1>Welcome to Have Fun and Do Stuff.</h1>
           <p class="lede">
-            Jump into a neon arena, fight bots, or connect two browsers with a room code for online multiplayer.
+            Race a bright 3D track, dodge traffic, grab coins, boost hard, then jump into FPS battles and classic arcade games.
           </p>
           <div class="hero-actions">
             <a class="button primary" href="#play">Play now</a>
@@ -114,7 +114,7 @@ const schema = {
         <div class="section-heading">
           <p class="eyebrow">Game shelf</p>
           <h2>{games.length} games</h2>
-          <p>A 3D FPS, a 3D spotlight runner, quick arcade classics, and one EPICMAPPING link.</p>
+          <p>A 3D racer, a 3D FPS, a 3D spotlight runner, quick arcade classics, and one EPICMAPPING link.</p>
         </div>
         <div class="ten-game-grid" id="gamePicker">
           {games.map((game, index) => (
@@ -134,6 +134,6 @@ const schema = {
       <a href={epicMappingUrl}>EPICMAPPING on YouTube</a>
     </footer>
 
-    <script type="module" src="/assets/arcade.js?v=fps-footsteps-20260615"></script>
+    <script type="module" src="/assets/arcade.js?v=racer-3d-20260615"></script>
   </body>
 </html>

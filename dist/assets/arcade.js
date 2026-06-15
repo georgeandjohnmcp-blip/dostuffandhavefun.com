@@ -33,9 +33,10 @@ const green = "#7bd629";
 const blue = "#2968e8";
 const purple = "#8d5cff";
 const pieceColors = [aqua, yellow, coral, green, blue, purple];
-const threeGameIds = new Set(["arena-fps-3d", "spotlight-dash-3d"]);
+const threeGameIds = new Set(["turbo-racer-3d", "arena-fps-3d", "spotlight-dash-3d"]);
 
 const gameTitles = {
+  "turbo-racer-3d": "Turbo Racer 3D",
   "arena-fps-3d": "Arena FPS 3D",
   "spotlight-dash-3d": "Spotlight Dash 3D",
   "classic-snake": "Classic Snake",
@@ -51,7 +52,7 @@ const gameTitles = {
 };
 
 const arcade = {
-  id: "arena-fps-3d",
+  id: "turbo-racer-3d",
   running: false,
   score: 0,
   best: 0,
@@ -109,6 +110,20 @@ const fpsAudio = {
   context: null,
   master: null,
   unlocked: false
+};
+
+const racing3d = {
+  ready: false,
+  loading: false,
+  failed: false,
+  THREE: null,
+  renderer: null,
+  scene: null,
+  camera: null,
+  car: null,
+  road: null,
+  objects: [],
+  laneMarkers: []
 };
 
 function setStageMode(is3d) {
@@ -188,11 +203,133 @@ function resize3d() {
   const width = Math.max(1, spotlightCanvas.clientWidth);
   const height = Math.max(1, spotlightCanvas.clientHeight);
   if (shared3dRenderer) shared3dRenderer.setSize(width, height, false);
-  for (const camera of [spotlight3d.camera, fps3d.camera]) {
+  for (const camera of [spotlight3d.camera, fps3d.camera, racing3d.camera]) {
     if (!camera) continue;
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
   }
+}
+
+function clearRacingScene() {
+  if (!racing3d.scene) return;
+  [...racing3d.objects, ...racing3d.laneMarkers].forEach((item) => racing3d.scene.remove(item));
+  racing3d.objects = [];
+  racing3d.laneMarkers = [];
+}
+
+async function setupRacing3d() {
+  if (racing3d.ready || racing3d.loading || racing3d.failed) return;
+  racing3d.loading = true;
+  setStatus("Loading race");
+  try {
+    const THREE = await loadThree();
+    racing3d.THREE = THREE;
+    fps3d.THREE = THREE;
+    const renderer = get3dRenderer();
+    renderer.setClearColor(0x78d7ff, 1);
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x78d7ff, 28, 96);
+    const camera = new THREE.PerspectiveCamera(62, 16 / 9, 0.1, 120);
+    camera.position.set(0, 5.6, 11);
+    camera.lookAt(0, 0.5, -12);
+
+    const sun = new THREE.DirectionalLight(0xfff2b0, 2.3);
+    sun.position.set(-8, 14, 8);
+    sun.castShadow = true;
+    scene.add(sun);
+    scene.add(new THREE.HemisphereLight(0xbfeeff, 0x335533, 1.15));
+
+    const grass = new THREE.Mesh(
+      new THREE.PlaneGeometry(46, 150),
+      new THREE.MeshStandardMaterial({ color: 0x49a454, roughness: 0.85 })
+    );
+    grass.rotation.x = -Math.PI / 2;
+    grass.position.z = -42;
+    grass.receiveShadow = true;
+    scene.add(grass);
+
+    const road = new THREE.Mesh(
+      new THREE.PlaneGeometry(13.5, 160),
+      new THREE.MeshStandardMaterial({ color: 0x232a35, roughness: 0.72, metalness: 0.03 })
+    );
+    road.rotation.x = -Math.PI / 2;
+    road.position.z = -46;
+    road.position.y = 0.025;
+    road.receiveShadow = true;
+    scene.add(road);
+
+    const car = new THREE.Group();
+    const body = new THREE.Mesh(
+      new THREE.BoxGeometry(1.7, 0.62, 2.9),
+      new THREE.MeshStandardMaterial({ color: 0xff5b4a, roughness: 0.32, metalness: 0.24 })
+    );
+    body.position.y = 0.55;
+    body.castShadow = true;
+    car.add(body);
+    const cabin = new THREE.Mesh(
+      new THREE.BoxGeometry(1.05, 0.48, 1.18),
+      new THREE.MeshStandardMaterial({ color: 0x25c7d9, roughness: 0.2, metalness: 0.1 })
+    );
+    cabin.position.set(0, 1.03, -0.28);
+    cabin.castShadow = true;
+    car.add(cabin);
+    const nose = new THREE.Mesh(
+      new THREE.BoxGeometry(1.42, 0.18, 0.16),
+      new THREE.MeshBasicMaterial({ color: 0xffd23f })
+    );
+    nose.position.set(0, 0.72, -1.54);
+    car.add(nose);
+    [-0.68, 0.68].forEach((x) => {
+      [-1.02, 1.02].forEach((z) => {
+        const wheel = new THREE.Mesh(
+          new THREE.CylinderGeometry(0.28, 0.28, 0.24, 18),
+          new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.5 })
+        );
+        wheel.rotation.z = Math.PI / 2;
+        wheel.position.set(x, 0.34, z);
+        wheel.castShadow = true;
+        car.add(wheel);
+      });
+    });
+    car.position.set(0, 0, 6);
+    scene.add(car);
+
+    racing3d.renderer = renderer;
+    racing3d.scene = scene;
+    racing3d.camera = camera;
+    racing3d.car = car;
+    racing3d.road = road;
+    racing3d.ready = true;
+    racing3d.loading = false;
+    resize3d();
+    games["turbo-racer-3d"].draw();
+  } catch {
+    racing3d.failed = true;
+    racing3d.loading = false;
+    setStatus("Race failed");
+    showMessage("The racing engine did not load. Refresh and try again.", "3D");
+  }
+}
+
+function makeRaceObject(kind) {
+  const THREE = racing3d.THREE;
+  const lane = [-4, 0, 4][Math.floor(rand(0, 3))];
+  const mesh = kind === "coin"
+    ? new THREE.Mesh(
+        new THREE.TorusGeometry(0.48, 0.12, 14, 30),
+        new THREE.MeshStandardMaterial({ color: 0xffd23f, emissive: 0x5c4300, roughness: 0.25 })
+      )
+    : new THREE.Mesh(
+        new THREE.BoxGeometry(rand(1.3, 2.0), rand(0.95, 1.6), rand(1.6, 2.6)),
+        new THREE.MeshStandardMaterial({ color: Math.random() > 0.5 ? 0x2968e8 : 0xff5b4a, roughness: 0.42, metalness: 0.12 })
+      );
+  mesh.position.set(lane, kind === "coin" ? 1.05 : 0.58, -72);
+  mesh.rotation.y = kind === "coin" ? Math.PI / 2 : 0;
+  mesh.castShadow = true;
+  mesh.userData = { kind, lane, hit: false };
+  racing3d.scene.add(mesh);
+  racing3d.objects.push(mesh);
 }
 
 async function setupSpotlight3d() {
@@ -729,6 +866,102 @@ function newPiece() {
 }
 
 const games = {
+  "turbo-racer-3d": {
+    init() {
+      setStageMode(true);
+      clearRacingScene();
+      arcade.data = {
+        carX: 0,
+        targetX: 0,
+        speed: 24,
+        roadPulse: 0,
+        spawn: 0.25,
+        distance: 0,
+        boost: 0
+      };
+      setupRacing3d();
+      if (racing3d.ready) {
+        racing3d.car.position.set(0, 0, 6);
+        for (let z = -6; z > -78; z -= 8) this.addMarker(z);
+      }
+    },
+    addMarker(z) {
+      if (!racing3d.ready) return;
+      const THREE = racing3d.THREE;
+      [-2, 2].forEach((x) => {
+        const marker = new THREE.Mesh(
+          new THREE.BoxGeometry(0.22, 0.035, 2.8),
+          new THREE.MeshBasicMaterial({ color: 0xfff0a0 })
+        );
+        marker.position.set(x, 0.065, z);
+        racing3d.scene.add(marker);
+        racing3d.laneMarkers.push(marker);
+      });
+    },
+    update(dt) {
+      const d = arcade.data;
+      if (!racing3d.ready) {
+        setupRacing3d();
+        return;
+      }
+      if (consumeTap("left")) d.targetX = Math.max(-4, d.targetX - 4);
+      if (consumeTap("right")) d.targetX = Math.min(4, d.targetX + 4);
+      const boost = arcade.keys.has("action") ? 1.55 : 1;
+      d.speed = Math.min(52, d.speed + dt * 0.75);
+      d.boost = boost;
+      d.distance += dt * d.speed * boost;
+      d.carX += (d.targetX - d.carX) * Math.min(1, dt * 8.5);
+      racing3d.car.position.x = d.carX;
+      racing3d.car.rotation.z = (d.carX - d.targetX) * -0.04;
+      racing3d.car.rotation.x = Math.sin(performance.now() * 0.013) * 0.012 * boost;
+
+      d.spawn -= dt;
+      if (d.spawn <= 0) {
+        makeRaceObject(Math.random() > 0.7 ? "coin" : "traffic");
+        d.spawn = Math.max(0.36, 1.1 - d.distance * 0.0009);
+      }
+
+      racing3d.laneMarkers.forEach((marker) => {
+        marker.position.z += d.speed * boost * dt;
+        if (marker.position.z > 10) marker.position.z -= 88;
+      });
+      for (let i = racing3d.objects.length - 1; i >= 0; i -= 1) {
+        const object = racing3d.objects[i];
+        object.position.z += d.speed * boost * dt;
+        object.rotation.y += object.userData.kind === "coin" ? dt * 4 : dt * 0.15;
+        const near = Math.abs(object.position.z - racing3d.car.position.z) < 1.65;
+        const inLane = Math.abs(object.position.x - d.carX) < 1.25;
+        if (near && inLane && !object.userData.hit) {
+          object.userData.hit = true;
+          if (object.userData.kind === "coin") {
+            arcade.score += 25;
+            racing3d.scene.remove(object);
+            racing3d.objects.splice(i, 1);
+            setStatus("Coin");
+          } else {
+            endGame("Crash");
+            return;
+          }
+        } else if (object.position.z > 14) {
+          if (object.userData.kind === "traffic") arcade.score += 8;
+          racing3d.scene.remove(object);
+          racing3d.objects.splice(i, 1);
+        }
+      }
+      arcade.score += dt * boost * 6;
+      setStatus(boost > 1 ? "Boost" : `${Math.floor(d.speed)} mph`);
+    },
+    draw() {
+      if (!racing3d.ready) return;
+      resize3d();
+      const d = arcade.data;
+      racing3d.camera.position.x += (d.carX * 0.28 - racing3d.camera.position.x) * 0.08;
+      racing3d.camera.position.y = 5.5 + (d.boost > 1 ? 0.25 : 0);
+      racing3d.camera.lookAt(d.carX * 0.2, 0.7, -14);
+      racing3d.renderer.setClearColor(0x78d7ff, 1);
+      racing3d.renderer.render(racing3d.scene, racing3d.camera);
+    }
+  },
   "arena-fps-3d": {
     init() {
       setStageMode(true);
@@ -1598,4 +1831,4 @@ window.addEventListener("keyup", (event) => {
   if (event.key === " " || event.key === "Enter") arcade.keys.delete("action");
 });
 
-selectGame("arena-fps-3d");
+selectGame("turbo-racer-3d");

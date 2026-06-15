@@ -3,14 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Do Stuff &amp; Have Fun | 3D FPS, Online Duels, Bots, and Arcade Games</title>
-    <meta name="description" content="A browser arcade led by a 3D first-person shooter with online duels and bots, plus Snake, Pong, blocks, and more quick games." />
+    <title>Welcome to Have Fun and Do Stuff | 3D Racing, FPS, and Arcade Games</title>
+    <meta name="description" content="A browser arcade led by a 3D racing game, plus a 3D first-person shooter, Snake, Pong, blocks, and more quick games." />
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <link rel="canonical" href="https://dostuffandhavefun.com/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/assets/global.css?v=fps-footsteps-20260615" />
+    <link rel="stylesheet" href="/assets/global.css?v=racer-3d-20260615" />
     <meta property="og:title" content="Do Stuff & Have Fun Games" />
-    <meta property="og:description" content="A browser arcade led by a 3D first-person shooter with online duels and bots, plus Snake, Pong, blocks, and more quick games." />
+    <meta property="og:description" content="A browser arcade led by a 3D racing game, plus a 3D first-person shooter, Snake, Pong, blocks, and more quick games." />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://dostuffandhavefun.com/" />
     <meta property="og:image" content="https://dostuffandhavefun.com/assets/play-lab-hero.png" />
@@ -21,27 +21,32 @@
   </head>
   <body class="game-site">
     <header class="topbar arcade-topbar" aria-label="Site header">
-      <a class="brand wordmark" href="/" aria-label="Do Stuff and Have Fun home"><span>Do Stuff</span><strong>Games</strong></a>
-      <nav aria-label="Main navigation"><a href="#play">Play</a><a href="#games">12 Games</a><a href="https://www.youtube.com/@EPICMAPPING023">EPICMAPPING</a></nav>
+      <a class="brand wordmark" href="/" aria-label="Have Fun and Do Stuff home"><span>Welcome to</span><strong>Have Fun and Do Stuff</strong></a>
+      <nav aria-label="Main navigation"><a href="#play">Play</a><a href="#games">13 Games</a><a href="https://www.youtube.com/@EPICMAPPING023">EPICMAPPING</a></nav>
     </header>
     <main>
       <section class="games-hero">
         <div class="games-hero-copy">
-          <p class="eyebrow">3D shooter arcade</p>
-          <h1>First-person blaster with bots and online duels.</h1>
-          <p class="lede">Jump into a neon arena, fight bots, or connect two browsers with a room code for online multiplayer.</p>
+          <p class="eyebrow">3D racing arcade</p>
+          <h1>Welcome to Have Fun and Do Stuff.</h1>
+          <p class="lede">Race a bright 3D track, dodge traffic, grab coins, boost hard, then jump into FPS battles and classic arcade games.</p>
           <div class="hero-actions"><a class="button primary" href="#play">Play now</a><a class="button secondary" href="https://www.youtube.com/@EPICMAPPING023">EPICMAPPING</a></div>
         </div>
-        <div class="cabinet-preview" aria-hidden="true"><div class="cabinet-screen"><span></span><span></span><span></span><strong>12</strong></div><div class="cabinet-controls"><i></i><i></i><i></i></div></div>
+        <div class="cabinet-preview" aria-hidden="true"><div class="cabinet-screen"><span></span><span></span><span></span><strong>13</strong></div><div class="cabinet-controls"><i></i><i></i><i></i></div></div>
       </section>
       <section id="play" class="play-section">
         <div class="arcade-machine">
-          <div class="machine-head"><div><p class="eyebrow">Now playing</p><h2 id="currentGameTitle">Arena FPS 3D</h2></div><div class="score-pills" aria-label="Game stats"><span>Score <strong id="score">0</strong></span><span>Best <strong id="best">0</strong></span><span>Status <strong id="status">Ready</strong></span></div></div>
+          <div class="machine-head"><div><p class="eyebrow">Now playing</p><h2 id="currentGameTitle">Turbo Racer 3D</h2></div><div class="score-pills" aria-label="Game stats"><span>Score <strong id="score">0</strong></span><span>Best <strong id="best">0</strong></span><span>Status <strong id="status">Ready</strong></span></div></div>
           <div class="game-stage"><canvas id="arcadeCanvas" width="960" height="540" aria-label="Game play area"></canvas><div class="game-message" id="gameMessage"><p class="eyebrow">Ready?</p><h3>Choose a game below, then press Start.</h3></div></div>
           <div class="machine-controls"><button id="startButton" type="button">Start</button><button id="leftButton" type="button">Left</button><button id="actionButton" type="button">Action</button><button id="rightButton" type="button">Right</button></div>
         </div>
       </section>
-      <section id="games" class="section games-list-section"><div class="section-heading"><p class="eyebrow">Game shelf</p><h2>12 games</h2><p>A 3D FPS, a 3D spotlight runner, quick arcade classics, and one EPICMAPPING link.</p></div><div class="ten-game-grid" id="gamePicker"><button class="selected" type="button" data-game="arena-fps-3d">
+      <section id="games" class="section games-list-section"><div class="section-heading"><p class="eyebrow">Game shelf</p><h2>13 games</h2><p>A 3D racer, a 3D FPS, a 3D spotlight runner, quick arcade classics, and one EPICMAPPING link.</p></div><div class="ten-game-grid" id="gamePicker"><button class="selected" type="button" data-game="turbo-racer-3d">
+              <span>Race</span>
+              <strong>Turbo Racer 3D</strong>
+              <em>A fast 3D racing game with boost, coins, and traffic to dodge.</em>
+              <small>Left/Right, Action boost</small>
+            </button><button class="" type="button" data-game="arena-fps-3d">
               <span>FPS</span>
               <strong>Arena FPS 3D</strong>
               <em>A first-person blaster with bots and browser-to-browser online duels.</em>
@@ -104,6 +109,6 @@
             </button></div></section>
     </main>
     <footer><p>Do Stuff & Have Fun Games</p><a href="https://www.youtube.com/@EPICMAPPING023">EPICMAPPING on YouTube</a></footer>
-    <script type="module" src="/assets/arcade.js?v=fps-footsteps-20260615"></script>
+    <script type="module" src="/assets/arcade.js?v=racer-3d-20260615"></script>
   </body>
 </html>

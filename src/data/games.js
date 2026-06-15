@@ -2,6 +2,13 @@ export const epicMappingUrl = "https://www.youtube.com/@EPICMAPPING023";
 
 export const games = [
   {
+    id: "turbo-racer-3d",
+    title: "Turbo Racer 3D",
+    label: "Race",
+    description: "A fast 3D racing game with boost, coins, and traffic to dodge.",
+    controls: "Left/Right, Action boost"
+  },
+  {
     id: "arena-fps-3d",
     title: "Arena FPS 3D",
     label: "FPS",

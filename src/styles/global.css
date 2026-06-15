@@ -52,7 +52,7 @@ a {
 .wordmark {
   display: inline-grid;
   gap: 0.05rem;
-  min-width: 138px;
+  max-width: min(58vw, 380px);
   transform: rotate(-1deg);
 }
 
@@ -75,7 +75,9 @@ a {
 }
 
 .wordmark strong {
-  font-size: 1.35rem;
+  font-size: clamp(1rem, 2.4vw, 1.35rem);
+  line-height: 1.02;
+  white-space: normal;
 }
 
 nav {
