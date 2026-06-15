@@ -1112,66 +1112,81 @@ function makeFpsBot(x, z, color = 0xff5b4a) {
   const eyeMaterial = new THREE.MeshBasicMaterial({ color: 0xfff0a0 });
   [-0.13, 0.13].forEach((eyeX) => {
     const eye = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.09, 0.07), eyeMaterial);
-    eye.position.set(eyeX, 0.98, -0.31);
+    eye.position.set(eyeX, 0.98, 0.31);
     bot.add(eye);
   });
   const browMaterial = new THREE.MeshBasicMaterial({ color: 0x111827 });
   const leftBrow = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.055, 0.07), browMaterial);
-  leftBrow.position.set(-0.14, 1.09, -0.305);
+  leftBrow.position.set(-0.14, 1.09, 0.305);
   leftBrow.rotation.z = -0.48;
   bot.add(leftBrow);
   const rightBrow = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.055, 0.07), browMaterial);
-  rightBrow.position.set(0.14, 1.09, -0.305);
+  rightBrow.position.set(0.14, 1.09, 0.305);
   rightBrow.rotation.z = 0.48;
   bot.add(rightBrow);
   const mouth = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.055, 0.07), browMaterial);
-  mouth.position.set(0, 0.78, -0.318);
+  mouth.position.set(0, 0.78, 0.318);
   mouth.rotation.z = 0.08;
   bot.add(mouth);
 
   const weaponMat = new THREE.MeshStandardMaterial({ color: 0x17213b, roughness: 0.42, metalness: 0.35 });
   const glowMat = new THREE.MeshStandardMaterial({ color: 0xff5b4a, emissive: 0x431008, roughness: 0.3, metalness: 0.18 });
+  const barrelMat = new THREE.MeshStandardMaterial({ color: 0x25c7d9, emissive: 0x0b6673, roughness: 0.22, metalness: 0.48 });
   const handMat = new THREE.MeshStandardMaterial({ color: 0xffd23f, roughness: 0.36 });
   const armMat = new THREE.MeshStandardMaterial({ color, roughness: 0.46, metalness: 0.03 });
 
   [
-    [-0.32, 0.38, -0.42, -0.2],
-    [0.32, 0.38, -0.42, 0.2]
+    [-0.42, 0.48, 0.72, 0.28],
+    [0.42, 0.48, 0.72, -0.28]
   ].forEach(([x, y, z, angle]) => {
-    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.18, 0.72), armMat);
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.2, 1.02), armMat);
     arm.position.set(x, y, z);
     arm.rotation.y = angle;
-    arm.rotation.x = -0.1;
+    arm.rotation.x = -0.18;
     arm.castShadow = true;
     bot.add(arm);
-    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 8), handMat);
-    hand.position.set(x * 0.62, y - 0.02, z - 0.36);
+    const hand = new THREE.Mesh(new THREE.SphereGeometry(0.17, 14, 10), handMat);
+    hand.position.set(x * 0.42, y - 0.03, z + 0.5);
     hand.castShadow = true;
     bot.add(hand);
   });
 
   const weapon = new THREE.Group();
-  const grip = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.34, 0.18), weaponMat);
-  grip.position.set(0.12, 0.16, -0.56);
-  grip.rotation.x = -0.22;
+  const backGrip = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.46, 0.22), weaponMat);
+  backGrip.position.set(0.22, 0.22, 0.82);
+  backGrip.rotation.x = 0.18;
+  weapon.add(backGrip);
+  const frontGrip = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.36, 0.22), weaponMat);
+  frontGrip.position.set(-0.22, 0.25, 1.23);
+  frontGrip.rotation.x = 0.16;
+  weapon.add(frontGrip);
+  const grip = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.13, 0.18), weaponMat);
+  grip.position.set(0, 0.42, 1.0);
+  grip.rotation.x = 0.22;
   weapon.add(grip);
-  const blasterBody = new THREE.Mesh(new THREE.BoxGeometry(0.44, 0.24, 0.62), glowMat);
-  blasterBody.position.set(0, 0.34, -0.78);
+  const blasterBody = new THREE.Mesh(new THREE.BoxGeometry(0.76, 0.32, 0.74), glowMat);
+  blasterBody.position.set(0, 0.48, 1.08);
   blasterBody.castShadow = true;
   weapon.add(blasterBody);
-  const stock = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.18, 0.28), weaponMat);
-  stock.position.set(0, 0.34, -0.39);
+  const stock = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.22, 0.38), weaponMat);
+  stock.position.set(0, 0.48, 0.56);
   stock.castShadow = true;
   weapon.add(stock);
+  const topSight = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.12, 0.2), new THREE.MeshBasicMaterial({ color: 0xffd23f }));
+  topSight.position.set(0, 0.72, 1.12);
+  weapon.add(topSight);
   const barrel = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.05, 0.07, 0.64, 14),
-    new THREE.MeshStandardMaterial({ color: 0x25c7d9, emissive: 0x082f38, roughness: 0.26, metalness: 0.42 })
+    new THREE.CylinderGeometry(0.075, 0.09, 1.02, 16),
+    barrelMat
   );
   barrel.rotation.x = Math.PI / 2;
-  barrel.position.set(0, 0.36, -1.2);
+  barrel.position.set(0, 0.5, 1.74);
   weapon.add(barrel);
+  const muzzle = new THREE.Mesh(new THREE.SphereGeometry(0.14, 16, 10), new THREE.MeshBasicMaterial({ color: 0x25c7d9 }));
+  muzzle.position.set(0, 0.5, 2.3);
+  weapon.add(muzzle);
   const muzzleLight = new THREE.PointLight(0xff5b4a, 0, 6);
-  muzzleLight.position.set(0, 0.36, -1.55);
+  muzzleLight.position.set(0, 0.5, 2.32);
   weapon.add(muzzleLight);
   bot.add(weapon);
 
@@ -1205,9 +1220,9 @@ function addShotBeam(endPoint, hit = false) {
 
 function addEnemyShotBeam(bot, endPoint) {
   const THREE = fps3d.THREE;
-  const start = new THREE.Vector3(0, 0.36, -1.55);
+  const start = new THREE.Vector3(0, 0.5, 2.32);
   bot.localToWorld(start);
-  const aimedEnd = start.clone().lerp(endPoint, 0.94);
+  const aimedEnd = start.clone().lerp(endPoint, 0.98);
   const geometry = new THREE.BufferGeometry().setFromPoints([start, aimedEnd]);
   const beam = new THREE.Line(
     geometry,
@@ -1610,7 +1625,7 @@ const games = {
       if (fps3d.ready) {
         fps3d.playerRig.position.set(0, 1.45, 10);
         if (fps3d.mode === "bots") {
-          fps3d.bots = [makeFpsBot(0, -7), makeFpsBot(-6, -5), makeFpsBot(5, -10)];
+          fps3d.bots = [makeFpsBot(0, 3.4), makeFpsBot(-6, -5), makeFpsBot(5, -10)];
         }
       }
       updateFpsHud();
