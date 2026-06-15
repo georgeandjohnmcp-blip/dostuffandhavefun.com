@@ -105,6 +105,12 @@ const fps3d = {
   connected: false
 };
 
+const fpsAudio = {
+  context: null,
+  master: null,
+  unlocked: false
+};
+
 function setStageMode(is3d) {
   canvas.hidden = is3d;
   spotlightCanvas.hidden = !is3d;
@@ -119,6 +125,53 @@ function is3dGame(id) {
 function loadThree() {
   threePromise ??= import("/assets/three.module.js");
   return threePromise;
+}
+
+function ensureFpsAudio() {
+  if (!window.AudioContext && !window.webkitAudioContext) return;
+  if (!fpsAudio.context) {
+    const AudioEngine = window.AudioContext || window.webkitAudioContext;
+    fpsAudio.context = new AudioEngine();
+    fpsAudio.master = fpsAudio.context.createGain();
+    fpsAudio.master.gain.value = 0.34;
+    fpsAudio.master.connect(fpsAudio.context.destination);
+  }
+  fpsAudio.context.resume?.();
+  fpsAudio.unlocked = fpsAudio.context.state !== "suspended";
+}
+
+function playEnemyStep(distance, side = 0) {
+  if (!fpsAudio.context || fpsAudio.context.state === "suspended") return;
+  const ctxAudio = fpsAudio.context;
+  const closeness = Math.max(0, Math.min(1, 1 - distance / 16));
+  const now = ctxAudio.currentTime;
+  const pitch = 138 - closeness * 86;
+  const volume = 0.018 + closeness * 0.095;
+  const osc = ctxAudio.createOscillator();
+  const gain = ctxAudio.createGain();
+  const filter = ctxAudio.createBiquadFilter();
+  const panner = ctxAudio.createStereoPanner?.();
+  osc.type = "triangle";
+  osc.frequency.setValueAtTime(pitch, now);
+  osc.frequency.exponentialRampToValueAtTime(Math.max(34, pitch * 0.58), now + 0.12);
+  filter.type = "lowpass";
+  filter.frequency.value = 260 - closeness * 90;
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.exponentialRampToValueAtTime(volume, now + 0.015);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
+  if (panner) {
+    panner.pan.value = Math.max(-0.72, Math.min(0.72, side / 10));
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(panner);
+    panner.connect(fpsAudio.master);
+  } else {
+    osc.connect(filter);
+    filter.connect(gain);
+    gain.connect(fpsAudio.master);
+  }
+  osc.start(now);
+  osc.stop(now + 0.2);
 }
 
 function get3dRenderer() {
@@ -422,7 +475,7 @@ function makeFpsBot(x, z, color = 0xff5b4a) {
   mouth.rotation.z = 0.08;
   bot.add(mouth);
   bot.position.set(x, 0.9, z);
-  bot.userData = { hp: 3, cooldown: rand(0.4, 1.2), strafe: rand(-1, 1) };
+  bot.userData = { hp: 3, cooldown: rand(0.4, 1.2), strafe: rand(-1, 1), step: rand(0.05, 0.45) };
   fps3d.scene.add(bot);
   return bot;
 }
@@ -765,6 +818,11 @@ const games = {
       } else {
         bot.position.x += Math.cos(performance.now() * 0.001 + bot.userData.strafe) * dt * 1.2;
       }
+      bot.userData.step -= dt;
+      if (bot.userData.step <= 0 && dist < 17) {
+        playEnemyStep(dist, bot.position.x - p.x);
+        bot.userData.step = Math.max(0.24, 0.68 - Math.max(0, 1 - dist / 17) * 0.22 + rand(-0.04, 0.08));
+      }
       bot.userData.cooldown -= dt;
       if (dist < 10 && bot.userData.cooldown <= 0) {
         arcade.data.hp -= 8;
@@ -822,6 +880,7 @@ const games = {
       ctx2d.clearRect(0, 0, canvas.width, canvas.height);
     },
     click() {
+      ensureFpsAudio();
       if (spotlightCanvas.requestPointerLock && arcade.running) {
         try {
           const lock = spotlightCanvas.requestPointerLock();
@@ -1389,6 +1448,7 @@ function selectGame(id) {
 }
 
 function startGame() {
+  if (arcade.id === "arena-fps-3d") ensureFpsAudio();
   arcade.running = true;
   setStageMode(is3dGame(arcade.id));
   arcade.score = 0;
