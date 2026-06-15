@@ -362,6 +362,69 @@ h3 {
   padding: clamp(1rem, 3vw, 1.5rem);
 }
 
+.fps-lobby {
+  width: min(760px, 100%);
+  max-height: 94%;
+  overflow: auto;
+  border: 4px solid var(--ink);
+  border-radius: 8px;
+  background: white;
+  box-shadow: 8px 8px 0 var(--ink);
+  padding: clamp(1rem, 3vw, 1.25rem);
+}
+
+.fps-lobby h3 {
+  max-width: none;
+  border: 0;
+  box-shadow: none;
+  padding: 0;
+}
+
+.fps-mode-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+  margin: 0.85rem 0;
+}
+
+.fps-mode-row button {
+  min-height: 44px;
+  border: 3px solid var(--ink);
+  border-radius: 8px;
+  background: var(--yellow);
+  box-shadow: 4px 4px 0 var(--ink);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 1000;
+  padding: 0.55rem 0.75rem;
+}
+
+.fps-online {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.fps-online[hidden] {
+  display: none;
+}
+
+.fps-online textarea {
+  width: 100%;
+  min-height: 76px;
+  resize: vertical;
+  border: 3px solid var(--ink);
+  border-radius: 8px;
+  padding: 0.65rem;
+  font: 800 0.85rem ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.fps-note {
+  margin: 0.65rem 0 0;
+  color: #0b6f7a;
+  font-weight: 900;
+}
+
 .machine-controls {
   display: grid;
   grid-template-columns: repeat(4, 1fr);

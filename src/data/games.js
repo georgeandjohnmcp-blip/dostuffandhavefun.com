@@ -2,6 +2,13 @@ export const epicMappingUrl = "https://www.youtube.com/@EPICMAPPING023";
 
 export const games = [
   {
+    id: "arena-fps-3d",
+    title: "Arena FPS 3D",
+    label: "FPS",
+    description: "A first-person blaster with bots and browser-to-browser online duels.",
+    controls: "WASD, mouse, click"
+  },
+  {
     id: "spotlight-dash-3d",
     title: "Spotlight Dash 3D",
     label: "3D",

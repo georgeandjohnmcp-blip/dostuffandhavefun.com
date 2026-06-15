@@ -28,8 +28,10 @@ const green = "#7bd629";
 const blue = "#2968e8";
 const purple = "#8d5cff";
 const pieceColors = [aqua, yellow, coral, green, blue, purple];
+const threeGameIds = new Set(["arena-fps-3d", "spotlight-dash-3d"]);
 
 const gameTitles = {
+  "arena-fps-3d": "Arena FPS 3D",
   "spotlight-dash-3d": "Spotlight Dash 3D",
   "classic-snake": "Classic Snake",
   "solo-pong": "Solo Pong",
@@ -44,7 +46,7 @@ const gameTitles = {
 };
 
 const arcade = {
-  id: "spotlight-dash-3d",
+  id: "arena-fps-3d",
   running: false,
   score: 0,
   best: 0,
@@ -55,6 +57,7 @@ const arcade = {
 };
 
 let threePromise;
+let shared3dRenderer;
 const spotlight3d = {
   ready: false,
   loading: false,
@@ -71,10 +74,36 @@ const spotlight3d = {
   objects: []
 };
 
+const fps3d = {
+  ready: false,
+  loading: false,
+  failed: false,
+  mode: "bots",
+  THREE: null,
+  renderer: null,
+  scene: null,
+  camera: null,
+  playerRig: null,
+  muzzle: null,
+  bots: [],
+  remote: null,
+  walls: [],
+  yaw: 0,
+  pitch: 0,
+  peer: null,
+  channel: null,
+  lastNet: 0,
+  connected: false
+};
+
 function setStageMode(is3d) {
   canvas.hidden = is3d;
   spotlightCanvas.hidden = !is3d;
   stage.classList.toggle("is-3d", is3d);
+}
+
+function is3dGame(id) {
+  return threeGameIds.has(id);
 }
 
 function loadThree() {
@@ -82,13 +111,25 @@ function loadThree() {
   return threePromise;
 }
 
+function get3dRenderer() {
+  if (!shared3dRenderer) {
+    shared3dRenderer = new fps3d.THREE.WebGLRenderer({ canvas: spotlightCanvas, antialias: true, alpha: false, preserveDrawingBuffer: true });
+    shared3dRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    shared3dRenderer.shadowMap.enabled = true;
+    shared3dRenderer.shadowMap.type = fps3d.THREE.PCFSoftShadowMap;
+  }
+  return shared3dRenderer;
+}
+
 function resize3d() {
-  if (!spotlight3d.renderer || !spotlight3d.camera) return;
   const width = Math.max(1, spotlightCanvas.clientWidth);
   const height = Math.max(1, spotlightCanvas.clientHeight);
-  spotlight3d.renderer.setSize(width, height, false);
-  spotlight3d.camera.aspect = width / height;
-  spotlight3d.camera.updateProjectionMatrix();
+  if (shared3dRenderer) shared3dRenderer.setSize(width, height, false);
+  for (const camera of [spotlight3d.camera, fps3d.camera]) {
+    if (!camera) continue;
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+  }
 }
 
 async function setupSpotlight3d() {
@@ -98,10 +139,8 @@ async function setupSpotlight3d() {
   try {
     const THREE = await loadThree();
     spotlight3d.THREE = THREE;
-    const renderer = new THREE.WebGLRenderer({ canvas: spotlightCanvas, antialias: true, alpha: false, preserveDrawingBuffer: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    fps3d.THREE = THREE;
+    const renderer = get3dRenderer();
     renderer.setClearColor(0x060711, 1);
 
     const scene = new THREE.Scene();
@@ -185,6 +224,202 @@ async function setupSpotlight3d() {
     setStatus("3D failed");
     showMessage("The 3D engine did not load. Refresh and try again.", "3D");
   }
+}
+
+function clearFpsScene() {
+  if (!fps3d.scene) return;
+  [...fps3d.bots, ...fps3d.walls, fps3d.remote].filter(Boolean).forEach((item) => fps3d.scene.remove(item));
+  fps3d.bots = [];
+  fps3d.walls = [];
+  fps3d.remote = null;
+}
+
+async function setupFps3d() {
+  if (fps3d.ready || fps3d.loading || fps3d.failed) return;
+  fps3d.loading = true;
+  setStatus("Loading FPS");
+  try {
+    const THREE = await loadThree();
+    fps3d.THREE = THREE;
+    const renderer = get3dRenderer();
+    renderer.setClearColor(0x07090f, 1);
+
+    const scene = new THREE.Scene();
+    scene.fog = new THREE.Fog(0x07090f, 12, 64);
+    const camera = new THREE.PerspectiveCamera(72, 16 / 9, 0.1, 90);
+
+    const ambient = new THREE.HemisphereLight(0x7aa7ff, 0x07090f, 0.58);
+    scene.add(ambient);
+    const arenaLight = new THREE.SpotLight(0xfff0a0, 520, 50, Math.PI / 4.6, 0.45, 1);
+    arenaLight.position.set(0, 16, 0);
+    arenaLight.castShadow = true;
+    scene.add(arenaLight);
+    scene.add(arenaLight.target);
+
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(34, 34, 20, 20),
+      new THREE.MeshStandardMaterial({ color: 0x101a31, roughness: 0.72, metalness: 0.08 })
+    );
+    floor.rotation.x = -Math.PI / 2;
+    floor.receiveShadow = true;
+    scene.add(floor);
+
+    const gridMat = new THREE.MeshBasicMaterial({ color: 0x25c7d9, transparent: true, opacity: 0.18 });
+    for (let i = -16; i <= 16; i += 4) {
+      const a = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.035, 32), gridMat);
+      a.position.set(i, 0.03, 0);
+      scene.add(a);
+      const b = new THREE.Mesh(new THREE.BoxGeometry(32, 0.035, 0.04), gridMat);
+      b.position.set(0, 0.03, i);
+      scene.add(b);
+    }
+
+    const wallMat = new THREE.MeshStandardMaterial({ color: 0x26345c, roughness: 0.58, metalness: 0.1 });
+    [[0, -16, 34, 1], [0, 16, 34, 1], [-16, 0, 1, 34], [16, 0, 1, 34]].forEach(([x, z, w, d]) => {
+      const wall = new THREE.Mesh(new THREE.BoxGeometry(w, 3.4, d), wallMat);
+      wall.position.set(x, 1.7, z);
+      wall.castShadow = true;
+      wall.receiveShadow = true;
+      scene.add(wall);
+      fps3d.walls.push(wall);
+    });
+
+    const rig = new THREE.Object3D();
+    rig.position.set(0, 1.45, 10);
+    scene.add(rig);
+    rig.add(camera);
+
+    const muzzle = new THREE.Mesh(
+      new THREE.BoxGeometry(0.18, 0.16, 0.8),
+      new THREE.MeshStandardMaterial({ color: 0xffd23f, emissive: 0x3b2d00, roughness: 0.4 })
+    );
+    muzzle.position.set(0.42, -0.34, -0.78);
+    camera.add(muzzle);
+
+    fps3d.renderer = renderer;
+    fps3d.scene = scene;
+    fps3d.camera = camera;
+    fps3d.playerRig = rig;
+    fps3d.muzzle = muzzle;
+    fps3d.ready = true;
+    fps3d.loading = false;
+    resize3d();
+    games["arena-fps-3d"].draw();
+  } catch {
+    fps3d.failed = true;
+    fps3d.loading = false;
+    setStatus("FPS failed");
+    showMessage("The FPS engine did not load. Refresh and try again.", "3D");
+  }
+}
+
+function makeFpsBot(x, z, color = 0xff5b4a) {
+  const THREE = fps3d.THREE;
+  const bot = new THREE.Group();
+  const body = new THREE.Mesh(
+    new THREE.CapsuleGeometry(0.45, 1.0, 6, 14),
+    new THREE.MeshStandardMaterial({ color, roughness: 0.42, metalness: 0.04 })
+  );
+  body.castShadow = true;
+  bot.add(body);
+  const eye = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.1, 0.08), new THREE.MeshBasicMaterial({ color: 0xfff0a0 }));
+  eye.position.set(0, 0.38, -0.42);
+  bot.add(eye);
+  bot.position.set(x, 0.9, z);
+  bot.userData = { hp: 3, cooldown: rand(0.4, 1.2), strafe: rand(-1, 1) };
+  fps3d.scene.add(bot);
+  return bot;
+}
+
+function showFpsLobby() {
+  messageEl.hidden = false;
+  messageEl.innerHTML = `<div class="fps-lobby">
+    <p class="eyebrow">Arena FPS 3D</p>
+    <h3>Choose Bots or Online Multiplayer</h3>
+    <div class="fps-mode-row">
+      <button type="button" data-fps-mode="bots">Versus Bots</button>
+      <button type="button" data-fps-mode="online">Online Multiplayer</button>
+    </div>
+    <div class="fps-online" ${fps3d.mode === "online" ? "" : "hidden"}>
+      <div class="fps-mode-row">
+        <button type="button" data-fps-host>Make Room Code</button>
+        <button type="button" data-fps-join>Use Code</button>
+        <button type="button" data-fps-answer>Make Answer</button>
+      </div>
+      <textarea id="fpsSignalInput" placeholder="Paste room code or answer here"></textarea>
+      <textarea id="fpsSignalOutput" readonly placeholder="Your room code or answer appears here"></textarea>
+    </div>
+    <p class="fps-note">WASD moves, mouse aims, click or Action fires.</p>
+  </div>`;
+}
+
+function setFpsMode(mode) {
+  fps3d.mode = mode;
+  setStatus(mode === "online" ? "Online" : "Bots");
+  showFpsLobby();
+}
+
+async function createPeer(isHost, remoteOffer = "") {
+  const peer = new RTCPeerConnection({ iceServers: [{ urls: "stun:stun.l.google.com:19302" }] });
+  fps3d.peer?.close();
+  fps3d.peer = peer;
+  fps3d.connected = false;
+  const finishIce = new Promise((resolve) => {
+    if (peer.iceGatheringState === "complete") resolve();
+    peer.addEventListener("icegatheringstatechange", () => {
+      if (peer.iceGatheringState === "complete") resolve();
+    });
+    setTimeout(resolve, 3000);
+  });
+  function attachChannel(channel) {
+    fps3d.channel = channel;
+    channel.addEventListener("open", () => {
+      fps3d.connected = true;
+      setStatus("Online");
+    });
+    channel.addEventListener("message", (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "state") updateRemotePlayer(data);
+      if (data.type === "hit") {
+        arcade.score = Math.max(0, arcade.score - 20);
+        setStatus("Tagged");
+      }
+    });
+  }
+  if (isHost) {
+    attachChannel(peer.createDataChannel("arena"));
+    const offer = await peer.createOffer();
+    await peer.setLocalDescription(offer);
+    await finishIce;
+    return btoa(JSON.stringify(peer.localDescription));
+  }
+  peer.addEventListener("datachannel", (event) => attachChannel(event.channel));
+  await peer.setRemoteDescription(JSON.parse(atob(remoteOffer.trim())));
+  const answer = await peer.createAnswer();
+  await peer.setLocalDescription(answer);
+  await finishIce;
+  return btoa(JSON.stringify(peer.localDescription));
+}
+
+async function acceptPeerAnswer(answer) {
+  if (!fps3d.peer) return;
+  await fps3d.peer.setRemoteDescription(JSON.parse(atob(answer.trim())));
+  setStatus("Connecting");
+}
+
+function updateRemotePlayer(data) {
+  if (!fps3d.ready) return;
+  fps3d.remote ??= makeFpsBot(0, 0, 0x25c7d9);
+  fps3d.remote.position.set(data.x, 0.9, data.z);
+  fps3d.remote.rotation.y = data.yaw;
+}
+
+function sendFpsState(dt) {
+  fps3d.lastNet += dt;
+  if (!fps3d.channel || fps3d.channel.readyState !== "open" || fps3d.lastNet < 0.08) return;
+  fps3d.lastNet = 0;
+  const p = fps3d.playerRig.position;
+  fps3d.channel.send(JSON.stringify({ type: "state", x: p.x, z: p.z, yaw: fps3d.yaw }));
 }
 
 function rand(min, max) {
@@ -319,6 +554,140 @@ function newPiece() {
 }
 
 const games = {
+  "arena-fps-3d": {
+    init() {
+      setStageMode(true);
+      clearFpsScene();
+      arcade.data = {
+        hp: 100,
+        fire: 0,
+        flash: 0,
+        botSpawn: 0,
+        onlineNotice: 0
+      };
+      fps3d.yaw = 0;
+      fps3d.pitch = 0;
+      setupFps3d();
+      if (fps3d.ready) {
+        fps3d.playerRig.position.set(0, 1.45, 10);
+        if (fps3d.mode === "bots") {
+          fps3d.bots = [makeFpsBot(-6, -5), makeFpsBot(4, -7), makeFpsBot(0, -12)];
+        }
+      }
+    },
+    update(dt) {
+      const d = arcade.data;
+      if (!fps3d.ready) {
+        setupFps3d();
+        return;
+      }
+      const rig = fps3d.playerRig;
+      const move = new fps3d.THREE.Vector3();
+      if (arcade.keys.has("up") || arcade.keys.has("p1up")) move.z -= 1;
+      if (arcade.keys.has("down") || arcade.keys.has("p1down")) move.z += 1;
+      if (arcade.keys.has("left")) move.x -= 1;
+      if (arcade.keys.has("right")) move.x += 1;
+      if (move.lengthSq() > 0) {
+        move.normalize().applyAxisAngle(new fps3d.THREE.Vector3(0, 1, 0), fps3d.yaw);
+        rig.position.x += move.x * dt * 7.4;
+        rig.position.z += move.z * dt * 7.4;
+      }
+      rig.position.x = Math.max(-14.5, Math.min(14.5, rig.position.x));
+      rig.position.z = Math.max(-14.5, Math.min(14.5, rig.position.z));
+      fps3d.yaw += ((arcade.keys.has("right") ? -1 : 0) + (arcade.keys.has("left") ? 1 : 0)) * dt * 0.55;
+      rig.rotation.y = fps3d.yaw;
+      fps3d.camera.rotation.x = fps3d.pitch;
+      d.fire -= dt;
+      d.flash = Math.max(0, d.flash - dt * 5);
+      if (consumeTap("action") || consumeTap("shoot")) this.shoot();
+
+      if (fps3d.mode === "bots") {
+        d.botSpawn -= dt;
+        if (d.botSpawn <= 0 && fps3d.bots.length < 5) {
+          fps3d.bots.push(makeFpsBot(rand(-12, 12), rand(-13, -5)));
+          d.botSpawn = rand(2.5, 5);
+        }
+        fps3d.bots.forEach((bot) => this.updateBot(bot, dt));
+      } else {
+        sendFpsState(dt);
+        d.onlineNotice += dt;
+        setStatus(fps3d.connected ? "Online" : "Room code");
+      }
+      fps3d.muzzle.material.emissive.setHex(d.flash > 0 ? 0xffd23f : 0x3b2d00);
+      if (d.hp <= 0) endGame("Tagged out");
+    },
+    updateBot(bot, dt) {
+      const p = fps3d.playerRig.position;
+      const dx = p.x - bot.position.x;
+      const dz = p.z - bot.position.z;
+      const dist = Math.hypot(dx, dz);
+      bot.lookAt(p.x, bot.position.y, p.z);
+      if (dist > 4) {
+        bot.position.x += (dx / dist) * dt * 1.8;
+        bot.position.z += (dz / dist) * dt * 1.8;
+      } else {
+        bot.position.x += Math.cos(performance.now() * 0.001 + bot.userData.strafe) * dt * 1.2;
+      }
+      bot.userData.cooldown -= dt;
+      if (dist < 10 && bot.userData.cooldown <= 0) {
+        arcade.data.hp -= 8;
+        bot.userData.cooldown = rand(0.65, 1.35);
+        setStatus(`${Math.max(0, Math.ceil(arcade.data.hp))} HP`);
+      }
+    },
+    shoot() {
+      const d = arcade.data;
+      if (d.fire > 0 || !fps3d.ready) return;
+      d.fire = 0.18;
+      d.flash = 1;
+      arcade.score += 1;
+      const ray = new fps3d.THREE.Raycaster();
+      ray.setFromCamera(new fps3d.THREE.Vector2(0, 0), fps3d.camera);
+      const targets = fps3d.mode === "bots" ? fps3d.bots : [fps3d.remote].filter(Boolean);
+      const hits = ray.intersectObjects(targets, true);
+      if (!hits.length) {
+        setStatus(fps3d.mode === "online" ? "Miss" : "Fired");
+        return;
+      }
+      let target = hits[0].object;
+      while (target.parent && !targets.includes(target)) target = target.parent;
+      target.userData.hp -= 1;
+      if (fps3d.mode === "online" && fps3d.channel?.readyState === "open") {
+        fps3d.channel.send(JSON.stringify({ type: "hit" }));
+        arcade.score += 25;
+        setStatus("Hit player");
+        return;
+      }
+      if (target.userData.hp <= 0) {
+        fps3d.scene.remove(target);
+        fps3d.bots = fps3d.bots.filter((bot) => bot !== target);
+        arcade.score += 50;
+        setStatus("Bot down");
+      } else {
+        arcade.score += 10;
+        setStatus("Hit");
+      }
+    },
+    draw() {
+      if (!fps3d.ready) return;
+      resize3d();
+      fps3d.renderer.setClearColor(0x07090f, 1);
+      fps3d.renderer.render(fps3d.scene, fps3d.camera);
+      const ctx2d = ctx;
+      ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+    },
+    click() {
+      if (spotlightCanvas.requestPointerLock && arcade.running) {
+        try {
+          const lock = spotlightCanvas.requestPointerLock();
+          lock?.catch?.(() => {});
+        } catch {
+          // Some headless browsers do not allow pointer lock.
+        }
+      }
+      arcade.taps.add("shoot");
+    }
+  },
   "spotlight-dash-3d": {
     init() {
       setStageMode(true);
@@ -858,7 +1227,7 @@ const games = {
 function selectGame(id) {
   arcade.id = id;
   arcade.running = false;
-  setStageMode(id === "spotlight-dash-3d");
+  setStageMode(is3dGame(id));
   arcade.score = 0;
   arcade.best = Number(localStorage.getItem(bestKey(id)) || 0);
   arcade.keys.clear();
@@ -869,13 +1238,14 @@ function selectGame(id) {
   setStatus("Ready");
   games[id].init();
   games[id].draw();
-  showMessage(`${gameTitles[id]} is selected. Press Start.`);
+  if (id === "arena-fps-3d") showFpsLobby();
+  else showMessage(`${gameTitles[id]} is selected. Press Start.`);
   picker.querySelectorAll("button").forEach((button) => button.classList.toggle("selected", button.dataset.game === id));
 }
 
 function startGame() {
   arcade.running = true;
-  setStageMode(arcade.id === "spotlight-dash-3d");
+  setStageMode(is3dGame(arcade.id));
   arcade.score = 0;
   arcade.last = performance.now();
   arcade.keys.clear();
@@ -930,7 +1300,38 @@ actionButton.addEventListener("pointerdown", () => {
 actionButton.addEventListener("pointerup", () => arcade.keys.delete("action"));
 actionButton.addEventListener("pointerleave", () => arcade.keys.delete("action"));
 canvas.addEventListener("click", (event) => games[arcade.id].click?.(canvasPoint(event).x, canvasPoint(event).y));
+spotlightCanvas.addEventListener("click", (event) => games[arcade.id].click?.(event));
+messageEl.addEventListener("click", async (event) => {
+  const button = event.target.closest("button");
+  if (!button || arcade.id !== "arena-fps-3d") return;
+  const input = document.getElementById("fpsSignalInput");
+  const output = document.getElementById("fpsSignalOutput");
+  try {
+    if (button.dataset.fpsMode) setFpsMode(button.dataset.fpsMode);
+    if (button.hasAttribute("data-fps-host")) {
+      fps3d.mode = "online";
+      setStatus("Making room");
+      output.value = await createPeer(true);
+    }
+    if (button.hasAttribute("data-fps-join")) {
+      fps3d.mode = "online";
+      setStatus("Joining");
+      output.value = await createPeer(false, input.value);
+    }
+    if (button.hasAttribute("data-fps-answer")) {
+      await acceptPeerAnswer(input.value);
+      output.value = "Connected. Press Start.";
+    }
+  } catch {
+    setStatus("Code error");
+  }
+});
 window.addEventListener("resize", resize3d);
+document.addEventListener("mousemove", (event) => {
+  if (document.pointerLockElement !== spotlightCanvas || arcade.id !== "arena-fps-3d") return;
+  fps3d.yaw -= event.movementX * 0.0025;
+  fps3d.pitch = Math.max(-1.05, Math.min(1.05, fps3d.pitch - event.movementY * 0.002));
+});
 
 window.addEventListener("keydown", (event) => {
   if (event.key === "ArrowLeft") {
@@ -992,4 +1393,4 @@ window.addEventListener("keyup", (event) => {
   if (event.key === " " || event.key === "Enter") arcade.keys.delete("action");
 });
 
-selectGame("spotlight-dash-3d");
+selectGame("arena-fps-3d");
