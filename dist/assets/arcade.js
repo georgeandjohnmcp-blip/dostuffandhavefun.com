@@ -23,7 +23,7 @@ const scoreEl = document.getElementById("score");
 const bestEl = document.getElementById("best");
 const statusEl = document.getElementById("status");
 const messageEl = document.getElementById("gameMessage");
-const picker = document.getElementById("gamePicker");
+const gamePickers = document.querySelectorAll("[data-game-picker]");
 const startButton = document.getElementById("startButton");
 const leftButton = document.getElementById("leftButton");
 const rightButton = document.getElementById("rightButton");
@@ -2624,7 +2624,7 @@ function selectGame(id) {
   games[id].draw();
   if (id === "arena-fps-3d") showFpsLobby();
   else showMessage(`${gameTitles[id]} is selected. Press Start.`);
-  picker.querySelectorAll("button").forEach((button) => button.classList.toggle("selected", button.dataset.game === id));
+  document.querySelectorAll("button[data-game]").forEach((button) => button.classList.toggle("selected", button.dataset.game === id));
 }
 
 function startGame() {
@@ -2661,9 +2661,11 @@ function canvasPoint(event) {
   };
 }
 
-picker.addEventListener("click", (event) => {
-  const button = event.target.closest("button[data-game]");
-  if (button) selectGame(button.dataset.game);
+gamePickers.forEach((picker) => {
+  picker.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-game]");
+    if (button) selectGame(button.dataset.game);
+  });
 });
 
 startButton.addEventListener("click", startGame);

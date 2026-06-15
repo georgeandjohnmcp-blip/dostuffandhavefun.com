@@ -582,6 +582,14 @@ h3 {
   background: rgba(255, 255, 255, 0.42);
 }
 
+.laggy-games-section {
+  background:
+    linear-gradient(135deg, rgba(255, 210, 63, 0.32), rgba(37, 199, 217, 0.18)),
+    rgba(255, 255, 255, 0.54);
+  border-top: 5px solid rgba(16, 35, 63, 0.1);
+  border-bottom: 5px solid rgba(16, 35, 63, 0.1);
+}
+
 .ten-game-grid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
