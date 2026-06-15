@@ -26,7 +26,7 @@ export const games = [
     id: "sky-platformer-3d",
     title: "Sky Platformer 3D",
     label: "Jump",
-    description: "A 3D platform run with floating islands, coins, lava, and a finish gate.",
+    description: "A 20-level 3D platform run with floating islands, coins, lava, and finish gates.",
     controls: "Left/Right, Action jump"
   },
   {

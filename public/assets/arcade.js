@@ -477,24 +477,62 @@ function addPlatformHazard(x, width) {
   platform3d.hazards.push({ x, width, mesh });
 }
 
-function buildPlatformLevel() {
-  const THREE = platform3d.THREE;
-  clearPlatformScene();
-  [
-    [-9, 0, 7.2],
-    [-1.6, 1.15, 3.6],
-    [3.8, 2.18, 3.2],
-    [8.6, 1.18, 3.2],
-    [13.7, 2.7, 3.3],
-    [19.4, 1.55, 4.0],
-    [25.4, 2.18, 4.7],
-    [30, 1.5, 4.2]
-  ].forEach(([x, top, width], index) => addPlatformBlock(x, top, width, index % 2 ? 0x2968e8 : 0x25c7d9));
+function platformLevelData(level = 1) {
+  const safeLevel = Math.max(1, Math.min(20, level));
+  const count = 7 + Math.floor(safeLevel / 3);
+  const startX = -9;
+  const platforms = [[startX, 0, 7.2]];
+  let x = startX;
+  let top = 0;
+  for (let i = 1; i < count; i += 1) {
+    const gap = 4.2 + (safeLevel % 4) * 0.23 + (i % 3) * 0.2;
+    x += gap;
+    top += Math.sin((safeLevel + i) * 1.15) * 0.86 + (i % 2 ? 0.35 : -0.22);
+    top = Math.max(0.55, Math.min(3.35, top));
+    const width = Math.max(2.65, 4.05 - safeLevel * 0.035 - (i % 3) * 0.18);
+    platforms.push([x, top, width]);
+  }
+  const finishX = x + 4.2;
+  const finishTop = Math.max(0.9, Math.min(3.0, top + Math.sin(safeLevel) * 0.45));
+  platforms.push([finishX, finishTop, 4.6]);
 
-  [[-2, 2.05], [3.8, 3.15], [8.7, 2.12], [13.6, 3.68], [19.5, 2.48], [24.4, 3.1], [27.1, 3.1]].forEach(([x, y]) => addPlatformCoin(x, y));
-  addPlatformHazard(5.8, 3.4);
-  addPlatformHazard(16.4, 3.2);
-  addPlatformHazard(22.5, 2.2);
+  const coins = platforms.slice(1, -1).map(([coinX, coinTop], index) => [
+    coinX + (index % 2 ? 0.58 : -0.58),
+    coinTop + 1.05 + ((safeLevel + index) % 2) * 0.16
+  ]);
+  const hazards = [];
+  for (let i = 1; i < platforms.length - 1; i += 2) {
+    if (safeLevel < 3 && i > 3) continue;
+    const left = platforms[i - 1];
+    const right = platforms[i];
+    const gapCenter = (left[0] + right[0]) / 2;
+    const gapWidth = Math.max(1.25, right[0] - left[0] - left[2] * 0.42 - right[2] * 0.42);
+    hazards.push([gapCenter, Math.min(3.6, gapWidth + 0.55)]);
+  }
+
+  return {
+    level: safeLevel,
+    platforms,
+    coins,
+    hazards,
+    startX,
+    startY: 0.65,
+    goalX: finishX,
+    goalY: finishTop + 1.5,
+    coinTotal: coins.length
+  };
+}
+
+function buildPlatformLevel(level = 1) {
+  const THREE = platform3d.THREE;
+  const layout = platformLevelData(level);
+  clearPlatformScene();
+  layout.platforms.forEach(([x, top, width], index) => {
+    const colors = [0x25c7d9, 0x2968e8, 0x8d5cff, 0x7bd629];
+    addPlatformBlock(x, top, width, colors[(index + level) % colors.length]);
+  });
+  layout.coins.forEach(([x, y]) => addPlatformCoin(x, y));
+  layout.hazards.forEach(([x, width]) => addPlatformHazard(x, width));
 
   const goal = new THREE.Group();
   const postMat = new THREE.MeshStandardMaterial({ color: 0x8d5cff, roughness: 0.35, metalness: 0.12 });
@@ -508,9 +546,10 @@ function buildPlatformLevel() {
   const top = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.22, 0.2), topMat);
   top.position.set(0, 2.65, 0);
   goal.add(top);
-  goal.position.set(29.5, 1.5, 0);
+  goal.position.set(layout.goalX, layout.goalY, 0);
   platform3d.scene.add(goal);
   platform3d.goal = goal;
+  return layout;
 }
 
 async function setupPlatform3d() {
@@ -566,7 +605,7 @@ async function setupPlatform3d() {
 
     platform3d.ready = true;
     platform3d.loading = false;
-    buildPlatformLevel();
+    buildPlatformLevel(1);
     resize3d();
     games["sky-platformer-3d"].draw();
   } catch {
@@ -1517,23 +1556,52 @@ const games = {
     init() {
       setStageMode(true);
       arcade.data = {
+        level: 1,
         x: -8.6,
         y: 0.65,
         vy: 0,
         grounded: false,
         coins: 0,
+        coinTotal: 0,
         jumps: 0,
         time: 0,
         respawnX: -8.6,
         respawnY: 0.65,
+        goalX: 29.5,
         won: false
       };
       if (platform3d.ready) {
-        buildPlatformLevel();
+        const layout = buildPlatformLevel(arcade.data.level);
+        arcade.data.x = layout.startX;
+        arcade.data.y = layout.startY;
+        arcade.data.respawnX = layout.startX;
+        arcade.data.respawnY = layout.startY;
+        arcade.data.goalX = layout.goalX;
+        arcade.data.coinTotal = layout.coinTotal;
         platform3d.player.position.set(arcade.data.x, arcade.data.y, 0);
         platform3d.player.rotation.set(0, 0, 0);
       }
       setupPlatform3d();
+    },
+    loadLevel(level) {
+      const d = arcade.data;
+      const layout = buildPlatformLevel(level);
+      d.level = layout.level;
+      d.x = layout.startX;
+      d.y = layout.startY;
+      d.vy = 0;
+      d.grounded = false;
+      d.coins = 0;
+      d.coinTotal = layout.coinTotal;
+      d.respawnX = layout.startX;
+      d.respawnY = layout.startY;
+      d.goalX = layout.goalX;
+      d.won = false;
+      if (platform3d.player) {
+        platform3d.player.position.set(d.x, d.y, 0);
+        platform3d.player.rotation.set(0, 0, 0);
+      }
+      setStatus(`Level ${d.level}/20`);
     },
     respawn() {
       const d = arcade.data;
@@ -1549,6 +1617,7 @@ const games = {
         setupPlatform3d();
         return;
       }
+      if (!d.coinTotal) this.loadLevel(d.level || 1);
       d.time += dt;
       const move = (arcade.keys.has("right") ? 1 : 0) - (arcade.keys.has("left") ? 1 : 0);
       d.x += move * dt * 6.2;
@@ -1588,7 +1657,7 @@ const games = {
           coin.mesh.visible = false;
           d.coins += 1;
           arcade.score += 25;
-          setStatus(`${d.coins}/7 coins`);
+          setStatus(`L${d.level} ${d.coins}/${d.coinTotal}`);
         }
       });
 
@@ -1601,15 +1670,24 @@ const games = {
       if (platform3d.goal) platform3d.goal.rotation.y = Math.sin(d.time * 1.7) * 0.08;
 
       arcade.score += dt * 2;
-      if (!d.won && d.x > 29.0 && d.y > 1.2) {
+      if (!d.won && d.x > d.goalX - 0.65 && d.y > 0.85) {
         d.won = true;
         arcade.score += 100 + d.coins * 15;
-        endGame("Gate clear");
+        if (d.level >= 20) {
+          endGame("All 20 clear");
+        } else {
+          const nextLevel = d.level + 1;
+          this.loadLevel(nextLevel);
+          showMessage(`Level ${nextLevel}. Keep going.`, "Gate clear");
+          window.setTimeout(() => {
+            if (arcade.running && arcade.id === "sky-platformer-3d") hideMessage();
+          }, 900);
+        }
         return;
       }
       if (!d.grounded && d.vy > 0) setStatus("Jump");
       else if (!d.grounded) setStatus("Fall");
-      else setStatus(`${d.coins}/7 coins`);
+      else setStatus(`L${d.level} ${d.coins}/${d.coinTotal}`);
     },
     draw() {
       if (!platform3d.ready) return;

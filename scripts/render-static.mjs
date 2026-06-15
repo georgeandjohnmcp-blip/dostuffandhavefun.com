@@ -43,7 +43,7 @@ function htmlShell(body) {
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <link rel="canonical" href="https://dostuffandhavefun.com/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/assets/global.css?v=platformer3d-20260615" />
+    <link rel="stylesheet" href="/assets/global.css?v=platformer20-20260615" />
     <meta property="og:title" content="Do Stuff & Have Fun Games" />
     <meta property="og:description" content="${esc(description)}" />
     <meta property="og:type" content="website" />
@@ -56,7 +56,7 @@ function htmlShell(body) {
   </head>
   <body class="game-site">
     ${body}
-    <script type="module" src="/assets/arcade.js?v=platformer3d-20260615"></script>
+    <script type="module" src="/assets/arcade.js?v=platformer20-20260615"></script>
   </body>
 </html>
 `;
