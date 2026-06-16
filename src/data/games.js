@@ -103,7 +103,7 @@ export const games = [
     id: "night-watch",
     title: "Night Watch",
     label: "Horror",
-    description: "A dark security-camera survival game with doors, power, and wandering night bots.",
+    description: "A spooky 3D security-camera survival game with doors, power, and original animatronic-style mascots.",
     controls: "Left/Right cameras, Action door"
   },
   {

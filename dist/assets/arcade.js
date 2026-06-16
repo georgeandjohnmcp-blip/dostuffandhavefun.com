@@ -38,7 +38,7 @@ const green = "#7bd629";
 const blue = "#2968e8";
 const purple = "#8d5cff";
 const pieceColors = [aqua, yellow, coral, green, blue, purple];
-const threeGameIds = new Set(["turbo-racer-3d", "arena-fps-3d", "spotlight-dash-3d", "sky-platformer-3d", "block-builder-3d"]);
+const threeGameIds = new Set(["turbo-racer-3d", "arena-fps-3d", "spotlight-dash-3d", "sky-platformer-3d", "block-builder-3d", "night-watch"]);
 
 const gameTitles = {
   "turbo-racer-3d": "Turbo Racer 3D",
@@ -168,6 +168,23 @@ const block3d = {
   materials: {}
 };
 
+const nightWatch3d = {
+  ready: false,
+  loading: false,
+  failed: false,
+  THREE: null,
+  renderer: null,
+  scene: null,
+  camera: null,
+  officeDoor: null,
+  powerBar: null,
+  staticPanels: [],
+  monitors: [],
+  bots: [],
+  warningLight: null,
+  objects: []
+};
+
 function setStageMode(is3d) {
   canvas.hidden = is3d;
   spotlightCanvas.hidden = !is3d;
@@ -246,7 +263,7 @@ function resize3d() {
   const width = Math.max(1, spotlightCanvas.clientWidth);
   const height = Math.max(1, spotlightCanvas.clientHeight);
   if (shared3dRenderer) shared3dRenderer.setSize(width, height, false);
-  for (const camera of [spotlight3d.camera, fps3d.camera, racing3d.camera, platform3d.camera, block3d.camera]) {
+  for (const camera of [spotlight3d.camera, fps3d.camera, racing3d.camera, platform3d.camera, block3d.camera, nightWatch3d.camera]) {
     if (!camera) continue;
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
@@ -1244,6 +1261,279 @@ function showHitMarker(hit = false) {
   showHitMarker.timer = window.setTimeout(() => {
     marker.classList.remove("active", "miss");
   }, 160);
+}
+
+function clearNightWatchScene() {
+  if (!nightWatch3d.scene) return;
+  [...nightWatch3d.objects, ...nightWatch3d.bots].forEach((item) => nightWatch3d.scene.remove(item));
+  nightWatch3d.objects = [];
+  nightWatch3d.bots = [];
+}
+
+function makeNightWatchAnimatronic(color = 0xff5b4a, accent = 0xffd23f, style = 0) {
+  const THREE = nightWatch3d.THREE;
+  const robot = new THREE.Group();
+  const suitMat = new THREE.MeshStandardMaterial({ color, roughness: 0.58, metalness: 0.12 });
+  const darkMat = new THREE.MeshStandardMaterial({ color: 0x111827, roughness: 0.44, metalness: 0.28 });
+  const accentMat = new THREE.MeshStandardMaterial({ color: accent, emissive: 0x221600, roughness: 0.4 });
+  const eyeMat = new THREE.MeshBasicMaterial({ color: 0xfff0a0 });
+  const toothMat = new THREE.MeshBasicMaterial({ color: 0xfff7db });
+
+  const body = new THREE.Mesh(new THREE.BoxGeometry(1.25, 1.55, 0.72), suitMat);
+  body.position.y = 1.05;
+  body.castShadow = true;
+  robot.add(body);
+  const belly = new THREE.Mesh(new THREE.SphereGeometry(0.52, 22, 14), accentMat);
+  belly.scale.set(1, 0.72, 0.28);
+  belly.position.set(0, 1.05, 0.4);
+  robot.add(belly);
+
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.58, 26, 18), suitMat);
+  head.scale.set(1, 0.88, 0.92);
+  head.position.y = 2.05;
+  head.castShadow = true;
+  robot.add(head);
+  const muzzle = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.34, 0.34), accentMat);
+  muzzle.position.set(0, 1.9, 0.5);
+  muzzle.castShadow = true;
+  robot.add(muzzle);
+  [-0.22, 0.22].forEach((x) => {
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.085, 12, 8), eyeMat);
+    eye.position.set(x, 2.13, 0.53);
+    robot.add(eye);
+    const brow = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.06, 0.06), darkMat);
+    brow.position.set(x, 2.27, 0.5);
+    brow.rotation.z = x < 0 ? -0.45 : 0.45;
+    robot.add(brow);
+  });
+  for (let i = -2; i <= 2; i += 1) {
+    const tooth = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.12, 0.04), toothMat);
+    tooth.position.set(i * 0.09, 1.77, 0.69);
+    robot.add(tooth);
+  }
+  const snarl = new THREE.Mesh(new THREE.BoxGeometry(0.72, 0.045, 0.05), darkMat);
+  snarl.position.set(0, 1.72, 0.72);
+  robot.add(snarl);
+  const bowLeft = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.28, 3), accentMat);
+  bowLeft.position.set(-0.17, 1.58, 0.5);
+  bowLeft.rotation.z = Math.PI / 2;
+  bowLeft.rotation.y = Math.PI / 2;
+  robot.add(bowLeft);
+  const bowRight = bowLeft.clone();
+  bowRight.position.x = 0.17;
+  bowRight.rotation.z = -Math.PI / 2;
+  robot.add(bowRight);
+  const bowKnot = new THREE.Mesh(new THREE.SphereGeometry(0.08, 10, 8), darkMat);
+  bowKnot.position.set(0, 1.58, 0.5);
+  robot.add(bowKnot);
+
+  if (style === 1) {
+    [-0.32, 0.32].forEach((x) => {
+      const ear = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.18, 0.78, 14), suitMat);
+      ear.position.set(x, 2.62, 0.02);
+      ear.rotation.z = x < 0 ? -0.18 : 0.18;
+      robot.add(ear);
+    });
+  } else {
+    [-0.34, 0.34].forEach((x) => {
+      const ear = new THREE.Mesh(new THREE.SphereGeometry(0.2, 16, 10), suitMat);
+      ear.scale.set(1, style === 2 ? 1.55 : 1, 0.7);
+      ear.position.set(x, 2.52, 0.05);
+      robot.add(ear);
+    });
+  }
+  if (style === 0) {
+    const hatBrim = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.34, 0.08, 20), darkMat);
+    hatBrim.position.set(0, 2.55, 0.02);
+    robot.add(hatBrim);
+    const hatTop = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.26, 0.34, 20), darkMat);
+    hatTop.position.set(0, 2.78, 0.02);
+    robot.add(hatTop);
+  }
+
+  [-0.78, 0.78].forEach((x) => {
+    const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.18, 1.25, 14), suitMat);
+    arm.position.set(x, 1.05, 0.05);
+    arm.rotation.z = x < 0 ? 0.18 : -0.18;
+    arm.castShadow = true;
+    robot.add(arm);
+    const claw = new THREE.Mesh(new THREE.SphereGeometry(0.18, 14, 10), darkMat);
+    claw.position.set(x, 0.36, 0.18);
+    robot.add(claw);
+  });
+  [-0.34, 0.34].forEach((x) => {
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 1.05, 14), suitMat);
+    leg.position.set(x, 0.23, 0);
+    leg.castShadow = true;
+    robot.add(leg);
+  });
+  robot.userData.eyeMat = eyeMat;
+  return robot;
+}
+
+async function setupNightWatch3d() {
+  if (nightWatch3d.ready || nightWatch3d.loading || nightWatch3d.failed) return;
+  nightWatch3d.loading = true;
+  setStatus("Loading horror");
+  try {
+    const THREE = await loadThree();
+    nightWatch3d.THREE = THREE;
+    fps3d.THREE = THREE;
+    const renderer = get3dRenderer();
+    renderer.setClearColor(0x050710, 1);
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x050710);
+    scene.fog = new THREE.Fog(0x050710, 8, 34);
+    const camera = new THREE.PerspectiveCamera(62, 16 / 9, 0.1, 80);
+    camera.position.set(0, 2.6, 7.8);
+    camera.lookAt(0, 1.6, 0);
+
+    scene.add(new THREE.HemisphereLight(0x3b4d80, 0x050710, 0.34));
+    const officeLight = new THREE.SpotLight(0xffd23f, 95, 15, Math.PI / 5, 0.6, 1.1);
+    officeLight.position.set(0, 5.8, 5.2);
+    officeLight.target.position.set(0, 1, 0);
+    scene.add(officeLight);
+    scene.add(officeLight.target);
+    const warningLight = new THREE.PointLight(0xff5b4a, 0, 10);
+    warningLight.position.set(0, 2.4, 2.2);
+    scene.add(warningLight);
+
+    const floorMat = new THREE.MeshStandardMaterial({ color: 0x141827, roughness: 0.82 });
+    const wallMat = new THREE.MeshStandardMaterial({ color: 0x20283c, roughness: 0.74 });
+    const trimMat = new THREE.MeshStandardMaterial({ color: 0xffd23f, emissive: 0x3d2c00, roughness: 0.4 });
+    const darkMat = new THREE.MeshStandardMaterial({ color: 0x0b0f1e, roughness: 0.7 });
+
+    const floor = new THREE.Mesh(new THREE.PlaneGeometry(24, 28), floorMat);
+    floor.rotation.x = -Math.PI / 2;
+    floor.position.z = -4;
+    floor.receiveShadow = true;
+    scene.add(floor);
+    nightWatch3d.objects.push(floor);
+    [
+      [0, 2.8, -15, 24, 5.6, 0.35],
+      [-12, 2.8, -4, 0.35, 5.6, 22],
+      [12, 2.8, -4, 0.35, 5.6, 22]
+    ].forEach(([x, y, z, w, h, d]) => {
+      const wall = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat);
+      wall.position.set(x, y, z);
+      wall.receiveShadow = true;
+      scene.add(wall);
+      nightWatch3d.objects.push(wall);
+    });
+
+    const desk = new THREE.Mesh(new THREE.BoxGeometry(5.8, 0.52, 1.3), darkMat);
+    desk.position.set(0, 0.78, 3.15);
+    desk.castShadow = true;
+    scene.add(desk);
+    nightWatch3d.objects.push(desk);
+    const powerBar = new THREE.Mesh(new THREE.BoxGeometry(2.6, 0.16, 0.08), new THREE.MeshBasicMaterial({ color: 0xffd23f }));
+    powerBar.position.set(-1.3, 1.18, 3.85);
+    scene.add(powerBar);
+
+    const door = new THREE.Mesh(new THREE.BoxGeometry(2.25, 3.9, 0.22), new THREE.MeshStandardMaterial({ color: 0xff5b4a, roughness: 0.46, metalness: 0.12 }));
+    door.position.set(8.7, 2.25, 1.2);
+    door.castShadow = true;
+    scene.add(door);
+    const doorFrame = new THREE.Mesh(new THREE.BoxGeometry(2.65, 4.3, 0.18), trimMat);
+    doorFrame.position.set(8.7, 2.1, 1.36);
+    scene.add(doorFrame);
+    nightWatch3d.objects.push(doorFrame);
+
+    const rooms = [
+      [-5.2, 1.85, -10.6, "DINING"],
+      [4.8, 1.85, -10.8, "STORAGE"],
+      [0, 1.85, -6.5, "HALL"],
+      [7.6, 1.85, 0.2, "DOOR"]
+    ];
+    rooms.forEach(([x, y, z, label], index) => {
+      const platform = new THREE.Mesh(new THREE.BoxGeometry(4.2, 0.22, 2.4), new THREE.MeshStandardMaterial({ color: index === 3 ? 0x34466f : 0x26345c, roughness: 0.68 }));
+      platform.position.set(x, 0.12, z);
+      scene.add(platform);
+      nightWatch3d.objects.push(platform);
+      const sign = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.24, 0.1), trimMat);
+      sign.position.set(x, y + 1.45, z + 1.25);
+      scene.add(sign);
+      nightWatch3d.objects.push(sign);
+    });
+
+    const monitors = [];
+    [-1.9, 0, 1.9].forEach((x, index) => {
+      const monitor = new THREE.Mesh(new THREE.BoxGeometry(1.34, 0.82, 0.12), new THREE.MeshBasicMaterial({ color: index === 0 ? 0x25c7d9 : 0x17213b }));
+      monitor.position.set(x, 1.45, 3.78);
+      scene.add(monitor);
+      monitors.push(monitor);
+    });
+
+    const bots = [
+      makeNightWatchAnimatronic(0x8d5cff, 0xffd23f, 0),
+      makeNightWatchAnimatronic(0xff5b4a, 0x25c7d9, 1),
+      makeNightWatchAnimatronic(0x7bd629, 0xffd23f, 2)
+    ];
+    bots.forEach((bot) => {
+      bot.scale.setScalar(0.9);
+      scene.add(bot);
+    });
+
+    nightWatch3d.renderer = renderer;
+    nightWatch3d.scene = scene;
+    nightWatch3d.camera = camera;
+    nightWatch3d.officeDoor = door;
+    nightWatch3d.powerBar = powerBar;
+    nightWatch3d.warningLight = warningLight;
+    nightWatch3d.monitors = monitors;
+    nightWatch3d.bots = bots;
+    nightWatch3d.ready = true;
+    nightWatch3d.loading = false;
+    resize3d();
+    updateNightWatch3d();
+  } catch (error) {
+    console.error("Night Watch 3D failed", error);
+    nightWatch3d.failed = true;
+    nightWatch3d.loading = false;
+    setStatus("Horror failed");
+    showMessage("The 3D horror game did not load. Refresh and try again.", "3D");
+  }
+}
+
+function updateNightWatch3d() {
+  if (!nightWatch3d.ready) return;
+  const d = arcade.data || {};
+  const THREE = nightWatch3d.THREE;
+  const roomPositions = [
+    [-5.2, 0, -10.6],
+    [4.8, 0, -10.8],
+    [0, 0, -6.5],
+    [7.6, 0, 0.2]
+  ];
+  const cameraViews = [
+    { pos: [-5.2, 2.4, -5.8], look: [-5.2, 1.3, -10.8] },
+    { pos: [4.8, 2.35, -6.2], look: [4.8, 1.2, -10.8] },
+    { pos: [0, 2.4, 1.4], look: [0, 1.4, -7.2] },
+    { pos: [2.2, 2.2, 4.4], look: [7.6, 1.5, 0.3] }
+  ];
+  const view = d.camera === undefined ? cameraViews[2] : cameraViews[d.camera];
+  nightWatch3d.camera.position.set(...view.pos);
+  nightWatch3d.camera.lookAt(...view.look);
+  nightWatch3d.officeDoor.position.y += ((d.doorClosed ? 2.15 : 4.25) - nightWatch3d.officeDoor.position.y) * 0.2;
+  nightWatch3d.powerBar.scale.x = Math.max(0.03, (d.power ?? 100) / 100);
+  nightWatch3d.powerBar.position.x = -1.3 - (1 - nightWatch3d.powerBar.scale.x) * 1.3;
+  nightWatch3d.warningLight.intensity = d.bots?.some((bot) => bot.pos >= 3) ? 42 + Math.sin(performance.now() * 0.014) * 16 : 0;
+  nightWatch3d.monitors.forEach((monitor, index) => {
+    monitor.material.color.setHex(index === (d.camera ?? 0) % 3 ? 0x25c7d9 : 0x17213b);
+  });
+  (d.bots || []).forEach((botData, index) => {
+    const bot = nightWatch3d.bots[index];
+    if (!bot) return;
+    const room = roomPositions[Math.min(3, botData.pos || 0)];
+    const offset = (index - 1) * 1.25;
+    const bob = Math.sin((performance.now() * 0.002) + index) * 0.08;
+    bot.position.set(room[0] + offset, 0.02 + bob, room[2] + (index % 2) * 0.45);
+    bot.rotation.y = botData.pos >= 3 ? -Math.PI / 2 : 0;
+    const pulse = botData.pos >= 2 ? 0xfff0a0 : 0xffd23f;
+    bot.userData.eyeMat?.color.setHex(pulse);
+  });
+  nightWatch3d.renderer.render(nightWatch3d.scene, nightWatch3d.camera);
 }
 
 function showFpsLobby() {
@@ -2510,6 +2800,7 @@ const games = {
   },
   "night-watch": {
     init() {
+      setStageMode(true);
       arcade.data = {
         time: 0,
         hour: 12,
@@ -2520,16 +2811,21 @@ const games = {
         scare: 0,
         static: 0,
         bots: [
-          { name: "Patch", pos: 0, timer: 1.9, color: coral },
-          { name: "Clank", pos: 0, timer: 2.7, color: purple },
-          { name: "Moss", pos: 0, timer: 3.5, color: green }
+          { name: "Patch", pos: 0, timer: 7.5, color: coral },
+          { name: "Clank", pos: 0, timer: 9.25, color: purple },
+          { name: "Moss", pos: 0, timer: 11, color: green }
         ],
         cams: ["Dining", "Storage", "Hall", "Door"]
       };
       setStatus("12 AM");
+      setupNightWatch3d();
     },
     update(dt) {
       const d = arcade.data;
+      if (!nightWatch3d.ready) {
+        setupNightWatch3d();
+        return;
+      }
       if (consumeTap("left")) d.camera = (d.camera + d.cams.length - 1) % d.cams.length;
       if (consumeTap("right")) d.camera = (d.camera + 1) % d.cams.length;
       if (consumeTap("action")) d.doorClosed = !d.doorClosed;
@@ -2542,13 +2838,13 @@ const games = {
       d.static = Math.max(0, d.static - dt * 2);
 
       d.bots.forEach((bot, index) => {
-        bot.timer -= dt * (1 + d.time * 0.008 + index * 0.12);
+        bot.timer -= dt * (0.72 + d.time * 0.004 + index * 0.08);
         if (bot.timer > 0) return;
-        bot.timer = rand(2.2, 5.4) - Math.min(1.7, d.time * 0.018);
-        if (bot.pos < 3 && Math.random() > 0.28) {
+        bot.timer = Math.max(3.8, rand(6.5, 11) - Math.min(2.1, d.time * 0.01));
+        if (bot.pos < 3 && Math.random() > 0.52) {
           bot.pos += 1;
           d.static = 1;
-        } else if (bot.pos > 0 && Math.random() > 0.72) {
+        } else if (bot.pos > 0 && Math.random() > 0.84) {
           bot.pos -= 1;
         }
         if (bot.pos >= 3) {
@@ -2572,6 +2868,7 @@ const games = {
       }
       if (phase >= 6) endGame("6 AM");
       else setStatus(`${d.hour} AM`);
+      updateNightWatch3d();
     },
     drawBotFace(x, y, size, color, angry = false) {
       ctx.fillStyle = color;
@@ -2600,70 +2897,12 @@ const games = {
       ctx.stroke();
     },
     draw() {
-      const d = arcade.data;
-      ctx.fillStyle = "#050710";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#0d1324";
-      ctx.fillRect(34, 48, 610, 390);
-      ctx.strokeStyle = "#ffd23f";
-      ctx.lineWidth = 5;
-      ctx.strokeRect(34, 48, 610, 390);
-
-      ctx.fillStyle = "#111827";
-      ctx.fillRect(70, 90, 530, 300);
-      ctx.strokeStyle = "rgba(255,255,255,0.2)";
-      ctx.lineWidth = 2;
-      for (let y = 112; y < 390; y += 30) {
-        ctx.beginPath();
-        ctx.moveTo(70, y);
-        ctx.lineTo(600, y);
-        ctx.stroke();
+      if (!nightWatch3d.ready) {
+        setupNightWatch3d();
+        return;
       }
-      for (let x = 100; x < 600; x += 50) {
-        ctx.beginPath();
-        ctx.moveTo(x, 90);
-        ctx.lineTo(x, 390);
-        ctx.stroke();
-      }
-
-      const camBots = d.bots.filter((bot) => bot.pos === d.camera);
-      if (camBots.length) {
-        camBots.forEach((bot, index) => this.drawBotFace(210 + index * 150, 232 + Math.sin(d.time * 5 + index) * 12, 92, bot.color, true));
-      } else {
-        text("CAM CLEAR", 240, 252, 32);
-      }
-      if (d.static > 0) {
-        ctx.fillStyle = `rgba(255,255,255,${0.1 + d.static * 0.18})`;
-        for (let y = 94; y < 386; y += 12) ctx.fillRect(72, y, 526, 4);
-      }
-
-      ctx.fillStyle = "#fffaf0";
-      ctx.font = "900 24px system-ui, sans-serif";
-      ctx.fillText(`CAM ${d.camera + 1}: ${d.cams[d.camera]}`, 62, 76);
-      ctx.fillText(`${d.hour} AM`, 516, 76);
-
-      ctx.fillStyle = "#17213b";
-      ctx.fillRect(680, 62, 230, 360);
-      ctx.strokeStyle = ink;
-      ctx.lineWidth = 5;
-      ctx.strokeRect(680, 62, 230, 360);
-      ctx.fillStyle = d.doorClosed ? coral : green;
-      ctx.fillRect(716, d.doorClosed ? 106 : 286, 158, d.doorClosed ? 260 : 80);
-      ctx.strokeRect(716, 106, 158, 260);
-      ctx.fillStyle = "#fffaf0";
-      ctx.font = "900 22px system-ui, sans-serif";
-      ctx.fillText(d.doorClosed ? "DOOR SHUT" : "DOOR OPEN", 708, 398);
-      ctx.fillText("Action toggles door", 690, 448);
-      ctx.fillText("Left/Right cameras", 690, 478);
-
-      const doorBot = d.bots.find((bot) => bot.pos >= 3);
-      if (doorBot && !d.doorClosed) this.drawBotFace(796, 238, 116, doorBot.color, true);
-
-      block(60, 466, 350, 22, "rgba(255,255,255,0.9)", 8);
-      ctx.fillStyle = d.power < 24 ? coral : yellow;
-      ctx.fillRect(65, 471, 340 * (d.power / 100), 12);
-      text(`POWER ${Math.ceil(d.power)}%`, 60, 530, 24);
-      text("Survive until 6 AM", 522, 530, 24);
+      resize3d();
+      updateNightWatch3d();
     }
   },
   "neon-cube-dash": {
