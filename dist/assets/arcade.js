@@ -1639,6 +1639,14 @@ function setStatus(text) {
   statusEl.textContent = text;
 }
 
+function updateActionLabel() {
+  if (arcade.id === "night-watch" && arcade.data?.doorClosed !== undefined) {
+    actionButton.textContent = arcade.data.doorClosed ? "Open Door" : "Close Door";
+    return;
+  }
+  actionButton.textContent = "Action";
+}
+
 function syncScore() {
   scoreEl.textContent = Math.floor(arcade.score);
   arcade.best = Math.max(arcade.best, Math.floor(arcade.score));
@@ -2807,6 +2815,7 @@ const games = {
         power: 100,
         camera: 0,
         doorClosed: false,
+        doorNotice: 0,
         light: 0,
         scare: 0,
         static: 0,
@@ -2818,7 +2827,17 @@ const games = {
         cams: ["Dining", "Storage", "Hall", "Door"]
       };
       setStatus("12 AM");
+      updateActionLabel();
       setupNightWatch3d();
+    },
+    toggleDoor() {
+      const d = arcade.data;
+      d.doorClosed = !d.doorClosed;
+      d.camera = 3;
+      d.doorNotice = 1.4;
+      updateActionLabel();
+      setStatus(d.doorClosed ? "Door shut" : "Door open");
+      updateNightWatch3d();
     },
     update(dt) {
       const d = arcade.data;
@@ -2828,12 +2847,13 @@ const games = {
       }
       if (consumeTap("left")) d.camera = (d.camera + d.cams.length - 1) % d.cams.length;
       if (consumeTap("right")) d.camera = (d.camera + 1) % d.cams.length;
-      if (consumeTap("action")) d.doorClosed = !d.doorClosed;
+      if (consumeTap("action")) this.toggleDoor();
 
       d.time += dt;
       const phase = Math.min(6, Math.floor(d.time / 18));
       d.hour = phase === 0 ? 12 : phase;
       d.power -= dt * (0.8 + (d.doorClosed ? 2.6 : 0) + (d.camera === 3 ? 0.35 : 0));
+      d.doorNotice = Math.max(0, d.doorNotice - dt);
       d.light = Math.max(0, d.light - dt);
       d.static = Math.max(0, d.static - dt * 2);
 
@@ -2864,9 +2884,11 @@ const games = {
       if (d.power <= 0) {
         d.power = 0;
         d.doorClosed = false;
+        updateActionLabel();
         if (d.bots.some((bot) => bot.pos >= 2)) endGame("Power out");
       }
       if (phase >= 6) endGame("6 AM");
+      else if (d.doorNotice > 0) setStatus(d.doorClosed ? "Door shut" : "Door open");
       else setStatus(`${d.hour} AM`);
       updateNightWatch3d();
     },
@@ -2903,6 +2925,10 @@ const games = {
       }
       resize3d();
       updateNightWatch3d();
+    },
+    click() {
+      if (!arcade.running) return;
+      this.toggleDoor();
     }
   },
   "neon-cube-dash": {
@@ -3160,6 +3186,7 @@ function selectGame(id) {
   setStatus("Ready");
   games[id].init();
   games[id].draw();
+  updateActionLabel();
   if (id === "arena-fps-3d") showFpsLobby();
   else showMessage(`${gameTitles[id]} is selected. Press Start.`);
   document.querySelectorAll("button[data-game]").forEach((button) => button.classList.toggle("selected", button.dataset.game === id));
@@ -3176,6 +3203,7 @@ function startGame() {
   arcade.taps.clear();
   setStatus("Play");
   games[arcade.id].init();
+  updateActionLabel();
   hideMessage();
   syncScore();
   requestAnimationFrame(loop);

@@ -52,7 +52,7 @@ function htmlShell(body) {
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <link rel="canonical" href="https://dostuffandhavefun.com/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/assets/global.css?v=night-watch-3d-slower-20260616" />
+    <link rel="stylesheet" href="/assets/global.css?v=night-watch-door-20260616" />
     <meta property="og:title" content="Do Stuff & Have Fun Games" />
     <meta property="og:description" content="${esc(description)}" />
     <meta property="og:type" content="website" />
@@ -65,7 +65,7 @@ function htmlShell(body) {
   </head>
   <body class="game-site">
     ${body}
-    <script type="module" src="/assets/arcade.js?v=night-watch-3d-slower-20260616"></script>
+    <script type="module" src="/assets/arcade.js?v=night-watch-door-20260616"></script>
   </body>
 </html>
 `;
