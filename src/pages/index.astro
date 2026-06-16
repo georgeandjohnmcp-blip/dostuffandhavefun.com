@@ -7,8 +7,10 @@ const pageTitle = "Welcome to Have Fun and Do Stuff | 3D Racing, FPS, and Arcade
 const pageDescription = "A browser arcade led by 3D racing, block-building, platforming, first-person shooting, rhythm dash games, and more quick games.";
 const featuredGameId = "turbo-racer-3d";
 const featuredGame = games.find((game) => game.id === featuredGameId) ?? games[0];
+const threeDGameIds = new Set(["turbo-racer-3d", "arena-fps-3d", "spotlight-dash-3d", "sky-platformer-3d", "block-builder-3d"]);
+const threeDGames = games.filter((game) => threeDGameIds.has(game.id));
 const laggyGames = games.filter((game) => game.id === "neon-cube-dash");
-const regularGames = games.filter((game) => game.id !== "neon-cube-dash");
+const regularGames = games.filter((game) => game.id !== "neon-cube-dash" && !threeDGameIds.has(game.id));
 const schema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
@@ -52,6 +54,7 @@ const schema = {
       </a>
       <nav aria-label="Main navigation">
         <a href="#play">Play</a>
+        <a href="#three-d-games">3-D</a>
         <a href="#laggy-games">Laggy</a>
         <a href="#games">Games</a>
       </nav>
@@ -114,6 +117,24 @@ const schema = {
         </div>
       </section>
 
+      <section id="three-d-games" class="section games-list-section three-d-games-section">
+        <div class="section-heading">
+          <p class="eyebrow">3-D games</p>
+          <h2>3-D games</h2>
+          <p>Racing, shooting, platforming, spotlight running, and first-person block building.</p>
+        </div>
+        <div class="ten-game-grid" data-game-picker>
+          {threeDGames.map((game) => (
+            <button class={game.id === featuredGameId ? "selected" : ""} type="button" data-game={game.id}>
+              <span>{game.label}</span>
+              <strong>{game.title}</strong>
+              <em>{game.description}</em>
+              <small>{game.controls}</small>
+            </button>
+          ))}
+        </div>
+      </section>
+
       <section id="laggy-games" class="section games-list-section laggy-games-section">
         <div class="section-heading">
           <p class="eyebrow">Laggy games</p>
@@ -136,11 +157,11 @@ const schema = {
         <div class="section-heading">
           <p class="eyebrow">Game shelf</p>
           <h2>{regularGames.length} games</h2>
-          <p>A 3D racer, a 3D block builder, a 3D platformer, quick arcade classics, and one EPICMAPPING link.</p>
+          <p>Quick arcade games that load fast and are easy to jump into.</p>
         </div>
         <div class="ten-game-grid" data-game-picker>
           {regularGames.map((game) => (
-            <button class={game.id === featuredGameId ? "selected" : ""} type="button" data-game={game.id}>
+            <button type="button" data-game={game.id}>
               <span>{game.label}</span>
               <strong>{game.title}</strong>
               <em>{game.description}</em>
@@ -156,6 +177,6 @@ const schema = {
       <a href={epicMappingUrl}>EPICMAPPING on YouTube</a>
     </footer>
 
-    <script type="module" src="/assets/arcade.js?v=front-facing-bot-guns-20260615"></script>
+    <script type="module" src="/assets/arcade.js?v=3d-games-section-20260615"></script>
   </body>
 </html>
