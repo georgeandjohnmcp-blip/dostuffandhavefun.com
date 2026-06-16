@@ -11,8 +11,9 @@ const featuredGameId = "turbo-racer-3d";
 const featuredGame = games.find((game) => game.id === featuredGameId) ?? games[0];
 const threeDGameIds = new Set(["turbo-racer-3d", "arena-fps-3d", "spotlight-dash-3d", "sky-platformer-3d", "block-builder-3d"]);
 const threeDGames = games.filter((game) => threeDGameIds.has(game.id));
-const laggyGames = games.filter((game) => game.id === "neon-cube-dash");
-const regularGames = games.filter((game) => game.id !== "neon-cube-dash" && !threeDGameIds.has(game.id));
+const laggyGameIds = new Set(["neon-cube-dash", "stack-jump", "two-player-pong"]);
+const laggyGames = games.filter((game) => laggyGameIds.has(game.id));
+const regularGames = games.filter((game) => !laggyGameIds.has(game.id) && !threeDGameIds.has(game.id));
 
 function esc(value = "") {
   return String(value)
@@ -49,7 +50,7 @@ function htmlShell(body) {
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <link rel="canonical" href="https://dostuffandhavefun.com/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/assets/global.css?v=3d-games-section-20260615" />
+    <link rel="stylesheet" href="/assets/global.css?v=laggy-stacker-pong-20260615" />
     <meta property="og:title" content="Do Stuff & Have Fun Games" />
     <meta property="og:description" content="${esc(description)}" />
     <meta property="og:type" content="website" />
@@ -62,7 +63,7 @@ function htmlShell(body) {
   </head>
   <body class="game-site">
     ${body}
-    <script type="module" src="/assets/arcade.js?v=3d-games-section-20260615"></script>
+    <script type="module" src="/assets/arcade.js?v=laggy-stacker-pong-20260615"></script>
   </body>
 </html>
 `;
