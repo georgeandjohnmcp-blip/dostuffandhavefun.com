@@ -23,6 +23,11 @@ const scoreEl = document.getElementById("score");
 const bestEl = document.getElementById("best");
 const statusEl = document.getElementById("status");
 const messageEl = document.getElementById("gameMessage");
+const jumpscareOverlay = document.createElement("div");
+jumpscareOverlay.className = "jumpscare-overlay";
+jumpscareOverlay.hidden = true;
+jumpscareOverlay.setAttribute("aria-live", "assertive");
+messageEl.after(jumpscareOverlay);
 const gamePickers = document.querySelectorAll("[data-game-picker]");
 const startButton = document.getElementById("startButton");
 const leftButton = document.getElementById("leftButton");
@@ -1663,6 +1668,28 @@ function hideMessage() {
   messageEl.hidden = true;
 }
 
+function clearNightWatchJumpscare() {
+  jumpscareOverlay.hidden = true;
+  jumpscareOverlay.classList.remove("is-live");
+}
+
+function triggerNightWatchJumpscare(bot = {}) {
+  const scareColor = bot.color || coral;
+  jumpscareOverlay.style.setProperty("--scare-color", scareColor);
+  jumpscareOverlay.innerHTML = `<div class="jumpscare-static" aria-hidden="true"></div>
+    <div class="jumpscare-face">
+      <div class="jumpscare-ears"><span></span><span></span></div>
+      <div class="jumpscare-eyes"><span></span><span></span></div>
+      <div class="jumpscare-brows"><span></span><span></span></div>
+      <div class="jumpscare-mouth">${Array.from({ length: 8 }, () => "<span></span>").join("")}</div>
+    </div>
+    <strong>${bot.name || "Night bot"} got in</strong>`;
+  jumpscareOverlay.hidden = false;
+  jumpscareOverlay.classList.remove("is-live");
+  void jumpscareOverlay.offsetWidth;
+  jumpscareOverlay.classList.add("is-live");
+}
+
 function clear() {
   ctx.fillStyle = paper;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -2189,6 +2216,7 @@ const games = {
   "sky-platformer-3d": {
     init() {
       setStageMode(true);
+      clearNightWatchJumpscare();
       arcade.data = {
         level: 1,
         x: -8.6,
@@ -2858,6 +2886,7 @@ const games = {
       d.static = Math.max(0, d.static - dt * 2);
 
       d.bots.forEach((bot, index) => {
+        if (!arcade.running) return;
         bot.timer -= dt * (0.72 + d.time * 0.004 + index * 0.08);
         if (bot.timer > 0) return;
         bot.timer = Math.max(3.8, rand(6.5, 11) - Math.min(2.1, d.time * 0.01));
@@ -2875,6 +2904,9 @@ const games = {
             setStatus("Blocked");
           } else {
             d.scare = 1;
+            d.camera = 3;
+            triggerNightWatchJumpscare(bot);
+            updateNightWatch3d();
             endGame(`${bot.name} got in`);
           }
         }
@@ -2885,7 +2917,14 @@ const games = {
         d.power = 0;
         d.doorClosed = false;
         updateActionLabel();
-        if (d.bots.some((bot) => bot.pos >= 2)) endGame("Power out");
+        const closeBot = d.bots.find((bot) => bot.pos >= 2);
+        if (closeBot) {
+          closeBot.pos = 3;
+          d.camera = 3;
+          triggerNightWatchJumpscare(closeBot);
+          updateNightWatch3d();
+          endGame("Power out");
+        }
       }
       if (phase >= 6) endGame("6 AM");
       else if (d.doorNotice > 0) setStatus(d.doorClosed ? "Door shut" : "Door open");

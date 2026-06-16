@@ -354,6 +354,170 @@ h3 {
   display: none;
 }
 
+.jumpscare-overlay {
+  --scare-color: #ff5b4a;
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(255, 210, 63, 0.26), transparent 20%),
+    linear-gradient(145deg, rgba(255, 91, 74, 0.5), rgba(5, 7, 16, 0.98) 46%, #050710);
+  color: #fffaf0;
+  font-weight: 1000;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.jumpscare-overlay[hidden] {
+  display: none;
+}
+
+.jumpscare-overlay.is-live {
+  animation: scare-flash 0.82s steps(2, end) both;
+}
+
+.jumpscare-static {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.1) 0 2px, transparent 2px 7px),
+    repeating-linear-gradient(90deg, transparent 0 14px, rgba(255, 210, 63, 0.12) 14px 16px);
+  mix-blend-mode: screen;
+  opacity: 0.42;
+}
+
+.jumpscare-face {
+  position: relative;
+  width: min(56vw, 430px);
+  aspect-ratio: 1 / 0.86;
+  border: 8px solid #050710;
+  border-radius: 28% 28% 34% 34%;
+  background:
+    radial-gradient(circle at 34% 38%, rgba(255, 255, 255, 0.16), transparent 14%),
+    linear-gradient(160deg, var(--scare-color), #391019);
+  box-shadow: 0 0 0 10px rgba(255, 250, 240, 0.12), 0 0 48px rgba(255, 91, 74, 0.62);
+  transform: scale(0.2) translateY(28%);
+  animation: scare-lunge 0.82s cubic-bezier(0.2, 1.1, 0.12, 1) both;
+}
+
+.jumpscare-ears span {
+  position: absolute;
+  top: -20%;
+  width: 24%;
+  height: 34%;
+  border: 7px solid #050710;
+  border-radius: 48% 48% 24% 24%;
+  background: var(--scare-color);
+}
+
+.jumpscare-ears span:first-child {
+  left: 14%;
+  transform: rotate(-12deg);
+}
+
+.jumpscare-ears span:last-child {
+  right: 14%;
+  transform: rotate(12deg);
+}
+
+.jumpscare-eyes span {
+  position: absolute;
+  top: 34%;
+  width: 14%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #ffd23f;
+  box-shadow: 0 0 24px #ffd23f;
+}
+
+.jumpscare-eyes span:first-child {
+  left: 27%;
+}
+
+.jumpscare-eyes span:last-child {
+  right: 27%;
+}
+
+.jumpscare-brows span {
+  position: absolute;
+  top: 27%;
+  width: 22%;
+  height: 7%;
+  background: #050710;
+}
+
+.jumpscare-brows span:first-child {
+  left: 21%;
+  transform: rotate(18deg);
+}
+
+.jumpscare-brows span:last-child {
+  right: 21%;
+  transform: rotate(-18deg);
+}
+
+.jumpscare-mouth {
+  position: absolute;
+  left: 24%;
+  right: 24%;
+  bottom: 20%;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 3px;
+  padding: 8px;
+  border: 7px solid #050710;
+  background: #050710;
+}
+
+.jumpscare-mouth span {
+  height: clamp(22px, 5vw, 44px);
+  background: #fffaf0;
+}
+
+.jumpscare-overlay strong {
+  position: absolute;
+  left: 5%;
+  right: 5%;
+  bottom: 8%;
+  text-align: center;
+  font-size: clamp(1.2rem, 4vw, 3rem);
+  color: #ffd23f;
+  text-shadow: 4px 4px 0 #050710;
+}
+
+@keyframes scare-lunge {
+  0% {
+    transform: scale(0.16) translateY(34%) rotate(-2deg);
+  }
+
+  58% {
+    transform: scale(1.18) translateY(0) rotate(2deg);
+  }
+
+  100% {
+    transform: scale(1.02) translateY(0) rotate(0);
+  }
+}
+
+@keyframes scare-flash {
+  0%,
+  18%,
+  42%,
+  72% {
+    filter: brightness(1.8) contrast(1.4);
+  }
+
+  9%,
+  31%,
+  58%,
+  100% {
+    filter: brightness(0.9) contrast(1.15);
+  }
+}
+
 .fps-hud {
   position: absolute;
   left: clamp(0.65rem, 2vw, 1rem);
