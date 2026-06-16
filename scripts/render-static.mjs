@@ -13,7 +13,9 @@ const threeDGameIds = new Set(["turbo-racer-3d", "arena-fps-3d", "spotlight-dash
 const threeDGames = games.filter((game) => threeDGameIds.has(game.id));
 const laggyGameIds = new Set(["neon-cube-dash", "stack-jump", "two-player-pong"]);
 const laggyGames = games.filter((game) => laggyGameIds.has(game.id));
-const regularGames = games.filter((game) => !laggyGameIds.has(game.id) && !threeDGameIds.has(game.id));
+const horrorGameIds = new Set(["night-watch"]);
+const horrorGames = games.filter((game) => horrorGameIds.has(game.id));
+const regularGames = games.filter((game) => !laggyGameIds.has(game.id) && !threeDGameIds.has(game.id) && !horrorGameIds.has(game.id));
 
 function esc(value = "") {
   return String(value)
@@ -50,7 +52,7 @@ function htmlShell(body) {
     <meta name="robots" content="index, follow, max-image-preview:large" />
     <link rel="canonical" href="https://dostuffandhavefun.com/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="stylesheet" href="/assets/global.css?v=laggy-stacker-pong-20260615" />
+    <link rel="stylesheet" href="/assets/global.css?v=horror-night-watch-20260616" />
     <meta property="og:title" content="Do Stuff & Have Fun Games" />
     <meta property="og:description" content="${esc(description)}" />
     <meta property="og:type" content="website" />
@@ -63,7 +65,7 @@ function htmlShell(body) {
   </head>
   <body class="game-site">
     ${body}
-    <script type="module" src="/assets/arcade.js?v=laggy-stacker-pong-20260615"></script>
+    <script type="module" src="/assets/arcade.js?v=horror-night-watch-20260616"></script>
   </body>
 </html>
 `;
@@ -81,7 +83,7 @@ function renderGameButtons(items, selectedId = "") {
 async function renderHome() {
   const body = `<header class="topbar arcade-topbar" aria-label="Site header">
       <a class="brand wordmark" href="/" aria-label="Have Fun and Do Stuff home"><span>Welcome to</span><strong>Have Fun and Do Stuff</strong></a>
-      <nav aria-label="Main navigation"><a href="#play">Play</a><a href="#three-d-games">3-D</a><a href="#laggy-games">Laggy</a><a href="#games">Games</a></nav>
+      <nav aria-label="Main navigation"><a href="#play">Play</a><a href="#three-d-games">3-D</a><a href="#horror-games">Horror</a><a href="#laggy-games">Laggy</a><a href="#games">Games</a></nav>
     </header>
     <main>
       <section class="games-hero">
@@ -101,6 +103,7 @@ async function renderHome() {
         </div>
       </section>
       <section id="three-d-games" class="section games-list-section three-d-games-section"><div class="section-heading"><p class="eyebrow">3-D games</p><h2>3-D games</h2><p>Racing, shooting, platforming, spotlight running, and first-person block building.</p></div><div class="ten-game-grid" data-game-picker>${renderGameButtons(threeDGames, featuredGameId)}</div></section>
+      <section id="horror-games" class="section games-list-section horror-games-section"><div class="section-heading"><p class="eyebrow">Horror games</p><h2>Horror games</h2><p>Dark camera games with power, doors, and things moving around after midnight.</p></div><div class="ten-game-grid" data-game-picker>${renderGameButtons(horrorGames)}</div></section>
       <section id="laggy-games" class="section games-list-section laggy-games-section"><div class="section-heading"><p class="eyebrow">Laggy games</p><h2>Laggy games</h2><p>Fast, flashy games that may run heavier on some computers.</p></div><div class="ten-game-grid" data-game-picker>${renderGameButtons(laggyGames)}</div></section>
       <section id="games" class="section games-list-section"><div class="section-heading"><p class="eyebrow">Game shelf</p><h2>${regularGames.length} games</h2><p>Quick arcade games that load fast and are easy to jump into.</p></div><div class="ten-game-grid" data-game-picker>${renderGameButtons(regularGames)}</div></section>
     </main>

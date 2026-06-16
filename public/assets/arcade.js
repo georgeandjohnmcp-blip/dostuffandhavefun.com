@@ -54,6 +54,7 @@ const gameTitles = {
   "asteroid-drift": "Asteroid Drift",
   "invader-blast": "Invader Blast",
   "maze-run": "Maze Run",
+  "night-watch": "Night Watch",
   "neon-cube-dash": "Neon Cube Dash",
   "stack-jump": "Stack Jump",
   "target-pop": "Target Pop"
@@ -2505,6 +2506,164 @@ const games = {
       block(d.goal.x, d.goal.y, d.goal.w, d.goal.h, green);
       d.walls.forEach((wall) => block(wall.x, wall.y, wall.w, wall.h, coral, 4));
       block(d.player.x, d.player.y, d.player.w, d.player.h, aqua, 6);
+    }
+  },
+  "night-watch": {
+    init() {
+      arcade.data = {
+        time: 0,
+        hour: 12,
+        power: 100,
+        camera: 0,
+        doorClosed: false,
+        light: 0,
+        scare: 0,
+        static: 0,
+        bots: [
+          { name: "Patch", pos: 0, timer: 1.9, color: coral },
+          { name: "Clank", pos: 0, timer: 2.7, color: purple },
+          { name: "Moss", pos: 0, timer: 3.5, color: green }
+        ],
+        cams: ["Dining", "Storage", "Hall", "Door"]
+      };
+      setStatus("12 AM");
+    },
+    update(dt) {
+      const d = arcade.data;
+      if (consumeTap("left")) d.camera = (d.camera + d.cams.length - 1) % d.cams.length;
+      if (consumeTap("right")) d.camera = (d.camera + 1) % d.cams.length;
+      if (consumeTap("action")) d.doorClosed = !d.doorClosed;
+
+      d.time += dt;
+      const phase = Math.min(6, Math.floor(d.time / 18));
+      d.hour = phase === 0 ? 12 : phase;
+      d.power -= dt * (0.8 + (d.doorClosed ? 2.6 : 0) + (d.camera === 3 ? 0.35 : 0));
+      d.light = Math.max(0, d.light - dt);
+      d.static = Math.max(0, d.static - dt * 2);
+
+      d.bots.forEach((bot, index) => {
+        bot.timer -= dt * (1 + d.time * 0.008 + index * 0.12);
+        if (bot.timer > 0) return;
+        bot.timer = rand(2.2, 5.4) - Math.min(1.7, d.time * 0.018);
+        if (bot.pos < 3 && Math.random() > 0.28) {
+          bot.pos += 1;
+          d.static = 1;
+        } else if (bot.pos > 0 && Math.random() > 0.72) {
+          bot.pos -= 1;
+        }
+        if (bot.pos >= 3) {
+          if (d.doorClosed) {
+            bot.pos = Math.max(0, Math.floor(rand(0, 2)));
+            arcade.score += 40;
+            d.power = Math.max(0, d.power - 5);
+            setStatus("Blocked");
+          } else {
+            d.scare = 1;
+            endGame(`${bot.name} got in`);
+          }
+        }
+      });
+
+      arcade.score += dt * 5;
+      if (d.power <= 0) {
+        d.power = 0;
+        d.doorClosed = false;
+        if (d.bots.some((bot) => bot.pos >= 2)) endGame("Power out");
+      }
+      if (phase >= 6) endGame("6 AM");
+      else setStatus(`${d.hour} AM`);
+    },
+    drawBotFace(x, y, size, color, angry = false) {
+      ctx.fillStyle = color;
+      ctx.strokeStyle = "#fffaf0";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.roundRect(x - size / 2, y - size / 2, size, size, 12);
+      ctx.fill();
+      ctx.stroke();
+      ctx.fillStyle = yellow;
+      ctx.beginPath();
+      ctx.arc(x - size * 0.18, y - size * 0.08, size * 0.09, 0, Math.PI * 2);
+      ctx.arc(x + size * 0.18, y - size * 0.08, size * 0.09, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = ink;
+      ctx.lineWidth = 5;
+      ctx.beginPath();
+      ctx.moveTo(x - size * 0.3, y - size * 0.22);
+      ctx.lineTo(x - size * 0.06, y - (angry ? size * 0.08 : size * 0.2));
+      ctx.moveTo(x + size * 0.3, y - size * 0.22);
+      ctx.lineTo(x + size * 0.06, y - (angry ? size * 0.08 : size * 0.2));
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x - size * 0.22, y + size * 0.22);
+      ctx.lineTo(x + size * 0.22, y + size * 0.22);
+      ctx.stroke();
+    },
+    draw() {
+      const d = arcade.data;
+      ctx.fillStyle = "#050710";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#0d1324";
+      ctx.fillRect(34, 48, 610, 390);
+      ctx.strokeStyle = "#ffd23f";
+      ctx.lineWidth = 5;
+      ctx.strokeRect(34, 48, 610, 390);
+
+      ctx.fillStyle = "#111827";
+      ctx.fillRect(70, 90, 530, 300);
+      ctx.strokeStyle = "rgba(255,255,255,0.2)";
+      ctx.lineWidth = 2;
+      for (let y = 112; y < 390; y += 30) {
+        ctx.beginPath();
+        ctx.moveTo(70, y);
+        ctx.lineTo(600, y);
+        ctx.stroke();
+      }
+      for (let x = 100; x < 600; x += 50) {
+        ctx.beginPath();
+        ctx.moveTo(x, 90);
+        ctx.lineTo(x, 390);
+        ctx.stroke();
+      }
+
+      const camBots = d.bots.filter((bot) => bot.pos === d.camera);
+      if (camBots.length) {
+        camBots.forEach((bot, index) => this.drawBotFace(210 + index * 150, 232 + Math.sin(d.time * 5 + index) * 12, 92, bot.color, true));
+      } else {
+        text("CAM CLEAR", 240, 252, 32);
+      }
+      if (d.static > 0) {
+        ctx.fillStyle = `rgba(255,255,255,${0.1 + d.static * 0.18})`;
+        for (let y = 94; y < 386; y += 12) ctx.fillRect(72, y, 526, 4);
+      }
+
+      ctx.fillStyle = "#fffaf0";
+      ctx.font = "900 24px system-ui, sans-serif";
+      ctx.fillText(`CAM ${d.camera + 1}: ${d.cams[d.camera]}`, 62, 76);
+      ctx.fillText(`${d.hour} AM`, 516, 76);
+
+      ctx.fillStyle = "#17213b";
+      ctx.fillRect(680, 62, 230, 360);
+      ctx.strokeStyle = ink;
+      ctx.lineWidth = 5;
+      ctx.strokeRect(680, 62, 230, 360);
+      ctx.fillStyle = d.doorClosed ? coral : green;
+      ctx.fillRect(716, d.doorClosed ? 106 : 286, 158, d.doorClosed ? 260 : 80);
+      ctx.strokeRect(716, 106, 158, 260);
+      ctx.fillStyle = "#fffaf0";
+      ctx.font = "900 22px system-ui, sans-serif";
+      ctx.fillText(d.doorClosed ? "DOOR SHUT" : "DOOR OPEN", 708, 398);
+      ctx.fillText("Action toggles door", 690, 448);
+      ctx.fillText("Left/Right cameras", 690, 478);
+
+      const doorBot = d.bots.find((bot) => bot.pos >= 3);
+      if (doorBot && !d.doorClosed) this.drawBotFace(796, 238, 116, doorBot.color, true);
+
+      block(60, 466, 350, 22, "rgba(255,255,255,0.9)", 8);
+      ctx.fillStyle = d.power < 24 ? coral : yellow;
+      ctx.fillRect(65, 471, 340 * (d.power / 100), 12);
+      text(`POWER ${Math.ceil(d.power)}%`, 60, 530, 24);
+      text("Survive until 6 AM", 522, 530, 24);
     }
   },
   "neon-cube-dash": {

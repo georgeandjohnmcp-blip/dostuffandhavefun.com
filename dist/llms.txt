@@ -1,6 +1,6 @@
 # Welcome to Have Fun and Do Stuff
 
-Have Fun and Do Stuff is a 16-game browser arcade led by 3D racing, block-building, platforming, first-person shooting, rhythm dash games, and classic arcade games. The site has one YouTube link: https://www.youtube.com/@EPICMAPPING023
+Have Fun and Do Stuff is a 17-game browser arcade led by 3D racing, block-building, platforming, first-person shooting, rhythm dash games, and classic arcade games. The site has one YouTube link: https://www.youtube.com/@EPICMAPPING023
 
 Main page:
 - https://dostuffandhavefun.com/
@@ -20,5 +20,6 @@ Games:
 - Asteroid Drift: Pilot through drifting rocks and stay alive.
 - Invader Blast: Slide, shoot, and knock down the invader row.
 - Maze Run: Reach the exit without touching walls.
+- Night Watch: A dark security-camera survival game with doors, power, and wandering night bots.
 - Stack Jump: Jump over blocks and keep running.
 - Target Pop: Click targets before the timer runs out.

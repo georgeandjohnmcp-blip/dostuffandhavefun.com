@@ -100,6 +100,13 @@ export const games = [
     controls: "Arrow keys or buttons"
   },
   {
+    id: "night-watch",
+    title: "Night Watch",
+    label: "Horror",
+    description: "A dark security-camera survival game with doors, power, and wandering night bots.",
+    controls: "Left/Right cameras, Action door"
+  },
+  {
     id: "stack-jump",
     title: "Stack Jump",
     label: "Jump",
